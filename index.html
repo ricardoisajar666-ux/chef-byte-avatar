@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chef Byte - Mascota Virtual</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);min-height:100vh;overflow:hidden}
+
+.mascot{position:fixed;width:180px;height:260px;z-index:100;cursor:grab;user-select:none;transition:filter .3s}
+.mascot:active{cursor:grabbing}
+.mascot:hover{filter:drop-shadow(0 0 25px rgba(255,182,193,.7))}
+
+.mascot.idle{animation:mascotIdle 3s ease-in-out infinite}
+@keyframes mascotIdle{0%,100%{transform:translateY(0) rotate(0)}33%{transform:translateY(-10px) rotate(1deg)}66%{transform:translateY(-4px) rotate(-1deg)}}
+
+.mascot.walking{animation:mascotWalk .5s ease-in-out infinite}
+@keyframes mascotWalk{0%,100%{transform:translateY(0) rotate(-2deg)}25%{transform:translateY(-18px) rotate(3deg)}50%{transform:translateY(-4px) rotate(-1deg)}75%{transform:translateY(-22px) rotate(2deg)}}
+
+.mascot.excited{animation:mascotExcited .25s ease infinite}
+@keyframes mascotExcited{0%,100%{transform:rotate(-4deg) scale(1)}50%{transform:rotate(4deg) scale(1.06)}}
+
+.mascot.bounce{animation:mascotBounce .5s ease}
+@keyframes mascotBounce{0%,100%{transform:scale(1)}50%{transform:scale(1.2) rotate(6deg)}}
+
+.mascot.sleeping{animation:mascotSleep 2.5s ease-in-out infinite}
+@keyframes mascotSleep{0%,100%{transform:translateY(0) rotate(-3deg);filter:brightness(.75)}50%{transform:translateY(6px) rotate(3deg);filter:brightness(.65)}}
+
+/* Pastel */
+.cake-base{position:absolute;width:160px;height:85px;background:linear-gradient(180deg,#f5a623,#d4840f);border-radius:18px;bottom:20px;left:50%;transform:translateX(-50%);box-shadow:0 10px 30px rgba(0,0,0,.5),inset 0 -6px 12px rgba(0,0,0,.2)}
+.cake-mid{position:absolute;width:145px;height:50px;background:linear-gradient(180deg,#fff5e6,#ffd4a4);border-radius:14px;bottom:100px;left:50%;transform:translateX(-50%);box-shadow:0 6px 18px rgba(0,0,0,.3),inset 0 4px 10px rgba(255,255,255,.6)}
+.cake-top{position:absolute;width:125px;height:42px;background:linear-gradient(180deg,#ffb6c1,#ff7088);border-radius:13px;bottom:145px;left:50%;transform:translateX(-50%);box-shadow:0 5px 14px rgba(0,0,0,.3),inset 0 3px 8px rgba(255,255,255,.5)}
+
+.drip{position:absolute;width:14px;background:linear-gradient(180deg,#fff,#ffe4e1);border-radius:0 0 8px 8px;bottom:140px}
+.d1{left:42px;height:24px}.d2{left:62px;height:32px}.d3{right:62px;height:20px}.d4{right:42px;height:28px}
+
+.cherry{position:absolute;width:22px;height:22px;background:radial-gradient(circle at 35% 35%,#ff6b6b,#c0392b);border-radius:50%;top:5px;left:50%;transform:translateX(-50%);box-shadow:0 4px 10px rgba(0,0,0,.4);animation:cherryGlow 2s ease-in-out infinite}
+@keyframes cherryGlow{0%,100%{box-shadow:0 4px 10px rgba(0,0,0,.4),0 0 12px rgba(255,107,107,.3)}50%{box-shadow:0 4px 10px rgba(0,0,0,.4),0 0 30px rgba(255,107,107,.8)}}
+.cherry::before{content:'';position:absolute;top:-11px;left:50%;transform:translateX(-50%);width:3px;height:13px;background:#2d5016;border-radius:2px}
+
+/* Brazos */
+.arm{position:absolute;width:38px;height:14px;background:linear-gradient(90deg,#ffb6c1,#ff91a4);border-radius:7px;bottom:75px;z-index:12;transition:transform .3s ease}
+.arm.left{left:-28px;transform-origin:right center;transform:rotate(25deg)}
+.arm.right{right:-28px;transform-origin:left center;transform:rotate(-25deg)}
+.arm.wave{animation:armWave .35s ease infinite}
+@keyframes armWave{0%,100%{transform:rotate(25deg)}50%{transform:rotate(-35deg)}}
+.arm.point{animation:armPoint .7s ease forwards}
+@keyframes armPoint{0%{transform:rotate(-25deg)}100%{transform:rotate(-70deg) translateX(12px)}}
+.arm.hug{animation:armHug .6s ease infinite}
+@keyframes armHug{0%,100%{transform:rotate(25deg)}50%{transform:rotate(60deg)}}
+
+/* Cara - CENTRADA EN EL PASTEL */
+.face{position:absolute;top:15px;left:50%;transform:translateX(-50%);width:100px;height:70px;z-index:15}
+
+.eye{position:absolute;width:26px;height:30px;background:radial-gradient(circle at 30% 30%,#fff,#f0f0f0 50%,#ddd);border-radius:50%;top:5px;box-shadow:inset 0 2px 5px rgba(0,0,0,.1),0 2px 5px rgba(0,0,0,.2);overflow:hidden;transition:transform .15s ease-out}
+.eye.left{left:8px}.eye.right{right:8px}
+.pupil{position:absolute;width:12px;height:16px;background:radial-gradient(circle at 30% 30%,#4a4a4a,#1a1a1a);border-radius:50%;top:7px;left:7px;transition:transform .1s ease-out}
+.pupil::after{content:'';position:absolute;top:2px;left:2px;width:5px;height:5px;background:#fff;border-radius:50%}
+
+.eye.happy{transform:scaleY(.3) translateY(6px)}
+.eye.wink{animation:eyeWink .4s}
+@keyframes eyeWink{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.08)}}
+.eye.surprised{transform:scale(1.35)}
+.eye.closed{height:4px;border-radius:2px;top:16px}
+.eye.closed .pupil{display:none}
+
+.mouth{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:42px;height:18px;background:linear-gradient(180deg,#c0392b,#ff6b6b);border-radius:0 0 21px 21px;box-shadow:inset 0 -3px 5px rgba(0,0,0,.3);transition:all .12s ease-out}
+.mouth.talk{animation:talkAnim .12s ease infinite}
+@keyframes talkAnim{0%,100%{height:18px;width:42px;border-radius:0 0 21px 21px}30%{height:26px;width:34px;border-radius:0 0 16px 16px}60%{height:14px;width:46px;border-radius:0 0 24px 24px}}
+.mouth.smile{height:24px;border-radius:14px 14px 21px 21px;background:linear-gradient(180deg,#ff6b6b,#ff91a4)}
+.mouth.surprised{width:22px;height:22px;border-radius:50%}
+.mouth.sad{border-radius:21px 21px 0 0;bottom:12px}
+.mouth.laugh{animation:mouthLaugh .15s ease infinite}
+@keyframes mouthLaugh{0%,100%{height:20px;width:40px}50%{height:28px;width:35px;border-radius:5px 5px 21px 21px}}
+
+.cheek{position:absolute;width:18px;height:12px;background:rgba(255,140,140,.55);border-radius:50%;top:22px;opacity:0;transition:opacity .25s}
+.cheek.left{left:-3px}.cheek.right{right:-3px}
+.cheek.visible{opacity:1}
+
+/* Humo envolvente para explicaciones */
+.smoke-wrap{position:fixed;z-index:250;pointer-events:none;opacity:0;transition:all .6s cubic-bezier(.68,-.55,.27,1.55)}
+.smoke-wrap.visible{opacity:1}
+.smoke-card{background:rgba(255,255,255,.92);border-radius:20px;padding:20px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.smoke-card::before{content:'';position:absolute;inset:-8px;border-radius:24px;background:linear-gradient(135deg,rgba(255,255,255,.3),rgba(200,200,200,.1));filter:blur(8px);z-index:-1;animation:smokeWave 3s ease-in-out infinite}
+@keyframes smokeWave{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.05);opacity:.8}}
+.smoke-emoji{font-size:3.5rem;animation:smokeBounce .7s ease infinite}
+@keyframes smokeBounce{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-10px) rotate(5deg)}}
+.smoke-name{font-size:1.1rem;font-weight:700;color:#333;margin-top:6px}
+.smoke-desc{font-size:.85rem;color:#666;margin-top:4px;line-height:1.4}
+.smoke-joke{font-size:.8rem;color:#e17055;margin-top:6px;font-style:italic}
+.smoke-particles{position:absolute;inset:0;overflow:hidden;border-radius:20px;pointer-events:none}
+.smoke-particle{position:absolute;font-size:1.5rem;opacity:.6;animation:smokePartFloat 4s ease-in-out infinite}
+@keyframes smokePartFloat{0%,100%{transform:translateY(0) rotate(0);opacity:.3}50%{transform:translateY(-20px) rotate(15deg);opacity:.7}}
+
+/* Partículas */
+.particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:200}
+.particle{position:absolute;font-size:1.2rem;animation:particleFly 1.2s ease-out forwards}
+@keyframes particleFly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(.2) rotate(360deg)}}
+
+/* Burbuja */
+.speech-bubble{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.95);border-radius:22px;padding:16px 28px;max-width:520px;min-width:280px;box-shadow:0 10px 35px rgba(0,0,0,.3);z-index:150;text-align:center;opacity:0;transition:all .4s ease;pointer-events:none}
+.speech-bubble.visible{opacity:1;pointer-events:auto}
+.speech-bubble::after{content:'';position:absolute;bottom:-13px;left:50%;transform:translateX(-50%);border-width:13px 13px 0;border-style:solid;border-color:rgba(255,255,255,.95) transparent transparent}
+.speech-text{font-size:.95rem;color:#333;line-height:1.5}
+
+/* Controles */
+.ctrl-panel{position:fixed;top:12px;left:12px;z-index:200;display:flex;flex-direction:column;gap:7px}
+.btn{padding:9px 15px;border:none;border-radius:18px;font-size:.82rem;cursor:pointer;transition:all .25s;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.btn:active{transform:scale(.93)}
+.btn-promo{background:linear-gradient(145deg,#ff6b6b,#ee5a24);color:#fff}
+.btn-primary{background:linear-gradient(145deg,#f5a623,#e8941a);color:#1a1a2e}
+.btn-secondary{background:linear-gradient(145deg,#6c5ce7,#a29bfe);color:#fff}
+.btn-auto{background:linear-gradient(145deg,#00b894,#00cec9);color:#fff}
+.btn-auto.active{background:linear-gradient(145deg,#d63031,#e17055)}
+.btn-listen{background:linear-gradient(145deg,#0984e3,#74b9ff);color:#fff}
+.btn-listen.listening{background:linear-gradient(145deg,#d63031,#ff7675);animation:pls .5s infinite}
+@keyframes pls{0%,100%{box-shadow:0 4px 12px rgba(214,48,49,.4)}50%{box-shadow:0 4px 25px rgba(214,48,49,.8)}}
+
+.voice-bar{position:fixed;bottom:15px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:200}
+.v-btn{padding:8px 14px;border:none;border-radius:16px;font-size:.8rem;cursor:pointer;font-weight:700;transition:all .3s}
+.v-btn.on{background:#00b894;color:#fff}.v-btn.off{background:#d63031;color:#fff}
+
+/* Indicador mic */
+.mic-ind{position:fixed;top:12px;right:12px;z-index:300;background:rgba(214,48,49,.92);color:#fff;padding:11px 20px;border-radius:24px;display:none;align-items:center;gap:8px;font-weight:700;font-size:.88rem;box-shadow:0 5px 20px rgba(214,48,49,.5)}
+.mic-ind.visible{display:flex}
+.mic-dot{width:12px;height:12px;background:#fff;border-radius:50%;animation:micP .5s infinite}
+@keyframes micP{0%,100%{transform:scale(1)}50%{transform:scale(1.5)}}
+
+/* Estrellas */
+.stars{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.star{position:absolute;width:3px;height:3px;background:#fff;border-radius:50%;animation:twinkle 2s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.2;transform:scale(1)}50%{opacity:1;transform:scale(1.6)}}
+
+/* Zzz */
+.zzz{position:absolute;top:-12px;right:-12px;font-size:1.3rem;color:#a29bfe;animation:zzzF 2s ease-in-out infinite;display:none}
+.mascot.sleeping .zzz{display:block}
+@keyframes zzzF{0%,100%{transform:translateY(0) rotate(-10deg);opacity:.4}50%{transform:translateY(-18px) rotate(10deg);opacity:1}}
+
+/* Receta modal */
+.recipe-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);z-index:400;max-width:420px;width:90%;max-height:80vh;overflow-y:auto;background:#fff;border-radius:22px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.4);transition:transform .4s cubic-bezier(.68,-.55,.27,1.55);opacity:0}
+.recipe-modal.open{transform:translate(-50%,-50%) scale(1);opacity:1}
+.recipe-modal h2{font-size:1.3rem;color:#333;margin-bottom:12px}
+.recipe-modal h3{color:#e17055;margin:12px 0 6px}
+.recipe-modal ul,.recipe-modal ol{padding-left:18px}
+.recipe-modal li{padding:5px 0;border-bottom:1px solid #f0f0f0;font-size:.9rem}
+.recipe-close{position:absolute;top:12px;right:16px;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#999}
+
+@media(max-width:600px){
+.mascot{width:140px;height:200px}
+.cake-base{width:120px;height:65px}
+.cake-mid{width:105px;height:38px;bottom:80px}
+.cake-top{width:95px;height:32px;bottom:112px}
+.face{top:12px;width:80px;height:55px}
+.eye{width:20px;height:24px}.pupil{width:9px;height:11px}
+.mouth{width:32px;height:14px}
+.arm{width:28px;height:10px}.arm.left{left:-20px}.arm.right{right:-20px}
+.ctrl-panel{top:auto;bottom:70px;left:8px}
+.speech-bubble{bottom:120px;max-width:300px;min-width:220px}
+}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div class="particles" id="particles"></div>
+
+<div class="mascot idle" id="mascot">
+    <div class="zzz">💤</div>
+    <div class="cherry"></div>
+    <div class="cake-top"></div>
+    <div class="drip d1"></div><div class="drip d2"></div><div class="drip d3"></div><div class="drip d4"></div>
+    <div class="cake-mid"></div>
+    <div class="cake-base">
+        <div class="arm left" id="armL"></div>
+        <div class="arm right" id="armR"></div>
+        <div class="face">
+            <div class="eye left" id="eyeL"><div class="pupil" id="pupilL"></div></div>
+            <div class="eye right" id="eyeR"><div class="pupil" id="pupilR"></div></div>
+            <div class="cheek left" id="cheekL"></div>
+            <div class="cheek right" id="cheekR"></div>
+            <div class="mouth" id="mouth"></div>
+        </div>
+    </div>
+</div>
+
+<div class="smoke-wrap" id="smokeWrap">
+    <div class="smoke-card">
+        <div class="smoke-particles" id="smokeParticles"></div>
+        <div class="smoke-emoji" id="smokeEmoji"></div>
+        <div class="smoke-name" id="smokeName"></div>
+        <div class="smoke-desc" id="smokeDesc"></div>
+        <div class="smoke-joke" id="smokeJoke"></div>
+    </div>
+</div>
+
+<div class="speech-bubble" id="speechBubble"><p class="speech-text" id="speechText"></p></div>
+<div class="mic-ind" id="micInd"><div class="mic-dot"></div><span>Escuchando...</span></div>
+
+<div class="voice-bar">
+    <button class="btn-listen" id="listenBtn" onclick="toggleListen()">🎤 Hablar</button>
+    <button class="v-btn on" id="voiceBtn" onclick="toggleVoice()">🔊 Voz</button>
+    <button class="v-btn on" id="speedBtn" onclick="changeSpeed()">⚡ Normal</button>
+</div>
+
+<div class="ctrl-panel">
+    <button class="btn btn-promo" onclick="showMenu()">📋 Menú</button>
+    <button class="btn btn-promo" onclick="showSpecials()">⭐ Especial</button>
+    <button class="btn btn-primary" onclick="showProduct('cake')">🍰 Postre</button>
+    <button class="btn btn-primary" onclick="showProduct('pasta')">🍝 Pasta</button>
+    <button class="btn btn-primary" onclick="showProduct('tacos')">🌮 Tacos</button>
+    <button class="btn btn-primary" onclick="showProduct('sushi')">🍣 Sushi</button>
+    <button class="btn btn-secondary" onclick="showFact()">💡 Dato</button>
+    <button class="btn btn-secondary" onclick="pet()">🤗 Acariciar</button>
+    <button class="btn btn-auto" id="autoBtn" onclick="toggleAuto()">🔄 Auto</button>
+    <button class="btn btn-secondary" onclick="doSleep()">😴 Dormir</button>
+</div>
+
+<div class="recipe-modal" id="recipeModal">
+    <button class="recipe-close" onclick="closeRecipe()">✕</button>
+    <h2 id="rTitle"></h2>
+    <h3>Ingredientes:</h3><ul id="rIng"></ul>
+    <h3>Preparación:</h3><ol id="rSteps"></ol>
+</div>
+
+<script>
+// ========== CONFIG ==========
+let voiceOn=true, rate=0.95, listening=false, autoMode=false, autoTimer=null;
+let asleep=false, recog=null, micOk=false, permChecked=false;
+let dragging=false, dragOff={x:0,y:0};
+let cx=innerWidth/2-90, cy=innerHeight/3;
+const S=window.speechSynthesis, M=document.getElementById('mascot');
+
+// ========== INIT ==========
+function init(){
+    if(location.protocol==='file:'){
+        document.body.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;color:#fff;font-family:sans-serif;text-align:center;padding:20px"><h1>⚠️ No funciona en file://</h1><p style="margin:16px 0;font-size:1.1rem">Abre una terminal en la carpeta del proyecto y ejecuta:</p><code style="background:rgba(255,255,255,.15);padding:12px 24px;border-radius:12px;font-size:1.2rem">python server.py</code><p style="margin:16px 0">Luego abre <strong>http://localhost:8080</strong></p></div>';return;
+    }
+    M.style.left=cx+'px'; M.style.top=cy+'px';
+    mkStars(); setupDrag(); trackMouse();
+    setTimeout(()=>speak('¡Hola! Soy Chef Byte, tu pastelero virtual. Puedo caminar, bailar y contarte sobre nuestros platillos. ¡Pregúntame algo!'),800);
+    setInterval(idleWander,15000);
+}
+
+// Idle wandering
+function idleWander(){
+    if(dragging||asleep||autoMode||listening)return;
+    const tx=Math.random()*(innerWidth-200)+10;
+    const ty=Math.random()*(innerHeight-300)+50;
+    walkTo(tx,ty,null);
+}
+
+// ========== STARS ==========
+function mkStars(){const c=document.getElementById('stars');for(let i=0;i<60;i++){const s=document.createElement('div');s.className='star';s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*2}s;animation-duration:${1.5+Math.random()*2}s`;c.appendChild(s)}}
+
+// ========== DRAG ==========
+function setupDrag(){
+    M.addEventListener('mousedown',dStart);M.addEventListener('touchstart',dStart,{passive:false});
+    document.addEventListener('mousemove',dMove);document.addEventListener('touchmove',dMove,{passive:false});
+    document.addEventListener('mouseup',dEnd);document.addEventListener('touchend',dEnd);
+}
+function dStart(e){e.preventDefault();dragging=true;M.classList.remove('idle','walking','sleeping');M.classList.add('excited');const p=e.touches?e.touches[0]:e;dragOff.x=p.clientX-M.offsetLeft;dragOff.y=p.clientY-M.offsetTop}
+function dMove(e){if(!dragging)return;e.preventDefault();const p=e.touches?e.touches[0]:e;cx=p.clientX-dragOff.x;cy=p.clientY-dragOff.y;M.style.left=cx+'px';M.style.top=cy+'px'}
+function dEnd(){if(!dragging)return;dragging=false;M.classList.remove('excited');spawnP(5)}
+
+// ========== MOUSE TRACKING ==========
+function trackMouse(){
+    document.addEventListener('mousemove',e=>{
+        if(dragging||asleep)return;
+        const r=M.getBoundingClientRect(),dx=(e.clientX-r.left-r.width/2)/70,dy=(e.clientY-r.top-r.height/2)/70;
+        const pl=document.getElementById('pupilL'),pr=document.getElementById('pupilR');
+        if(pl)pl.style.transform=`translate(${dx}px,${dy}px)`;
+        if(pr)pr.style.transform=`translate(${dx}px,${dy}px)`;
+    });
+}
+
+// ========== WALK ==========
+function walkTo(tx,ty,cb){
+    M.classList.remove('idle','sleeping');
+    M.classList.add('walking');
+    const sx=cx,sy=cy,d=Math.sqrt((tx-sx)**2+(ty-sy)**2);
+    const dur=Math.min(d*2.5,2200),st=Date.now();
+    (function anim(){
+        const t=Math.min((Date.now()-st)/dur,1);
+        const e=1-Math.pow(1-t,3);
+        cx=sx+(tx-sx)*e; cy=sy+(ty-sy)*e;
+        M.style.left=cx+'px'; M.style.top=cy+'px';
+        M.style.transform=tx>sx?'scaleX(1)':'scaleX(-1)';
+        t<1?requestAnimationFrame(anim):(()=>{
+            M.classList.remove('walking');M.style.transform='';
+            if(cb)cb();
+        });
+    })();
+}
+
+// ========== PARTICLES ==========
+function spawnP(n){
+    const c=document.getElementById('particles'),emj=['✨','⭐','💫','🌟','💖','🍰','🧁','🎂'];
+    for(let i=0;i<n;i++){
+        const p=document.createElement('div');p.className='particle';
+        p.textContent=emj[~~(Math.random()*emj.length)];
+        const r=M.getBoundingClientRect();
+        p.style.left=(r.left+r.width/2)+'px';p.style.top=(r.top+r.height/2)+'px';
+        p.style.setProperty('--tx',(Math.random()-.5)*250+'px');
+        p.style.setProperty('--ty',(Math.random()-.5)*250-60+'px');
+        c.appendChild(p);setTimeout(()=>p.remove(),1200);
+    }
+}
+
+// ========== EXPRESSIONS ==========
+function setExpr(t){
+    const el=document.getElementById('eyeL'),er=document.getElementById('eyeR'),m=document.getElementById('mouth');
+    const cl=document.getElementById('cheekL'),cr=document.getElementById('cheekR');
+    el.className='eye left';er.className='eye right';m.className='mouth';
+    cl.classList.remove('visible');cr.classList.remove('visible');
+    switch(t){
+        case'happy':el.classList.add('happy');er.classList.add('happy');m.classList.add('smile');cl.classList.add('visible');cr.classList.add('visible');break;
+        case'talk':m.classList.add('talk');break;
+        case'surprised':el.classList.add('surprised');er.classList.add('surprised');m.classList.add('surprised');break;
+        case'wink':el.classList.add('happy');er.classList.add('wink');m.classList.add('smile');break;
+        case'sad':m.classList.add('sad');break;
+        case'sleep':el.classList.add('closed');er.classList.add('closed');break;
+        case'laugh':m.classList.add('laugh');cl.classList.add('visible');cr.classList.add('visible');break;
+    }
+}
+
+// ========== VOICE ==========
+function speak(txt){
+    if(!voiceOn||!S){showBubble(txt);return}
+    S.cancel();
+    const u=new SpeechSynthesisUtterance(txt);
+    u.lang='es-ES';u.rate=rate;u.pitch=1.08;u.volume=1;
+    const vs=S.getVoices();
+    const pref=['Google español','Paulina','Microsoft Helena','Esperanza','Google US English','Microsoft Sabina'];
+    let v=null;for(const n of pref){v=vs.find(x=>x.name.includes(n));if(v)break}
+    if(!v)v=vs.find(x=>x.lang.startsWith('es'));
+    if(v)u.voice=v;
+    u.onstart=()=>{setExpr('talk');M.classList.remove('idle','sleeping');M.classList.add('excited');showBubble(txt)};
+    u.onend=()=>{M.classList.remove('excited');if(!asleep)setExpr('happy');setTimeout(()=>{if(!asleep)setExpr('')},2500)};
+    S.speak(u);
+}
+
+function showBubble(t){document.getElementById('speechText').textContent=t;document.getElementById('speechBubble').classList.add('visible')}
+function hideBubble(){document.getElementById('speechBubble').classList.remove('visible')}
+
+function toggleVoice(){voiceOn=!voiceOn;const b=document.getElementById('voiceBtn');b.className=voiceOn?'v-btn on':'v-btn off';b.textContent=voiceOn?'🔊 Voz':'🔇 Mute';if(!voiceOn){S.cancel();setExpr('');hideBubble()}}
+function changeSpeed(){const sp=[.6,.8,1,1.2,1.5],lb=['Lenta','Media','Normal','Rápida','Muy Rápida'];const i=sp.indexOf(rate);rate=sp[(i+1)%sp.length];document.getElementById('speedBtn').textContent='⚡ '+lb[(i+1)%sp.length]}
+
+// ========== MIC ==========
+function initRecog(){
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR)return false;
+    recog=new SR();recog.lang='es-ES';recog.continuous=false;recog.interimResults=false;
+    recog.onresult=e=>{processCmd(e.results[0][0].transcript.toLowerCase().trim())};
+    recog.onend=()=>{listening=false;document.getElementById('listenBtn').classList.remove('listening');document.getElementById('micInd').classList.remove('visible')};
+    recog.onerror=e=>{listening=false;document.getElementById('listenBtn').classList.remove('listening');document.getElementById('micInd').classList.remove('visible');if(e.error==='not-allowed')speak('Permiso de micrófono denegado. Haz clic en el icono de candado en la barra de direcciones y permite el micrófono.')};
+    return true;
+}
+
+async function toggleListen(){
+    if(listening){recog&&recog.stop();return}
+    if(!permChecked){
+        try{const s=await navigator.mediaDevices.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop());micOk=true}catch(e){micOk=false;speak('No se pudo acceder al micrófono. Verifica los permisos.');return}
+        permChecked=true;
+    }
+    if(!micOk){speak('Micrófono no disponible.');return}
+    if(!recog&&!initRecog()){speak('Tu navegador no soporta reconocimiento de voz. Prueba con Chrome.');return}
+    try{recog.start();listening=true;document.getElementById('listenBtn').classList.add('listening');document.getElementById('micInd').classList.add('visible');speak('Te escucho. Di tu pregunta.')}catch(e){}
+}
+
+// ========== SMOKE PRODUCT EXPLANATION ==========
+const prodDB={
+    cake:{emoji:'🍰',name:'Pastel de Chocolate',desc:'Chocolate belga 70% capa por capa, con ganache y fresas frescas. ¡Una OBRA DE ARTE comestible!',joke:'Tan delicioso que hasta mi boca de pastel se agua... espera, ¿tengo boca? 🤤'},
+    pasta:{emoji:'🍝',name:'Pasta Italiana Artesanal',desc:'Importada de Nápoles, Italia. Harina 00, huevos frescos, salsa San Marzano. ¡Como en la abuela, pero sin la queja!',joke:'Hecha con amor... y un poco de harina en la cara. ¡Cocinar es sucio! 😄'},
+    tacos:{emoji:'🌮',name:'Tacos Mexicanos Gourmet',desc:'Tortilla de maíz nixtamalizado fresca cada mañana, carne Angus a la parrilla, guacamole cremoso.',joke:'Con tanto sabor que hasta los ojos lloran... de felicidad, no de cebolla. 🥹'},
+    sushi:{emoji:'🍣',name:'Sushi Premium Japonés',desc:'Pescado fresco del día directo del mercado. Arroz sazonado con vinagre especial, nori premium.',joke:'Fresco como el océano. Yo solo soy de azúcar, pero el sushi es la real deal. 🌊'}
+};
+
+function showProduct(type){
+    const d=prodDB[type];
+    // Smoke card
+    const sw=document.getElementById('smokeWrap');
+    document.getElementById('smokeEmoji').textContent=d.emoji;
+    document.getElementById('smokeName').textContent=d.name;
+    document.getElementById('smokeDesc').textContent=d.desc;
+    document.getElementById('smokeJoke').textContent='💬 '+d.joke;
+    // Smoke particles
+    const sp=document.getElementById('smokeParticles');sp.innerHTML='';
+    const smokeEmj=['💨','☁️','🌫️','✨'];
+    for(let i=0;i<8;i++){const p=document.createElement('div');p.className='smoke-particle';p.textContent=smokeEmj[~~(Math.random()*smokeEmj.length)];p.style.cssText=`left:${Math.random()*90}%;top:${Math.random()*90}%;animation-delay:${Math.random()*2}s`;sp.appendChild(p)}
+    // Position near mascot
+    const r=M.getBoundingClientRect();
+    sw.style.left=Math.min(r.right+15,innerWidth-220)+'px';
+    sw.style.top=Math.max(r.top-20,10)+'px';
+    sw.classList.add('visible');
+
+    setExpr('surprised');
+    setTimeout(()=>setExpr('happy'),400);
+    spawnP(10);
+
+    // Recipe modal
+    const recipes={
+        cake:{t:'🍰 Pastel de Chocolate',i:['Chocolate belga 70%','Mantequilla','Huevos frescos','Azúcar glas','Fresas','Nata montada'],s:['Derrite chocolate baño maría','Mezcla con mantequilla y huevos','Hornea 180° por 30 min','Cubre con ganache','Decora con fresas']},
+        pasta:{t:'🍝 Pasta Italiana',i:['Harina 00','Huevos','Aceite de oliva','Tomate San Marzano','Parmesano 24 meses'],s:['Amasa a mano con cariño','Reposa 30 minutos','Corta al gusto','Cocina al dente','Sirve con salsa y queso']},
+        tacos:{t:'🌮 Tacos Mexicanos',i:['Maíz nixtamalizado','Carne Angus','Aguacate','Tomate','Cilantro','Limón'],s:['Tortilla fresca cada día','Carne a la parrilla','Sirve con guacamole','Decora con cilantro','Exprime limón']},
+        sushi:{t:'🍣 Sushi Premium',i:['Arroz Japonés','Vinagre de arroz','Nori premium','Salmón','Aguacate','Pepino'],s:['Cuece arroz al vapor','Sazona con vinagre','Enrolla con nori','Corta cerámico','Sirve con wasabi']}
+    };
+    const rc=recipes[type];
+    document.getElementById('rTitle').textContent=rc.t;
+    document.getElementById('rIng').innerHTML=rc.i.map(x=>'<li>'+x+'</li>').join('');
+    document.getElementById('rSteps').innerHTML=rc.s.map(x=>'<li>'+x+'</li>').join('');
+
+    // Walk to center then show
+    walkTo(innerWidth/2-90,innerHeight/4,()=>{
+        speak(d.name+'. '+d.desc+' '+d.joke);
+        document.getElementById('recipeModal').classList.add('open');
+        document.getElementById('armR').classList.add('point');
+        setTimeout(()=>document.getElementById('armR').classList.remove('point'),3500);
+    });
+
+    setTimeout(()=>sw.classList.remove('visible'),8000);
+}
+
+function closeRecipe(){document.getElementById('recipeModal').classList.remove('open')}
+
+// ========== MENU ==========
+const menu={
+    ent:['Bruschetta','Calamares','Sopa del día','Ensalada César'],
+    pas:['Espagueti Boloñesa','Fettuccine Alfredo','Penne Arrabiata','Lasagna'],
+    tac:['Tacos de Carne','Tacos de Pollo','Tacos de Pescado','Tacos Veganos'],
+    sus:['California Roll','Philadelphia Roll','Sashimi Mixto','Nigiri'],
+    pos:['Tiramisú','Churros','Cheesecake','Pastel de Chocolate'],
+    beb:['Agua Fresca','Limonada','Café','Té','Jugo Natural']
+};
+const specials=[
+    {n:'🍰 Lunes de Postre',d:'Todos los postres al 2x1',p:'$69'},
+    {n:'🍝 Martes Italiano',d:'Pasta ilimitada',p:'$99'},
+    {n:'🌮 Miércoles Mexicano',d:'Tacos infinitos',p:'$89'},
+    {n:'🍣 Jueves de Sushi',d:'All you can eat',p:'$179'},
+    {n:'🎉 Viernes Fiesta',d:'Cena para 2 con bebida',p:'$349'}
+];
+const facts=[
+    '¡El chocolate fue moneda de los mayas! Imagina comprar un carro con chocolate... ¡yum!',
+    'El tomate se creyó venenoso 200 años. Qué drama tenían esos europeos.',
+    'El sushi original usaba pescado fermentado. ¡Asqueroso pero genial!',
+    'La pizza margarita lleva los colores de Italia. ¡Patriotismo comestible!',
+    'El aguacate es técnicamente una baya. ¡La fresa se siente ofendida!',
+    'El café lo descubrió un pastor curioso. ¡Gracias cabras!'
+];
+const autoP=[
+    '¡Bienvenidos! Somos el mejor restaurante. Pastas, tacos, sushi y postres artesanales.',
+    '¿Ya probaste nuestro Pastel de Chocolate? ¡Es tan bueno que te van a querer más!',
+    'Nuestros tacos usan tortilla fresca cada mañana. ¡Sabor que explota en tu boca!',
+    'El sushi usa pescado fresco del día. ¡Tan fresco que todavía hace "ñam ñam"!',
+    'Tenemos opciones veganas y sin gluten. ¡Para todos hay algo rico!',
+    '¿Celebras algo? Hacemos eventos privados. ¡Llámanos!',
+    'Nuestros postres son adictivos. ¡El Tiramisú te va a robar el corazón!',
+    'Los lunes postres 2x1. ¡No te lo pierdas!'
+];
+
+function showMenu(){
+    const t='¡Menú completo! Entradas: '+menu.ent.join(', ')+'. Pastas: '+menu.pas.join(', ')+'. Tacos: '+menu.tac.join(', ')+'. Sushi: '+menu.sus.join(', ')+'. Postres: '+menu.pos.join(', ')+'. Bebidas: '+menu.beb.join(', ')+'. ¿Qué te gustaría probar?';
+    moveSay(t);
+}
+function showSpecials(){
+    const d=new Date().getDay(),dn=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+    const sp=specials.find(s=>s.n.toLowerCase().includes(dn[d]))||specials[~~(Math.random()*specials.length)];
+    moveSay('¡Especial de hoy! '+sp.n+'. '+sp.d+'. Por solo '+sp.p+'. ¡Aprovecha!');
+}
+function showFact(){spawnP(12);setExpr('surprised');moveSay(facts[~~(Math.random()*facts.length)])}
+function greet(){
+    const g=['¡Hola! Bienvenido a nuestro restaurante. ¿Qué te gustaría conocer?','¡Bienvenido! Pregunta por nuestros platillos o especialidades.','¡Hola chef! ¿Listo para disfrutar de la mejor comida?'];
+    document.getElementById('armL').classList.add('wave');
+    setTimeout(()=>document.getElementById('armL').classList.remove('wave'),2000);
+    spawnP(8);setExpr('wink');moveSay(g[~~(Math.random()*g.length)]);
+}
+function pet(){
+    spawnP(18);setExpr('laugh');
+    document.getElementById('cheekL').classList.add('visible');
+    document.getElementById('cheekR').classList.add('visible');
+    document.getElementById('armL').classList.add('hug');
+    document.getElementById('armR').classList.add('hug');
+    M.classList.add('bounce');
+    speak('¿Qué quieres pedir?');
+    setTimeout(()=>{M.classList.remove('bounce');document.getElementById('armL').classList.remove('hug');document.getElementById('armR').classList.remove('hug');document.getElementById('cheekL').classList.remove('visible');document.getElementById('cheekR').classList.remove('visible')},2500);
+}
+function doSleep(){asleep=true;M.classList.remove('idle','walking','excited');M.classList.add('sleeping');setExpr('sleep');hideBubble();speak('Dulces sueños... me despierto cuando me necesites.')}
+function toggleAuto(){
+    autoMode=!autoMode;const b=document.getElementById('autoBtn');
+    if(autoMode){asleep=false;M.classList.remove('sleeping');b.classList.add('active');b.textContent='⏹ Detener';speak('¡Modo promocional activado!');autoTimer=setInterval(()=>moveSay(autoP[~~(Math.random()*autoP.length)]),12000)}
+    else{b.classList.remove('active');b.textContent='🔄 Auto';clearInterval(autoTimer);S.cancel();setExpr('');hideBubble();M.classList.remove('excited');if(!asleep)M.classList.add('idle')}
+}
+
+function moveSay(t){
+    const tx=innerWidth/2-90,ty=innerHeight/3-50;
+    walkTo(tx,ty,()=>{speak(t);spawnP(8)});
+}
+
+// ========== CMD PROCESSOR ==========
+function processCmd(t){
+    showBubble('Escuché: "'+t+'"');
+    if(/hola|hey|buenos|buenas|saluda/.test(t)){greet();return}
+    if(/qué vendemos|que vendemos|qué tienen|que tienen|qué hay|que hay|aquí vendemos|aqui vendemos|menú|menu|carta/.test(t)){showMenu();return}
+    if(/especial|recomienda|platillo del|plato del/.test(t)){showSpecials();return}
+    if(/pastel|chocolate|cake|postre/.test(t)){showProduct('cake');return}
+    if(/pasta|espagueti|italiano/.test(t)){showProduct('pasta');return}
+    if(/taco/.test(t)){showProduct('tacos');return}
+    if(/sushi|japonés|japones/.test(t)){showProduct('sushi');return}
+    if(/dato|curioso|interesante/.test(t)){showFact();return}
+    if(/auto|automático|automatico/.test(t)){toggleAuto();return}
+    if(/parar|stop|detener|alto/.test(t)){if(autoMode)toggleAuto();moveSay('Detenido. ¿En qué puedo ayudarte?');return}
+    if(/acariciar|cariño|amor|abraza/.test(t)){pet();return}
+    if(/dormir|descansa| sueño/.test(t)){doSleep();return}
+    // IA responses
+    const ai={
+        ingrediente:'Usamos ingredientes frescos y premium de primera calidad.',
+        precio:'Pastas desde $89, Tacos desde $69, Sushi desde $129, Postres desde $49.',
+        horario:'Abrimos martes a domingo de 12:00 a 23:00.',
+        reserva:'Llama al 555-123-4567 para reservar.',
+        domicilio:'Hacemos envíos. Llama al 555-987-6543.',
+        vegano:'Tenemos tacos veganos, sushi de aguacate y ensaladas.',
+        bebida:'Aguas frescas, café, té y jugos naturales.',
+        cumpleaños:'Hacemos pasteles personalizados para fiestas.',
+        evento:'Eventos privados para hasta 50 personas.',
+        gracias:'¡De nada! Estamos para servirte.',
+        adiós:'¡Hasta luego! Esperamos verte pronto.'
+    };
+    let f=false;
+    for(const[k,v]of Object.entries(ai)){if(t.includes(k)){moveSay(v);f=true;break}}
+    if(!f)moveSay('No te entendí bien. Puedes preguntar por platillos, precios, ingredientes, horarios, o decir "¿qué vendemos?" para ver el menú. Repite por favor.');
+}
+
+// ========== EVENTS ==========
+if(S)S.onvoiceschanged=()=>S.getVoices();
+M.addEventListener('click',()=>{if(!dragging)pet()});
+
+// Inactivity sleep
+let inactT;
+function resetInact(){clearTimeout(inactT);if(asleep&&!autoMode){asleep=false;M.classList.remove('sleeping');M.classList.add('idle');setExpr('')}inactT=setTimeout(()=>{if(!asleep&&!autoMode&&!listening)doSleep()},90000)}
+document.addEventListener('mousemove',resetInact);document.addEventListener('click',resetInact);resetInact();
+
+init();
+</script>
+</body>
+</html>
