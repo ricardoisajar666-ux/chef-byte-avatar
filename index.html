@@ -3,328 +3,337 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chef Byte</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
+<title>Chef Byte - Avatar Premium</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍰</text></svg>">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0a0a1a 0%,#1a1a3e 50%,#0d1b2a 100%);min-height:100vh;overflow:hidden;color:#fff}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#080810;min-height:100vh;overflow:hidden;color:#fff}
 
-/* ===== AVATAR ===== */
-.avatar{position:fixed;width:220px;height:300px;z-index:100;cursor:grab;user-select:none;filter:drop-shadow(0 20px 40px rgba(0,0,0,.4))}
-.avatar:active{cursor:grabbing}
+/* ===== CINEMATIC BACKGROUND ===== */
+.bg{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 40%,#1a1a3a 0%,#0a0a18 50%,#050510 100%);z-index:0}
+.bg::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 70%,rgba(255,107,107,.04) 0%,transparent 50%),radial-gradient(circle at 70% 30%,rgba(245,166,35,.03) 0%,transparent 50%)}
+.bg::after{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");opacity:.5}
 
-.avatar.idle{animation:avIdle 4s cubic-bezier(.4,0,.2,1) infinite}
+/* Volumetric light rays */
+.light-ray{position:fixed;width:300px;height:600px;background:linear-gradient(180deg,rgba(255,200,150,.06) 0%,transparent 100%);transform-origin:top center;filter:blur(40px);z-index:1;pointer-events:none;animation:rayMove 12s ease-in-out infinite}
+@keyframes rayMove{0%,100%{transform:rotate(-15deg) scaleX(1);opacity:.6}50%{transform:rotate(-10deg) scaleX(1.2);opacity:.8}}
+.ray-1{top:-100px;left:20%;animation-delay:0s}
+.ray-2{top:-80px;left:55%;animation-delay:3s;width:250px;opacity:.4}
+.ray-3{top:-120px;left:75%;animation-delay:6s;width:200px;opacity:.3}
+
+/* Dust particles */
+.dust{position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden}
+.dust-p{position:absolute;width:2px;height:2px;background:rgba(255,220,180,.4);border-radius:50%;animation:dustFloat linear infinite}
+@keyframes dustFloat{0%{transform:translateY(100vh) translateX(0);opacity:0}10%{opacity:.6}90%{opacity:.6}100%{transform:translateY(-10vh) translateX(50px);opacity:0}}
+
+/* ===== AVATAR CONTAINER ===== */
+.avatar-wrap{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:100;cursor:grab;user-select:none;filter:drop-shadow(0 30px 60px rgba(0,0,0,.6)) drop-shadow(0 0 80px rgba(255,107,107,.08))}
+.avatar-wrap:active{cursor:grabbing}
+
+.avatar{position:relative;width:220px;height:300px;animation:avIdle 5s cubic-bezier(.37,0,.63,1) infinite}
 @keyframes avIdle{
-    0%,100%{transform:translateY(0) rotate(0) scale(1)}
-    20%{transform:translateY(-14px) rotate(2deg) scale(1.015)}
-    40%{transform:translateY(-6px) rotate(.5deg) scale(1.005)}
-    60%{transform:translateY(-10px) rotate(-1.5deg) scale(1.01)}
-    80%{transform:translateY(-4px) rotate(-.5deg) scale(1)}
+    0%,100%{transform:translateY(0) rotate(0)}
+    15%{transform:translateY(-16px) rotate(1.8deg)}
+    30%{transform:translateY(-8px) rotate(.6deg)}
+    45%{transform:translateY(-12px) rotate(-.8deg)}
+    60%{transform:translateY(-4px) rotate(-1.2deg)}
+    75%{transform:translateY(-10px) rotate(.4deg)}
+    90%{transform:translateY(-2px) rotate(-.2deg)}
 }
 
-.avatar.talking{animation:avTalk .4s ease-in-out infinite}
+.avatar.talking{animation:avTalk .45s ease-in-out infinite}
 @keyframes avTalk{
     0%,100%{transform:translateY(0) scale(1) rotate(0)}
-    30%{transform:translateY(-4px) scale(1.02) rotate(1deg)}
-    60%{transform:translateY(-2px) scale(1.01) rotate(-.5deg)}
+    25%{transform:translateY(-5px) scale(1.018) rotate(.8deg)}
+    50%{transform:translateY(-2px) scale(1.008) rotate(-.3deg)}
+    75%{transform:translateY(-3px) scale(1.012) rotate(.4deg)}
 }
 
-.avatar.walking{animation:avWalk .7s ease-in-out infinite}
+.avatar.walking{animation:avWalk .8s cubic-bezier(.37,0,.63,1) infinite}
 @keyframes avWalk{
-    0%,100%{transform:translateY(0) rotate(-2deg)}
-    20%{transform:translateY(-22px) rotate(4deg)}
-    40%{transform:translateY(-6px) rotate(-1deg)}
-    60%{transform:translateY(-26px) rotate(3deg)}
-    80%{transform:translateY(-4px) rotate(-2deg)}
+    0%,100%{transform:translateY(0) rotate(-1.5deg)}
+    15%{transform:translateY(-24px) rotate(3.5deg)}
+    30%{transform:translateY(-8px) rotate(-.8deg)}
+    45%{transform:translateY(-28px) rotate(2.8deg)}
+    60%{transform:translateY(-6px) rotate(-1.2deg)}
+    75%{transform:translateY(-20px) rotate(2deg)}
+    90%{transform:translateY(-3px) rotate(-.5deg)}
 }
 
-/* ===== CUERPO ===== */
-.body{position:relative;width:200px;height:220px;margin:50px auto 0;filter:drop-shadow(0 8px 20px rgba(0,0,0,.3))}
+/* ===== Cuerpo del pastel ===== */
+.body{position:relative;width:200px;height:220px;margin:50px auto 0}
 
-/* Capas del pastel */
-.cake-base{position:absolute;width:185px;height:95px;background:linear-gradient(180deg,#f7b731 0%,#f5a623 30%,#e8941a 60%,#d4840f 100%);border-radius:22px;bottom:0;left:50%;transform:translateX(-50%);box-shadow:0 14px 40px rgba(0,0,0,.5),inset 0 -10px 20px rgba(0,0,0,.2),inset 0 3px 8px rgba(255,255,255,.15)}
+/* Cake layers with realistic shading */
+.layer{position:absolute;left:50%;transform:translateX(-50%)}
 
-.cake-mid{position:absolute;width:168px;height:58px;background:linear-gradient(180deg,#fff8f0 0%,#ffe8d0 40%,#ffd4a4 100%);border-radius:18px;bottom:90px;left:50%;transform:translateX(-50%);box-shadow:0 10px 25px rgba(0,0,0,.3),inset 0 6px 15px rgba(255,255,255,.8)}
+.layer-base{width:185px;height:95px;bottom:0;border-radius:22px;background:linear-gradient(180deg,#f7b731 0%,#f5a623 25%,#e8941a 55%,#d4840f 100%);box-shadow:0 16px 45px rgba(0,0,0,.55),0 4px 15px rgba(0,0,0,.3),inset 0 -12px 25px rgba(0,0,0,.25),inset 0 4px 10px rgba(255,255,255,.12),inset -4px 0 8px rgba(0,0,0,.1),inset 4px 0 8px rgba(0,0,0,.1)}
 
-.cake-top{position:absolute;width:148px;height:52px;background:linear-gradient(180deg,#ffc4d0 0%,#ff9ab0 40%,#ff7088 100%);border-radius:17px;bottom:142px;left:50%;transform:translateX(-50%);box-shadow:0 8px 20px rgba(0,0,0,.3),inset 0 5px 12px rgba(255,255,255,.6)}
+.layer-mid{width:168px;height:58px;bottom:90px;border-radius:18px;background:linear-gradient(180deg,#fff8f0 0%,#ffe8d0 35%,#ffd4a4 100%);box-shadow:0 12px 30px rgba(0,0,0,.35),0 4px 12px rgba(0,0,0,.2),inset 0 8px 18px rgba(255,255,255,.85),inset 0 -4px 10px rgba(0,0,0,.08)}
 
-/* ===== GLAZIADO ANIMADO ===== */
-.glaze-wrap{position:absolute;width:160px;height:70px;bottom:140px;left:50%;transform:translateX(-50%);z-index:3;overflow:visible}
+.layer-top{width:148px;height:52px;bottom:142px;border-radius:17px;background:linear-gradient(180deg,#ffc4d0 0%,#ff9ab0 35%,#ff7088 100%);box-shadow:0 10px 25px rgba(0,0,0,.35),0 4px 10px rgba(0,0,0,.2),inset 0 6px 14px rgba(255,255,255,.65),inset 0 -3px 8px rgba(0,0,0,.1)}
 
-/* Brillo principal */
-.glaze-shine{position:absolute;width:50px;height:10px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.95),rgba(255,255,255,.8),transparent);border-radius:5px;bottom:45px;animation:shineMove 3s ease-in-out infinite;z-index:5}
-@keyframes shineMove{
-    0%{left:5%;opacity:0;transform:scaleX(.3) rotate(-5deg)}
-    20%{opacity:1;transform:scaleX(1) rotate(0)}
-    80%{opacity:1;transform:scaleX(1) rotate(0)}
-    100%{left:75%;opacity:0;transform:scaleX(.3) rotate(5deg)}
-}
+/* ===== GLAZIADO CINEMATICO ===== */
+.glaze-wrap{position:absolute;width:165px;height:75px;bottom:140px;left:50%;transform:translateX(-50%);z-index:3}
 
-/* Segundo brillo */
-.glaze-shine2{position:absolute;width:30px;height:6px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);border-radius:3px;bottom:52px;animation:shineMove2 4s ease-in-out infinite 1s;z-index:5}
-@keyframes shineMove2{
-    0%{left:60%;opacity:0;transform:scaleX(.4)}
-    30%{opacity:.8;transform:scaleX(1)}
-    70%{opacity:.8;transform:scaleX(1)}
-    100%{left:10%;opacity:0;transform:scaleX(.4)}
-}
+.glaze-surface{position:absolute;width:100%;height:12px;bottom:55px;background:linear-gradient(90deg,rgba(255,255,255,.15),rgba(255,255,255,.5),rgba(255,255,255,.7),rgba(255,255,255,.5),rgba(255,255,255,.15));border-radius:50%;animation:glazeShimmer 5s ease-in-out infinite}
+@keyframes glazeShimmer{0%,100%{opacity:.5;transform:scaleX(.95)}50%{opacity:.85;transform:scaleX(1.05)}}
 
-/* Goteos con vida */
-.drip{position:absolute;width:18px;border-radius:0 0 10px 10px;bottom:0;transform-origin:top center}
-.drip-core{width:100%;height:100%;border-radius:inherit;position:relative;overflow:hidden}
-.drip-core::after{content:'';position:absolute;top:0;left:2px;width:4px;height:60%;background:rgba(255,255,255,.5);border-radius:50%;animation:dripGlint 2s ease-in-out infinite}
+.glaze-glint{position:absolute;width:60px;height:8px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.95),rgba(255,255,255,.8),transparent);border-radius:4px;bottom:58px;filter:blur(1px);animation:glintSweep 4s ease-in-out infinite}
+@keyframes glintSweep{0%{left:0;opacity:0;transform:scaleX(.4) rotate(-3deg)}15%{opacity:1;transform:scaleX(1) rotate(0)}85%{opacity:1;transform:scaleX(1) rotate(0)}100%{left:calc(100% - 60px);opacity:0;transform:scaleX(.4) rotate(3deg)}}
 
-.d1{left:8px;height:28px}.d1 .drip-core{background:linear-gradient(180deg,#fff 0%,#fff0f0 50%,#ffe0e0 100%);animation:dripPulse 3.5s ease-in-out infinite}
-.d2{left:32px;height:38px}.d2 .drip-core{background:linear-gradient(180deg,#fff8f8 0%,#ffd8d8 50%,#ffc8c8 100%);animation:dripPulse 4s ease-in-out infinite .5s}
-.d3{right:32px;height:24px}.d3 .drip-core{background:linear-gradient(180deg,#fff 0%,#ffe8e8 50%,#ffd8d8 100%);animation:dripPulse 3s ease-in-out infinite 1s}
-.d4{right:8px;height:32px}.d4 .drip-core{background:linear-gradient(180deg,#fff5f5 0%,#ffd0d0 50%,#ffc0c0 100%);animation:dripPulse 3.8s ease-in-out infinite 1.5s}
-.d5{left:52px;height:18px}.d5 .drip-core{background:linear-gradient(180deg,#fff 0%,#ffe5e5 100%);animation:dripPulse 2.8s ease-in-out infinite .3s}
+.glaze-glint2{position:absolute;width:35px;height:5px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);border-radius:3px;bottom:64px;filter:blur(.5px);animation:glintSweep2 5s ease-in-out infinite 1.5s}
+@keyframes glintSweep2{0%{left:calc(100% - 35px);opacity:0}20%{opacity:.7}80%{opacity:.7}100%{left:0;opacity:0}}
 
-@keyframes dripPulse{
+/* Drips with physics */
+.drip{position:absolute;width:18px;bottom:0;border-radius:0 0 10px 10px;transform-origin:top center}
+.drip-body{width:100%;height:100%;border-radius:inherit;position:relative;overflow:hidden}
+.drip-body::after{content:'';position:absolute;top:0;left:3px;width:4px;height:55%;background:linear-gradient(180deg,rgba(255,255,255,.7),rgba(255,255,255,.1));border-radius:50%;animation:dripHighlight 3s ease-in-out infinite}
+@keyframes dripHighlight{0%,100%{opacity:.4;transform:translateX(0)}50%{opacity:.8;transform:translateX(2px)}}
+
+.drip-1{left:8px;height:28px}.drip-1 .drip-body{background:linear-gradient(180deg,#fff 0%,#fff0f0 40%,#ffe0e0 100%);animation:dripFlow 4s cubic-bezier(.4,0,.2,1) infinite}
+.drip-2{left:30px;height:40px}.drip-2 .drip-body{background:linear-gradient(180deg,#fff8f8 0%,#ffd8d8 40%,#ffc8c8 100%);animation:dripFlow 4.5s cubic-bezier(.4,0,.2,1) infinite .6s}
+.drip-3{left:52px;height:20px}.drip-3 .drip-body{background:linear-gradient(180deg,#fff 0%,#ffe8e8 40%,#ffd8d8 100%);animation:dripFlow 3.5s cubic-bezier(.4,0,.2,1) infinite 1.2s}
+.drip-4{right:52px;height:32px}.drip-4 .drip-body{background:linear-gradient(180deg,#fff5f5 0%,#ffd0d0 40%,#ffc0c0 100%);animation:dripFlow 4.2s cubic-bezier(.4,0,.2,1) infinite .3s}
+.drip-5{right:30px;height:44px}.drip-5 .drip-body{background:linear-gradient(180deg,#fff 0%,#ffe5e5 40%,#ffd5d5 100%);animation:dripFlow 4.8s cubic-bezier(.4,0,.2,1) infinite .9s}
+.drip-6{right:8px;height:24px}.drip-6 .drip-body{background:linear-gradient(180deg,#fff8f8 0%,#ffe0e0 40%,#ffd0d0 100%);animation:dripFlow 3.8s cubic-bezier(.4,0,.2,1) infinite 1.5s}
+
+@keyframes dripFlow{
     0%,100%{transform:scaleY(1) scaleX(1);opacity:.85}
-    50%{transform:scaleY(1.18) scaleX(.95);opacity:1}
-}
-@keyframes dripGlint{
-    0%,100%{opacity:.3;transform:translateX(0)}
-    50%{opacity:.7;transform:translateX(2px)}
+    40%{transform:scaleY(1.12) scaleX(.96);opacity:1}
+    70%{transform:scaleY(1.06) scaleX(.98);opacity:.95}
 }
 
-/* Cereza con personalidad */
-.cherry-wrap{position:absolute;top:-5px;left:50%;transform:translateX(-50%);z-index:6}
-.cherry{position:absolute;width:26px;height:26px;background:radial-gradient(circle at 35% 35%,#ff7070 0%,#e74c3c 40%,#c0392b 100%);border-radius:50%;left:50%;transform:translateX(-50%);box-shadow:0 5px 15px rgba(0,0,0,.4),0 0 25px rgba(255,100,100,.3),inset 0 -3px 6px rgba(0,0,0,.2);animation:cherryBounce 2.5s ease-in-out infinite}
-@keyframes cherryBounce{
-    0%,100%{transform:translateX(-50%) translateY(0) rotate(0) scale(1)}
-    30%{transform:translateX(-50%) translateY(-5px) rotate(8deg) scale(1.05)}
-    60%{transform:translateX(-50%) translateY(-2px) rotate(-4deg) scale(1.02)}
-}
-.cherry::after{content:'';position:absolute;top:3px;left:6px;width:8px;height:6px;background:rgba(255,255,255,.5);border-radius:50%;transform:rotate(-20deg)}
+/* ===== CHERRY PREMIUM ===== */
+.cherry-system{position:absolute;top:-8px;left:50%;transform:translateX(-50%);z-index:6}
 
-.stem{position:absolute;width:4px;height:16px;background:linear-gradient(180deg,#3d7a1e 0%,#5a9e2f 100%);border-radius:2px;left:50%;transform-origin:bottom center;animation:stemWave 2.5s ease-in-out infinite;top:-14px}
-@keyframes stemWave{
-    0%,100%{transform:translateX(-50%) rotate(0)}
-    30%{transform:translateX(-50%) rotate(12deg)}
-    60%{transform:translateX(-50%) rotate(-6deg)}
-}
+.stem{position:absolute;width:4px;height:18px;background:linear-gradient(180deg,#2d5016 0%,#4a7c23 50%,#5a9e2f 100%);border-radius:2px;left:50%;transform-origin:bottom center;animation:stemSway 3s ease-in-out infinite;top:-16px}
+@keyframes stemSway{0%,100%{transform:translateX(-50%) rotate(0)}30%{transform:translateX(-50%) rotate(14deg)}60%{transform:translateX(-50%) rotate(-8deg)}}
 
-/* Hoja */
-.leaf{position:absolute;width:10px;height:7px;background:linear-gradient(135deg,#5a9e2f,#3d7a1e);border-radius:0 50% 0 50%;top:-10px;left:calc(50% + 2px);animation:leafSway 2.5s ease-in-out infinite}
-@keyframes leafSway{
-    0%,100%{transform:rotate(0) scale(1)}
-    50%{transform:rotate(15deg) scale(1.1)}
-}
+.leaf{position:absolute;width:12px;height:8px;background:linear-gradient(135deg,#5a9e2f 0%,#3d7a1e 100%);border-radius:0 60% 0 60%;top:-12px;left:calc(50% + 3px);transform-origin:left center;animation:leafSway 3s ease-in-out infinite}
+@keyframes leafSway{0%,100%{transform:rotate(0) scale(1)}50%{transform:rotate(18deg) scale(1.12)}}
 
-/* ===== BRAZOS EXPRESIVOS ===== */
-.arm{position:absolute;width:50px;height:20px;border-radius:10px;bottom:85px;z-index:12;transition:all .5s cubic-bezier(.4,0,.2,1)}
+.cherry{position:absolute;width:28px;height:28px;background:radial-gradient(circle at 32% 32%,#ff8080 0%,#e74c3c 35%,#c0392b 65%,#962d22 100%);border-radius:50%;left:50%;transform:translateX(-50%);box-shadow:0 6px 18px rgba(0,0,0,.45),0 0 30px rgba(255,100,100,.25),inset 0 -4px 8px rgba(0,0,0,.25),inset 0 2px 4px rgba(255,255,255,.15);animation:cherryBob 3s ease-in-out infinite}
+@keyframes cherryBob{0%,100%{transform:translateX(-50%) translateY(0) rotate(0) scale(1)}30%{transform:translateX(-50%) translateY(-6px) rotate(10deg) scale(1.06)}60%{transform:translateX(-50%) translateY(-2px) rotate(-5deg) scale(1.02)}}
 
-.arm-left{left:-35px;transform-origin:right center;background:linear-gradient(90deg,#ff8fa0 0%,#ffb0c0 40%,#ffd0dc 80%,#ffe8f0 100%);transform:rotate(18deg);border-radius:10px 16px 16px 10px;box-shadow:inset 0 2px 4px rgba(255,255,255,.3),0 3px 8px rgba(0,0,0,.2)}
+/* Cherry reflections */
+.cherry::before{content:'';position:absolute;top:5px;left:7px;width:10px;height:8px;background:rgba(255,255,255,.55);border-radius:50%;transform:rotate(-25deg);filter:blur(1px)}
+.cherry::after{content:'';position:absolute;top:10px;left:14px;width:5px;height:4px;background:rgba(255,255,255,.35);border-radius:50%}
 
-.arm-right{right:-35px;transform-origin:left center;background:linear-gradient(90deg,#ffe8f0 0%,#ffd0dc 20%,#ffb0c0 60%,#ff8fa0 100%);transform:rotate(-18deg);border-radius:16px 10px 10px 16px;box-shadow:inset 0 2px 4px rgba(255,255,255,.3),0 3px 8px rgba(0,0,0,.2)}
+/* ===== ARMS WITH WEIGHT ===== */
+.arm{position:absolute;width:52px;height:22px;bottom:88px;z-index:12;transition:all .6s cubic-bezier(.37,0,.63,1)}
 
-/* Manos con dedos sugeridos */
-.hand{position:absolute;width:24px;height:24px;background:radial-gradient(circle at 40% 35%,#ffe8f0 0%,#ffd0dc 50%,#ffb0c0 100%);border-radius:50%;top:-3px;box-shadow:inset 0 2px 5px rgba(255,255,255,.4),0 2px 6px rgba(0,0,0,.15);transition:transform .3s ease}
-.arm-left .hand{left:-10px}
-.arm-right .hand{right:-10px}
+.arm-l{left:-38px;transform-origin:right center;transform:rotate(18deg);border-radius:11px 18px 18px 11px;background:linear-gradient(90deg,#ff8fa0 0%,#ffb0c0 35%,#ffd0dc 70%,#ffe8f0 100%);box-shadow:inset 0 3px 6px rgba(255,255,255,.35),inset 0 -2px 5px rgba(0,0,0,.08),0 4px 10px rgba(0,0,0,.2)}
 
-/* Dedos */
-.finger{position:absolute;width:6px;height:10px;background:linear-gradient(180deg,#ffe8f0,#ffd0dc);border-radius:3px 3px 4px 4px;bottom:-6px;transition:transform .3s ease}
-.finger:nth-child(1){left:2px;transform:rotate(-15deg)}
-.finger:nth-child(2){left:8px;transform:rotate(-5deg)}
-.finger:nth-child(3){right:8px;transform:rotate(5deg)}
-.finger:nth-child(4){right:2px;transform:rotate(15deg)}
+.arm-r{right:-38px;transform-origin:left center;transform:rotate(-18deg);border-radius:18px 11px 11px 18px;background:linear-gradient(90deg,#ffe8f0 0%,#ffd0dc 30%,#ffb0c0 65%,#ff8fa0 100%);box-shadow:inset 0 3px 6px rgba(255,255,255,.35),inset 0 -2px 5px rgba(0,0,0,.08),0 4px 10px rgba(0,0,0,.2)}
 
-/* Animaciones de brazos */
-.arm.wave{animation:armWave .6s ease-in-out infinite}
-@keyframes armWave{0%,100%{transform:rotate(18deg)}50%{transform:rotate(-45deg)}}
+.hand{position:absolute;width:26px;height:26px;border-radius:50%;top:-3px;background:radial-gradient(circle at 38% 32%,#ffe8f0 0%,#ffd0dc 45%,#ffb0c0 100%);box-shadow:inset 0 2px 6px rgba(255,255,255,.45),inset 0 -2px 4px rgba(0,0,0,.08),0 3px 8px rgba(0,0,0,.18)}
+.arm-l .hand{left:-12px}
+.arm-r .hand{right:-12px}
 
-.arm.point{animation:armPoint .9s cubic-bezier(.4,0,.2,1) forwards}
-@keyframes armPoint{0%{transform:rotate(-18deg)}100%{transform:rotate(-75deg) translateX(18px)}}
+/* Fingers - simplified, elegant */
+.fingers{position:absolute;bottom:-4px;width:100%;display:flex;justify-content:center;gap:1px}
+.f{width:5px;height:9px;background:linear-gradient(180deg,#ffe8f0,#ffd0dc);border-radius:2px 2px 3px 3px;box-shadow:0 1px 2px rgba(0,0,0,.1)}
 
-.arm.gesture{animation:armGesture 2.5s ease-in-out infinite}
+/* Arm animations */
+.arm.wave{animation:armWave .55s ease-in-out infinite}
+@keyframes armWave{0%,100%{transform:rotate(18deg)}50%{transform:rotate(-42deg)}}
+
+.arm.point{animation:armPoint 1s cubic-bezier(.37,0,.63,1) forwards}
+@keyframes armPoint{0%{transform:rotate(-18deg)}100%{transform:rotate(-72deg) translateX(16px)}}
+
+.arm.gesture{animation:armGesture 3s ease-in-out infinite}
 @keyframes armGesture{
     0%,100%{transform:rotate(18deg) translateY(0)}
-    25%{transform:rotate(8deg) translateY(-6px)}
-    50%{transform:rotate(22deg) translateY(0)}
-    75%{transform:rotate(12deg) translateY(-4px)}
+    20%{transform:rotate(8deg) translateY(-7px)}
+    40%{transform:rotate(22deg) translateY(0)}
+    60%{transform:rotate(12deg) translateY(-5px)}
+    80%{transform:rotate(20deg) translateY(-1px)}
 }
 
-.arm.excited{animation:armExcited .4s ease-in-out infinite}
-@keyframes armExcited{
-    0%,100%{transform:rotate(18deg) scale(1)}
-    50%{transform:rotate(-30deg) scale(1.05)}
-}
+.arm.excited{animation:armExcited .35s ease-in-out infinite}
+@keyframes armExcited{0%,100%{transform:rotate(18deg) scale(1)}50%{transform:rotate(-28deg) scale(1.04)}}
 
-/* ===== CARA CON EXPRESIONES ===== */
-.face{position:absolute;top:20px;left:50%;transform:translateX(-50%);width:120px;height:80px;z-index:15}
+/* ===== FACE - CINEMATIC ===== */
+.face{position:absolute;top:22px;left:50%;transform:translateX(-50%);width:125px;height:85px;z-index:15}
 
-/* Pómulos sutiles */
-.cheekbone{position:absolute;width:12px;height:8px;background:radial-gradient(ellipse,rgba(255,180,180,.3) 0%,transparent 70%);border-radius:50%;top:22px}
-.cheekbone-left{left:2px}.cheekbone-right{right:2px}
+/* Subtle nose */
+.nose{position:absolute;width:10px;height:7px;background:radial-gradient(ellipse,rgba(255,170,170,.35) 0%,transparent 70%);border-radius:50%;top:22px;left:50%;transform:translateX(-50%);filter:blur(.5px)}
 
-/* Ojos expresivos */
-.eye{position:absolute;width:32px;height:36px;background:radial-gradient(circle at 30% 25%,#fff 0%,#fafafa 30%,#f5f5f5 60%,#eee 100%);border-radius:50%;top:8px;box-shadow:inset 0 3px 10px rgba(0,0,0,.06),0 4px 10px rgba(0,0,0,.1);overflow:visible}
-.eye-left{left:10px}.eye-right{right:10px}
+/* Cheekbones */
+.cheekbone{position:absolute;width:14px;height:10px;background:radial-gradient(ellipse,rgba(255,180,180,.25) 0%,transparent 70%);border-radius:50%;top:24px;filter:blur(1px)}
+.cheekbone-l{left:0}.cheekbone-r{right:0}
 
-/* Párpado superior */
-.lid{position:absolute;width:100%;height:0;background:linear-gradient(180deg,#ffb0c0 0%,#ff90a0 100%);border-radius:50% 50% 0 0;top:0;left:0;z-index:3;transition:height .15s cubic-bezier(.4,0,.2,1);transform-origin:top}
+/* Eyes - deep, alive */
+.eye{position:absolute;width:34px;height:38px;border-radius:50%;top:8px;overflow:visible}
+
+/* Eye white with depth */
+.eye-white{position:absolute;width:100%;height:100%;background:radial-gradient(circle at 40% 35%,#fff 0%,#fafafa 25%,#f5f5f5 50%,#eee 75%,#e0e0e0 100%);border-radius:50%;box-shadow:inset 0 3px 12px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.12),inset 0 -2px 6px rgba(0,0,0,.04)}
+
+/* Iris */
+.iris{position:absolute;width:20px;height:22px;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 40% 35%,#8a7a6a 0%,#6a5a4a 25%,#4a3a2a 50%,#3a2a1a 75%,#2a1a0a 100%);box-shadow:inset 0 2px 8px rgba(0,0,0,.4),0 1px 3px rgba(0,0,0,.2);z-index:1}
+
+/* Pupil */
+.pupil{position:absolute;width:10px;height:12px;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 40% 40%,#3a3a3a 0%,#1a1a1a 60%,#000 100%);z-index:2;transition:transform .1s cubic-bezier(.37,0,.63,1)}
+
+/* Pupil reflections - cinematic */
+.pupil-ref1{position:absolute;width:5px;height:5px;background:rgba(255,255,255,.95);border-radius:50%;top:2px;left:2px;z-index:3;box-shadow:0 0 6px rgba(255,255,255,.6)}
+.pupil-ref2{position:absolute;width:3px;height:3px;background:rgba(255,255,255,.5);border-radius:50%;bottom:3px;right:2px;z-index:3}
+.pupil-ref3{position:absolute;width:2px;height:2px;background:rgba(255,255,255,.3);border-radius:50%;top:6px;right:1px;z-index:3}
+
+/* Eye shine - animated */
+.eye-shine{position:absolute;width:10px;height:10px;background:rgba(255,255,255,.85);border-radius:50%;top:5px;left:5px;z-index:4;filter:blur(1px);animation:eyeShine 4s ease-in-out infinite}
+@keyframes eyeShine{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:.9;transform:scale(1.15)}}
+
+/* Eyelid */
+.lid{position:absolute;width:100%;height:0;background:linear-gradient(180deg,#ffb0c0 0%,#ff90a0 100%);border-radius:50% 50% 0 0;top:0;left:0;z-index:5;transition:height .18s cubic-bezier(.37,0,.63,1);transform-origin:top}
 .eye.blink .lid{height:100%}
-.eye.happy .lid{height:65%}
+.eye.happy .lid{height:60%}
 .eye.surprised .lid{height:0}
+.eye.wink .lid{height:100%}
 
-.eye.happy{transform:scaleY(.85)}
-.eye.surprised{transform:scale(1.35)}
+.eye.happy{transform:scaleY(.88)}
+.eye.surprised{transform:scale(1.3)}
 
-/* Pupila con vida */
-.pupil{position:absolute;width:16px;height:20px;background:radial-gradient(circle at 35% 35%,#7a7a7a 0%,#4a4a4a 30%,#2a2a2a 60%,#1a1a1a 100%);border-radius:50%;top:10px;left:8px;z-index:2;transition:transform .12s cubic-bezier(.4,0,.2,1)}
-.pupil::after{content:'';position:absolute;top:3px;left:4px;width:6px;height:6px;background:rgba(255,255,255,.95);border-radius:50%;box-shadow:0 0 4px rgba(255,255,255,.8)}
-.pupil::before{content:'';position:absolute;top:10px;left:10px;width:4px;height:4px;background:rgba(255,255,255,.5);border-radius:50%}
+/* Eye position */
+.eye-l{left:10px}.eye-r{right:10px}
 
-/* Reflejo del ojo */
-.eye-shine{position:absolute;width:8px;height:8px;background:rgba(255,255,255,.9);border-radius:50%;top:6px;left:6px;z-index:4;animation:eyeShine 3s ease-in-out infinite}
-@keyframes eyeShine{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
+/* Eyebrows */
+.brow{position:absolute;width:24px;height:5px;border-radius:3px;top:0;transition:all .3s cubic-bezier(.37,0,.63,1);box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.brow-l{left:10px;background:linear-gradient(90deg,#b09080 0%,#9a7a6a 50%,#b09080 100%);transform:rotate(-5deg)}
+.brow-r{right:10px;background:linear-gradient(90deg,#b09080 0%,#9a7a6a 50%,#b09080 100%);transform:rotate(5deg)}
+.brow.raised{transform:translateY(-6px) rotate(0) scaleX(1.12)}
+.brow.furrowed{transform:translateY(3px) rotate(0) scaleX(.92)}
 
-/* Cejas expresivas */
-.brow{position:absolute;width:22px;height:5px;background:linear-gradient(90deg,#a08878 0%,#8b7060 50%,#a08878 100%);border-radius:3px;top:0;transition:all .25s cubic-bezier(.4,0,.2,1);box-shadow:0 1px 3px rgba(0,0,0,.15)}
-.brow-left{left:10px;transform:rotate(-6deg)}
-.brow-right{right:10px;transform:rotate(6deg)}
-.brow.raised{transform:translateY(-5px) rotate(0) scaleX(1.15)}
-.brow.furrowed{transform:translateY(2px) rotate(0) scaleX(.95)}
-
-/* Mejillas sonroadas */
-.cheek{position:absolute;width:24px;height:18px;background:radial-gradient(ellipse,rgba(255,140,140,.5) 0%,rgba(255,140,140,.2) 40%,transparent 70%);border-radius:50%;top:30px;opacity:0;transition:opacity .4s ease}
-.cheek-left{left:-8px}.cheek-right{right:-8px}
+/* Cheeks */
+.cheek{position:absolute;width:26px;height:20px;border-radius:50%;top:32px;opacity:0;transition:opacity .45s ease;filter:blur(2px)}
+.cheek-l{left:-10px;background:radial-gradient(ellipse,rgba(255,130,130,.45) 0%,transparent 70%)}
+.cheek-r{right:-10px;background:radial-gradient(ellipse,rgba(255,130,130,.45) 0%,transparent 70%)}
 .cheek.visible{opacity:1}
 
-/* Nariz sutil */
-.nose{position:absolute;width:8px;height:6px;background:radial-gradient(ellipse,rgba(255,180,180,.4) 0%,transparent 70%);border-radius:50%;top:20px;left:50%;transform:translateX(-50%)}
+/* Mouth - expressive */
+.mouth-area{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:50px;height:24px}
 
-/* Boca expresiva */
-.mouth-wrap{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:48px;height:22px}
+.mouth{width:100%;height:100%;border-radius:0 0 25px 25px;overflow:hidden;position:relative;transition:all .15s ease-out;background:linear-gradient(180deg,#d44 0%,#e55 35%,#f77 100%);box-shadow:inset 0 -6px 12px rgba(0,0,0,.3),0 2px 6px rgba(0,0,0,.12)}
 
-.mouth{width:100%;height:100%;background:linear-gradient(180deg,#d44 0%,#e55 40%,#f77 100%);border-radius:0 0 24px 24px;box-shadow:inset 0 -5px 10px rgba(0,0,0,.25),0 2px 6px rgba(0,0,0,.1);overflow:hidden;transition:all .12s ease-out;position:relative}
+/* Teeth */
+.teeth{position:absolute;top:0;left:50%;transform:translateX(-50%);width:26px;height:8px;background:linear-gradient(180deg,#fff 0%,#f8f8f8 100%);border-radius:0 0 7px 7px;z-index:1;box-shadow:0 1px 3px rgba(0,0,0,.1)}
 
-/* Dientes */
-.teeth{position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:7px;background:linear-gradient(180deg,#fff 0%,#f8f8f8 100%);border-radius:0 0 6px 6px;z-index:1;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+/* Tongue */
+.tongue{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:18px;height:12px;background:radial-gradient(ellipse,#ff9090,#ff6666);border-radius:50%;opacity:0;transition:opacity .25s}
 
-/* Lengua */
-.tongue{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:16px;height:10px;background:radial-gradient(ellipse,#ff8888,#ff6666);border-radius:50% 50% 50% 50%;opacity:0;transition:opacity .2s}
+/* Mouth states */
+.mouth.m1{height:5px;width:34px;border-radius:0 0 17px 17px}
+.mouth.m2{height:28px;width:44px;border-radius:0 0 22px 22px}
+.mouth.m3{height:14px;width:50px;border-radius:0 0 25px 25px}
+.mouth.m4{height:34px;width:30px;border-radius:0 0 15px 15px}
+.mouth.m4 .tongue{opacity:1}
+.mouth.m5{height:8px;width:46px;border-radius:0 0 23px 23px}
+.mouth.m6{height:38px;width:26px;border-radius:0 0 13px 13px}
+.mouth.m6 .tongue{opacity:1}
 
-/* Estados de boca */
-.mouth.m1{height:5px;width:32px;border-radius:0 0 16px 16px}
-.mouth.m2{height:26px;width:42px;border-radius:0 0 21px 21px}
-.mouth.m3{height:12px;width:48px;border-radius:0 0 24px 24px}
-.mouth.m4{height:32px;width:28px;border-radius:0 0 14px 14px}
-.mouth.m5{height:8px;width:44px;border-radius:0 0 22px 22px}
-.mouth.m6{height:36px;width:24px;border-radius:0 0 12px 12px}
-.mouth.m4 .tongue,.mouth.m6 .tongue{opacity:1}
+.mouth.smile{height:32px;border-radius:22px 22px 25px 25px;background:linear-gradient(180deg,#f77 0%,#faa 100%)}
+.mouth.smile .teeth{height:9px}
+.mouth.surprised{width:30px;height:30px;border-radius:50%;background:radial-gradient(circle,#d44,#a22)}
+.mouth.sad{border-radius:25px 25px 0 0;bottom:2px;background:linear-gradient(0deg,#d44,#c33)}
 
-.mouth.smile{height:30px;border-radius:20px 20px 24px 24px;background:linear-gradient(180deg,#f77 0%,#faa 100%)}
-.mouth.smile .teeth{height:8px}
-.mouth.surprised{width:28px;height:28px;border-radius:50%;background:radial-gradient(circle,#d44,#a22)}
-.mouth.sad{border-radius:24px 24px 0 0;bottom:4px;background:linear-gradient(0deg,#d44,#c33)}
+/* ===== SHADOW ===== */
+.floor-shadow{position:absolute;width:160px;height:25px;background:radial-gradient(ellipse,rgba(0,0,0,.3) 0%,transparent 70%);border-radius:50%;bottom:-20px;left:50%;transform:translateX(-50%);filter:blur(8px);animation:shadowPulse 5s ease-in-out infinite}
+@keyframes shadowPulse{0%,100%{transform:translateX(-50%) scaleX(1);opacity:.7}50%{transform:translateX(-50%) scaleX(1.08);opacity:.85}}
 
-/* ===== BARBA/SOMBRA SUTIL ===== */
-.shadow{position:absolute;width:140px;height:20px;background:radial-gradient(ellipse,rgba(0,0,0,.2) 0%,transparent 70%);border-radius:50%;bottom:-15px;left:50%;transform:translateX(-50%)}
+/* ===== EFFECTS ===== */
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:twinkle 3.5s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.06;transform:scale(1)}50%{opacity:.5;transform:scale(1.5)}}
 
-/* ===== EFECTOS ===== */
-.particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:200}
-.particle{position:absolute;font-size:1.2rem;animation:particleFly 1.4s cubic-bezier(.4,0,.2,1) forwards}
-@keyframes particleFly{0%{opacity:1;transform:translate(0,0) scale(1) rotate(0)}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(.2) rotate(360deg)}}
+.particles{position:fixed;inset:0;pointer-events:none;z-index:200}
+.particle{position:absolute;font-size:1.3rem;animation:particleRise 1.6s cubic-bezier(.37,0,.63,1) forwards}
+@keyframes particleRise{0%{opacity:1;transform:translate(0,0) scale(1) rotate(0)}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(.15) rotate(360deg)}}
 
-.stars{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
-.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:twinkle 3s ease-in-out infinite}
-@keyframes twinkle{0%,100%{opacity:.08;transform:scale(1)}50%{opacity:.6;transform:scale(1.4)}}
+/* Speech bubble */
+.bubble{position:fixed;bottom:75px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(10,10,25,.97);border:1px solid rgba(255,107,107,.3);border-radius:22px;padding:20px 30px;max-width:560px;min-width:320px;box-shadow:0 14px 50px rgba(0,0,0,.55),0 0 40px rgba(255,107,107,.05);z-index:150;text-align:center;opacity:0;transition:all .5s cubic-bezier(.37,0,.63,1);pointer-events:none}
+.bubble.visible{opacity:1;transform:translateX(-50%) translateY(0)}
+.bubble::after{content:'';position:absolute;bottom:-15px;left:50%;transform:translateX(-50%);border-width:15px;border-style:solid;border-color:rgba(10,10,25,.97) transparent transparent}
+.bubble-text{font-size:.98rem;color:#eee;line-height:1.7;letter-spacing:.2px}
 
-/* Burbuja */
-.speech-bubble{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(15px);background:rgba(12,12,30,.96);border:1px solid rgba(255,107,107,.35);border-radius:20px;padding:18px 28px;max-width:540px;min-width:300px;box-shadow:0 12px 45px rgba(0,0,0,.5),0 0 35px rgba(255,107,107,.06);z-index:150;text-align:center;opacity:0;transition:all .45s cubic-bezier(.4,0,.2,1);pointer-events:none}
-.speech-bubble.visible{opacity:1;transform:translateX(-50%) translateY(0)}
-.speech-bubble::after{content:'';position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);border-width:14px;border-style:solid;border-color:rgba(12,12,30,.96) transparent transparent}
-.speech-text{font-size:.95rem;color:#eee;line-height:1.65}
+/* Smoke card */
+.smoke{position:fixed;z-index:250;pointer-events:none;opacity:0;transition:all .6s cubic-bezier(.68,-.55,.27,1.55)}
+.smoke.visible{opacity:1}
+.smoke-card{background:rgba(8,8,20,.98);border:1px solid rgba(255,107,107,.18);border-radius:22px;padding:26px;box-shadow:0 16px 55px rgba(0,0,0,.65),0 0 50px rgba(255,107,107,.05)}
+.smoke-emoji{font-size:3.6rem;margin-bottom:12px;animation:smokeFloat 2.5s ease-in-out infinite}
+@keyframes smokeFloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-10px) rotate(6deg)}}
+.smoke-name{font-size:1.25rem;font-weight:700;color:#ff6b6b;letter-spacing:.8px}
+.smoke-desc{font-size:.9rem;color:#aaa;margin-top:10px;line-height:1.65}
+.smoke-price{font-size:1.2rem;color:#00b894;margin-top:14px;font-weight:700;letter-spacing:.5px}
 
-/* Humo */
-.smoke-wrap{position:fixed;z-index:250;pointer-events:none;opacity:0;transition:all .55s cubic-bezier(.68,-.55,.27,1.55)}
-.smoke-wrap.visible{opacity:1}
-.smoke-card{background:rgba(10,10,25,.97);border:1px solid rgba(255,107,107,.2);border-radius:20px;padding:24px;box-shadow:0 14px 50px rgba(0,0,0,.6),0 0 45px rgba(255,107,107,.06)}
-.smoke-emoji{font-size:3.4rem;margin-bottom:10px;animation:smokeEmoji 2s ease-in-out infinite}
-@keyframes smokeEmoji{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-8px) rotate(5deg)}}
-.smoke-name{font-size:1.2rem;font-weight:700;color:#ff6b6b;letter-spacing:.5px}
-.smoke-desc{font-size:.88rem;color:#bbb;margin-top:8px;line-height:1.6}
-.smoke-price{font-size:1.15rem;color:#00b894;margin-top:12px;font-weight:700}
+/* Controls */
+.panel{position:fixed;top:14px;left:14px;z-index:200;display:flex;flex-direction:column;gap:8px}
+.btn{padding:12px 22px;border:1px solid rgba(255,255,255,.06);border-radius:15px;font-size:.86rem;cursor:pointer;transition:all .35s cubic-bezier(.37,0,.63,1);font-weight:600;background:rgba(255,255,255,.04);color:#ccc;backdrop-filter:blur(16px);letter-spacing:.5px;display:flex;align-items:center;gap:10px}
+.btn:hover{background:rgba(255,255,255,.09);border-color:rgba(255,107,107,.3);transform:translateX(7px);color:#fff;box-shadow:0 5px 18px rgba(255,107,107,.08)}
+.btn:active{transform:scale(.96) translateX(7px)}
 
-/* ===== CONTROLES ===== */
-.ctrl-panel{position:fixed;top:14px;left:14px;z-index:200;display:flex;flex-direction:column;gap:7px}
-.btn{padding:11px 20px;border:1px solid rgba(255,255,255,.07);border-radius:14px;font-size:.84rem;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);font-weight:600;background:rgba(255,255,255,.05);color:#ddd;backdrop-filter:blur(14px);letter-spacing:.4px;display:flex;align-items:center;gap:9px}
-.btn:hover{background:rgba(255,255,255,.1);border-color:rgba(255,107,107,.35);transform:translateX(6px);color:#fff;box-shadow:0 4px 15px rgba(255,107,107,.1)}
-.btn:active{transform:scale(.96) translateX(6px)}
+.products{position:fixed;top:50%;right:14px;transform:translateY(-50%);z-index:200;display:flex;flex-direction:column;gap:10px}
+.card{background:rgba(8,8,20,.93);border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:16px 22px;cursor:pointer;transition:all .4s cubic-bezier(.37,0,.63,1);backdrop-filter:blur(16px);display:flex;align-items:center;gap:16px;min-width:190px}
+.card:hover{border-color:rgba(255,107,107,.4);transform:translateX(-12px) scale(1.04);box-shadow:0 10px 35px rgba(255,107,107,.1)}
+.card .emoji{font-size:1.8rem;transition:transform .4s cubic-bezier(.37,0,.63,1)}
+.card:hover .emoji{transform:scale(1.3) rotate(-10deg)}
+.card .info{text-align:left}
+.card .name{font-size:.88rem;font-weight:600;color:#fff}
+.card .price{font-size:.8rem;color:#00b894;margin-top:4px}
 
-.products-panel{position:fixed;top:50%;right:14px;transform:translateY(-50%);z-index:200;display:flex;flex-direction:column;gap:9px}
-.product-card{background:rgba(10,10,25,.92);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:15px 20px;cursor:pointer;transition:all .35s cubic-bezier(.4,0,.2,1);backdrop-filter:blur(14px);display:flex;align-items:center;gap:14px;min-width:180px}
-.product-card:hover{border-color:rgba(255,107,107,.45);transform:translateX(-10px) scale(1.03);box-shadow:0 8px 30px rgba(255,107,107,.12)}
-.product-card .emoji{font-size:1.7rem;transition:transform .35s ease}
-.product-card:hover .emoji{transform:scale(1.25) rotate(-8deg)}
-.product-card .info{text-align:left}
-.product-card .name{font-size:.86rem;font-weight:600;color:#fff}
-.product-card .price{font-size:.78rem;color:#00b894;margin-top:3px}
-
-.voice-bar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:9px;z-index:200}
-.v-btn{padding:10px 20px;border:1px solid rgba(255,255,255,.09);border-radius:14px;font-size:.84rem;cursor:pointer;font-weight:600;transition:all .3s cubic-bezier(.4,0,.2,1);background:rgba(255,255,255,.05);color:#ddd;backdrop-filter:blur(14px)}
-.v-btn:hover{background:rgba(255,255,255,.1);color:#fff}
-.v-btn.active{background:linear-gradient(135deg,#00b894,#00cec9);border-color:transparent;color:#fff}
+.bar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:200}
+.bar-btn{padding:11px 22px;border:1px solid rgba(255,255,255,.08);border-radius:15px;font-size:.86rem;cursor:pointer;font-weight:600;transition:all .35s cubic-bezier(.37,0,.63,1);background:rgba(255,255,255,.04);color:#ccc;backdrop-filter:blur(16px)}
+.bar-btn:hover{background:rgba(255,255,255,.09);color:#fff}
+.bar-btn.active{background:linear-gradient(135deg,#00b894,#00cec9);border-color:transparent;color:#fff}
 
 .brand{position:fixed;top:14px;right:14px;z-index:200;text-align:right}
-.brand-name{font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#ff6b6b 0%,#f5a623 50%,#ff6b6b 100%);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px;animation:brandShine 4s ease-in-out infinite}
-@keyframes brandShine{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-.brand-tag{font-size:.7rem;color:#555;letter-spacing:4px;text-transform:uppercase;margin-top:4px}
+.brand-name{font-size:1.7rem;font-weight:800;background:linear-gradient(135deg,#ff6b6b 0%,#f5a623 50%,#ff6b6b 100%);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2.5px;animation:brandFlow 5s ease-in-out infinite}
+@keyframes brandFlow{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.brand-tag{font-size:.72rem;color:#444;letter-spacing:5px;text-transform:uppercase;margin-top:5px}
 
-.recipe-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);z-index:400;max-width:460px;width:92%;max-height:84vh;overflow-y:auto;background:rgba(10,10,25,.99);border:1px solid rgba(255,107,107,.2);border-radius:22px;padding:32px;box-shadow:0 28px 80px rgba(0,0,0,.7),0 0 55px rgba(255,107,107,.06);transition:transform .45s cubic-bezier(.68,-.55,.27,1.55);opacity:0}
-.recipe-modal.open{transform:translate(-50%,-50%) scale(1);opacity:1}
-.recipe-modal h2{font-size:1.3rem;color:#ff6b6b;margin-bottom:16px;letter-spacing:.5px}
-.recipe-modal h3{color:#00b894;margin:16px 0 10px;font-size:.9rem;letter-spacing:.6px}
-.recipe-modal ul,.recipe-modal ol{padding-left:22px}
-.recipe-modal li{padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.88rem;color:#bbb;line-height:1.55}
-.recipe-close{position:absolute;top:16px;right:20px;background:none;border:none;font-size:1.6rem;cursor:pointer;color:#555;transition:all .25s}
-.recipe-close:hover{color:#ff6b6b;transform:rotate(90deg) scale(1.1)}
+.modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);z-index:400;max-width:480px;width:92%;max-height:85vh;overflow-y:auto;background:rgba(8,8,20,.99);border:1px solid rgba(255,107,107,.18);border-radius:24px;padding:34px;box-shadow:0 30px 90px rgba(0,0,0,.75),0 0 60px rgba(255,107,107,.05);transition:transform .5s cubic-bezier(.68,-.55,.27,1.55);opacity:0}
+.modal.open{transform:translate(-50%,-50%) scale(1);opacity:1}
+.modal h2{font-size:1.35rem;color:#ff6b6b;margin-bottom:18px;letter-spacing:.6px}
+.modal h3{color:#00b894;margin:18px 0 12px;font-size:.92rem;letter-spacing:.7px}
+.modal ul,.modal ol{padding-left:24px}
+.modal li{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.9rem;color:#aaa;line-height:1.6}
+.modal-close{position:absolute;top:18px;right:22px;background:none;border:none;font-size:1.7rem;cursor:pointer;color:#444;transition:all .3s}
+.modal-close:hover{color:#ff6b6b;transform:rotate(90deg) scale(1.15)}
 
 /* Splash */
-.splash{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#0a0a1a 0%,#1a1a3e 50%,#0d1b2a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:opacity .6s ease}
+.splash{position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#1a1a3a 0%,#0a0a18 50%,#050510 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:opacity .7s ease}
 .splash.hide{opacity:0;pointer-events:none}
-.splash-cake{font-size:6rem;animation:floatCake 3.5s ease-in-out infinite;filter:drop-shadow(0 20px 40px rgba(255,107,107,.3))}
-@keyframes floatCake{0%,100%{transform:translateY(0) rotate(-4deg) scale(1)}50%{transform:translateY(-25px) rotate(4deg) scale(1.05)}}
-.splash-title{font-size:2.5rem;font-weight:800;background:linear-gradient(135deg,#ff6b6b,#f5a623,#ff6b6b);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:25px 0 10px;letter-spacing:3px;animation:brandShine 3s ease-in-out infinite}
-.splash-sub{color:#555;font-size:.88rem;letter-spacing:5px;text-transform:uppercase;margin-bottom:40px}
-.splash-btn{padding:18px 55px;background:linear-gradient(135deg,#ff6b6b,#ee5a24);border:none;border-radius:35px;color:#fff;font-weight:700;font-size:1.05rem;cursor:pointer;transition:all .35s;box-shadow:0 8px 30px rgba(255,107,107,.35);letter-spacing:1.5px}
-.splash-btn:hover{transform:scale(1.06);box-shadow:0 10px 40px rgba(255,107,107,.5)}
+.splash-icon{font-size:7rem;animation:iconFloat 4s ease-in-out infinite;filter:drop-shadow(0 25px 50px rgba(255,107,107,.25))}
+@keyframes iconFloat{0%,100%{transform:translateY(0) rotate(-5deg) scale(1)}50%{transform:translateY(-30px) rotate(5deg) scale(1.08)}}
+.splash-title{font-size:2.8rem;font-weight:800;background:linear-gradient(135deg,#ff6b6b,#f5a623,#ff6b6b);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:30px 0 12px;letter-spacing:4px;animation:brandFlow 4s ease-in-out infinite}
+.splash-sub{color:#444;font-size:.9rem;letter-spacing:6px;text-transform:uppercase;margin-bottom:45px}
+.splash-btn{padding:20px 60px;background:linear-gradient(135deg,#ff6b6b,#ee5a24);border:none;border-radius:40px;color:#fff;font-weight:700;font-size:1.1rem;cursor:pointer;transition:all .4s;box-shadow:0 10px 35px rgba(255,107,107,.4);letter-spacing:2px}
+.splash-btn:hover{transform:scale(1.08);box-shadow:0 14px 45px rgba(255,107,107,.55)}
 
-.loading-voice{position:fixed;bottom:55px;left:50%;transform:translateX(-50%);background:rgba(0,184,148,.92);color:#fff;padding:9px 22px;border-radius:22px;font-size:.82rem;font-weight:600;z-index:300;display:none;align-items:center;gap:9px;box-shadow:0 4px 15px rgba(0,184,148,.4)}
-.loading-voice.visible{display:flex}
-.loading-voice::before{content:'';width:14px;height:14px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite}
+.loading{position:fixed;bottom:50px;left:50%;transform:translateX(-50%);background:rgba(0,184,148,.94);color:#fff;padding:10px 24px;border-radius:24px;font-size:.84rem;font-weight:600;z-index:300;display:none;align-items:center;gap:10px;box-shadow:0 5px 18px rgba(0,184,148,.45)}
+.loading.visible{display:flex}
+.loading::before{content:'';width:15px;height:15px;border:2.5px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .55s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 @media(max-width:700px){
-.avatar{width:160px;height:230px}
-.body{width:150px;height:170px}
-.cake-base{width:140px;height:72px}
-.cake-mid{width:128px;height:45px;bottom:68px}
-.cake-top{width:112px;height:40px;bottom:108px}
-.face{top:16px;width:90px;height:65px}
-.eye{width:24px;height:28px}.pupil{width:12px;height:15px}
-.mouth-wrap{width:38px;height:18px}
-.arm{width:38px;height:16px}
-.hand{width:20px;height:20px}
-.finger{width:5px;height:8px}
-.ctrl-panel{top:auto;bottom:70px;left:8px}
-.products-panel{top:auto;bottom:120px;right:8px}
+.avatar-wrap{transform:translate(-50%,-50%) scale(.75)}
+.panel{top:auto;bottom:70px;left:8px}
+.products{top:auto;bottom:120px;right:8px}
 .brand{top:8px;right:8px}
-.brand-name{font-size:1.3rem}
+.brand-name{font-size:1.4rem}
 }
 </style>
 </head>
 <body>
 
+<div class="bg"></div>
+<div class="light-ray ray-1"></div>
+<div class="light-ray ray-2"></div>
+<div class="light-ray ray-3"></div>
+<div class="dust" id="dust"></div>
+
 <div class="splash" id="splash">
-    <div class="splash-cake">🍰</div>
+    <div class="splash-icon">🍰</div>
     <div class="splash-title">CHEF BYTE</div>
     <div class="splash-sub">Tu Asistente Gastronómico</div>
     <button class="splash-btn" id="startBtn">INICIAR</button>
@@ -338,66 +347,82 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
     <div class="brand-tag">Cocina Digital</div>
 </div>
 
-<div class="loading-voice" id="loadingVoice">Generando voz...</div>
+<div class="loading" id="loading">Generando voz...</div>
 
-<div class="avatar idle" id="avatar">
-    <div class="body">
-        <div class="cherry-wrap">
-            <div class="stem"></div>
-            <div class="leaf"></div>
-            <div class="cherry"></div>
-        </div>
-        <div class="cake-top"></div>
-        <div class="glaze-wrap">
-            <div class="glaze-shine"></div>
-            <div class="glaze-shine2"></div>
-            <div class="drip d1"><div class="drip-core"></div></div>
-            <div class="drip d2"><div class="drip-core"></div></div>
-            <div class="drip d3"><div class="drip-core"></div></div>
-            <div class="drip d4"><div class="drip-core"></div></div>
-            <div class="drip d5"><div class="drip-core"></div></div>
-        </div>
-        <div class="cake-mid"></div>
-        <div class="cake-base">
-            <div class="arm arm-left" id="armL">
-                <div class="hand">
-                    <div class="finger"></div><div class="finger"></div><div class="finger"></div><div class="finger"></div>
-                </div>
+<div class="avatar-wrap" id="avatarWrap">
+    <div class="avatar" id="avatar">
+        <div class="body">
+            <div class="cherry-system">
+                <div class="stem"></div>
+                <div class="leaf"></div>
+                <div class="cherry"></div>
             </div>
-            <div class="arm arm-right" id="armR">
-                <div class="hand">
-                    <div class="finger"></div><div class="finger"></div><div class="finger"></div><div class="finger"></div>
-                </div>
+            <div class="layer layer-top"></div>
+            <div class="glaze-wrap">
+                <div class="glaze-surface"></div>
+                <div class="glaze-glint"></div>
+                <div class="glaze-glint2"></div>
+                <div class="drip drip-1"><div class="drip-body"></div></div>
+                <div class="drip drip-2"><div class="drip-body"></div></div>
+                <div class="drip drip-3"><div class="drip-body"></div></div>
+                <div class="drip drip-4"><div class="drip-body"></div></div>
+                <div class="drip drip-5"><div class="drip-body"></div></div>
+                <div class="drip drip-6"><div class="drip-body"></div></div>
             </div>
-            <div class="face">
-                <div class="brow brow-left" id="browL"></div>
-                <div class="brow brow-right" id="browR"></div>
-                <div class="eye eye-left" id="eyeL">
-                    <div class="lid"></div>
-                    <div class="eye-shine"></div>
-                    <div class="pupil" id="pupilL"></div>
+            <div class="layer layer-mid"></div>
+            <div class="layer layer-base">
+                <div class="arm arm-l" id="armL">
+                    <div class="hand"><div class="fingers"><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div></div></div>
                 </div>
-                <div class="eye eye-right" id="eyeR">
-                    <div class="lid"></div>
-                    <div class="eye-shine"></div>
-                    <div class="pupil" id="pupilR"></div>
+                <div class="arm arm-r" id="armR">
+                    <div class="hand"><div class="fingers"><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div></div></div>
                 </div>
-                <div class="nose"></div>
-                <div class="cheek cheek-left" id="cheekL"></div>
-                <div class="cheek cheek-right" id="cheekR"></div>
-                <div class="mouth-wrap">
-                    <div class="mouth" id="mouth">
-                        <div class="teeth"></div>
-                        <div class="tongue"></div>
+                <div class="face">
+                    <div class="brow brow-l" id="browL"></div>
+                    <div class="brow brow-r" id="browR"></div>
+                    <div class="eye eye-l" id="eyeL">
+                        <div class="eye-white"></div>
+                        <div class="iris" id="irisL">
+                            <div class="pupil" id="pupilL">
+                                <div class="pupil-ref1"></div>
+                                <div class="pupil-ref2"></div>
+                                <div class="pupil-ref3"></div>
+                            </div>
+                        </div>
+                        <div class="lid"></div>
+                        <div class="eye-shine"></div>
+                    </div>
+                    <div class="eye eye-r" id="eyeR">
+                        <div class="eye-white"></div>
+                        <div class="iris" id="irisR">
+                            <div class="pupil" id="pupilR">
+                                <div class="pupil-ref1"></div>
+                                <div class="pupil-ref2"></div>
+                                <div class="pupil-ref3"></div>
+                            </div>
+                        </div>
+                        <div class="lid"></div>
+                        <div class="eye-shine"></div>
+                    </div>
+                    <div class="nose"></div>
+                    <div class="cheekbone cheekbone-l"></div>
+                    <div class="cheekbone cheekbone-r"></div>
+                    <div class="cheek cheek-l" id="cheekL"></div>
+                    <div class="cheek cheek-r" id="cheekR"></div>
+                    <div class="mouth-area">
+                        <div class="mouth" id="mouth">
+                            <div class="teeth"></div>
+                            <div class="tongue"></div>
+                        </div>
                     </div>
                 </div>
+                <div class="floor-shadow"></div>
             </div>
-            <div class="shadow"></div>
         </div>
     </div>
 </div>
 
-<div class="smoke-wrap" id="smokeWrap">
+<div class="smoke" id="smoke">
     <div class="smoke-card">
         <div class="smoke-emoji" id="smokeEmoji"></div>
         <div class="smoke-name" id="smokeName"></div>
@@ -406,40 +431,40 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
     </div>
 </div>
 
-<div class="speech-bubble" id="speechBubble"><p class="speech-text" id="speechText"></p></div>
+<div class="bubble" id="bubble"><p class="bubble-text" id="bubbleText"></p></div>
 
-<div class="products-panel">
-    <div class="product-card" onclick="showProduct('cake')">
+<div class="products">
+    <div class="card" onclick="showProduct('cake')">
         <span class="emoji">🍰</span>
         <div class="info"><div class="name">Pastel Chocolate</div><div class="price">$35.000</div></div>
     </div>
-    <div class="product-card" onclick="showProduct('pasta')">
+    <div class="card" onclick="showProduct('pasta')">
         <span class="emoji">🍝</span>
         <div class="info"><div class="name">Pasta Italiana</div><div class="price">$42.000</div></div>
     </div>
-    <div class="product-card" onclick="showProduct('tacos')">
+    <div class="card" onclick="showProduct('tacos')">
         <span class="emoji">🌮</span>
         <div class="info"><div class="name">Tacos Gourmet</div><div class="price">$28.000</div></div>
     </div>
-    <div class="product-card" onclick="showProduct('sushi')">
+    <div class="card" onclick="showProduct('sushi')">
         <span class="emoji">🍣</span>
         <div class="info"><div class="name">Sushi Premium</div><div class="price">$65.000</div></div>
     </div>
 </div>
 
-<div class="ctrl-panel">
+<div class="panel">
     <button class="btn" onclick="showMenu()">📋 Menú</button>
     <button class="btn" onclick="showPrices()">💰 Precios</button>
     <button class="btn" onclick="greet()">👋 Saludar</button>
 </div>
 
-<div class="voice-bar">
-    <button class="v-btn active" id="voiceBtn" onclick="toggleVoice()">🔊 Voz</button>
-    <button class="v-btn" id="speedBtn" onclick="changeSpeed()">⚡ Normal</button>
+<div class="bar">
+    <button class="bar-btn active" id="voiceBtn" onclick="toggleVoice()">🔊 Voz</button>
+    <button class="bar-btn" id="speedBtn" onclick="changeSpeed()">⚡ Normal</button>
 </div>
 
-<div class="recipe-modal" id="recipeModal">
-    <button class="recipe-close" onclick="closeRecipe()">✕</button>
+<div class="modal" id="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
     <h2 id="rTitle"></h2>
     <h3>Ingredientes:</h3><ul id="rIng"></ul>
     <h3>Preparación:</h3><ol id="rSteps"></ol>
@@ -447,185 +472,131 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 
 <script>
 let voiceOn=true, rate=0.9, dragging=false, dragOff={x:0,y:0};
-let cx=innerWidth/2-110, cy=innerHeight/3-50;
 const A=document.getElementById('avatar');
+const W=document.getElementById('avatarWrap');
 const S=window.speechSynthesis;
-let talkInterval=null, blinkTimer=null;
+let talkInt=null, blinkT=null;
 
-const ELEVENLABS_API_KEY='sk_112617f23620344b47cad6da36eaab66088582e8c18b7016';
-const ELEVENLABS_VOICE_ID='s91wgzodwL1wfwitqbIm';
-const ELEVENLABS_MODEL='eleven_multilingual_v2';
+const EL_KEY='sk_112617f23620344b47cad6da36eaab66088582e8c18b7016';
+const EL_VOICE='s91wgzodwL1wfwitqbIm';
+const EL_MODEL='eleven_multilingual_v2';
 
 function init(){
-    A.style.left=cx+'px'; A.style.top=cy+'px';
-    mkStars(); setupDrag(); trackMouse();
-    startBlinking();
-    startIdleBreathe();
+    mkStars();mkDust();setupDrag();trackMouse();startBlink();startBreath();
     
-    document.getElementById('startBtn').addEventListener('click',()=>{
+    document.getElementById('startBtn').onclick=()=>{
         document.getElementById('splash').classList.add('hide');
         setTimeout(()=>{
             document.getElementById('splash').remove();
             speak('¡Hola! Soy Chef Byte, tu asistente gastronómico. Selecciona un platillo del menú para conocer nuestra propuesta.');
             document.getElementById('armL').classList.add('wave');
-            setTimeout(()=>document.getElementById('armL').classList.remove('wave'),2200);
-        },600);
-    });
+            setTimeout(()=>document.getElementById('armL').classList.remove('wave'),2400);
+        },700);
+    };
 }
 
 // ===== ELEVENLABS =====
-async function speakWithElevenLabs(txt){
-    const loading=document.getElementById('loadingVoice');
-    loading.classList.add('visible');
-    
+async function speakEL(txt){
+    document.getElementById('loading').classList.add('visible');
     try{
-        const response=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE_ID}`,{
+        const r=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${EL_VOICE}`,{
             method:'POST',
-            headers:{'Content-Type':'application/json','xi-api-key':ELEVENLABS_API_KEY},
-            body:JSON.stringify({text:txt,model_id:ELEVENLABS_MODEL,voice_settings:{stability:0.5,similarity_boost:0.75}})
+            headers:{'Content-Type':'application/json','xi-api-key':EL_KEY},
+            body:JSON.stringify({text:txt,model_id:EL_MODEL,voice_settings:{stability:.5,similarity_boost:.75}})
         });
-        
-        if(!response.ok)throw new Error(`Error ${response.status}`);
-        
-        const audioBlob=await response.blob();
-        const audioUrl=URL.createObjectURL(audioBlob);
-        const audio=new Audio(audioUrl);
-        loading.classList.remove('visible');
-        
+        if(!r.ok)throw new Error(r.status);
+        const blob=await r.blob();
+        const url=URL.createObjectURL(blob);
+        const audio=new Audio(url);
+        document.getElementById('loading').classList.remove('visible');
         audio.onplay=()=>{startMouth();A.classList.remove('idle');A.classList.add('talking');showBubble(txt)};
-        audio.onended=()=>{stopMouth();A.classList.remove('talking');A.classList.add('idle');setExpr('happy');setTimeout(()=>setExpr(''),2500);URL.revokeObjectURL(audioUrl)};
-        audio.onerror=()=>{loading.classList.remove('visible');speakFallback(txt)};
-        
+        audio.onended=()=>{stopMouth();A.classList.remove('talking');A.classList.add('idle');setExpr('happy');setTimeout(()=>setExpr(''),3000);URL.revokeObjectURL(url)};
+        audio.onerror=()=>{document.getElementById('loading').classList.remove('visible');speakFB(txt)};
         await audio.play();
-    }catch(e){
-        loading.classList.remove('visible');
-        speakFallback(txt);
-    }
+    }catch(e){document.getElementById('loading').classList.remove('visible');speakFB(txt)}
 }
 
-function speakFallback(txt){
+function speakFB(txt){
     if(!S){showBubble(txt);return}
     S.cancel();
     const u=new SpeechSynthesisUtterance(txt);
     u.lang='es-ES';u.rate=rate;u.pitch=1.05;u.volume=1;
     const vs=S.getVoices();
-    const pref=['Microsoft Sabina','Microsoft Helena','Google español','Paulina','Esperanza','Helena','es-ES','es-MX'];
-    let v=null;
-    for(const n of pref){v=vs.find(x=>x.name.includes(n));if(v)break}
+    const p=['Microsoft Sabina','Microsoft Helena','Google español','Paulina','Esperanza','Helena','es-ES','es-MX'];
+    let v=null;for(const n of p){v=vs.find(x=>x.name.includes(n));if(v)break}
     if(!v)v=vs.find(x=>x.lang.startsWith('es'));
     if(v)u.voice=v;
     u.onstart=()=>{startMouth();A.classList.remove('idle');A.classList.add('talking');showBubble(txt)};
-    u.onend=()=>{stopMouth();A.classList.remove('talking');A.classList.add('idle');setExpr('happy');setTimeout(()=>setExpr(''),2500)};
-    u.onerror=()=>{stopMouth();showBubble(txt)};
+    u.onend=()=>{stopMouth();A.classList.remove('talking');A.classList.add('idle');setExpr('happy');setTimeout(()=>setExpr(''),3000)};
     S.speak(u);
 }
 
-function speak(txt){
-    if(!voiceOn){showBubble(txt);return}
-    if(ELEVENLABS_API_KEY&&ELEVENLABS_VOICE_ID){speakWithElevenLabs(txt);return}
-    speakFallback(txt);
-}
+function speak(txt){if(!voiceOn){showBubble(txt);return}if(EL_KEY&&EL_VOICE){speakEL(txt);return}speakFB(txt)}
 
-// ===== BOCA =====
+// ===== MOUTH SYNC =====
 function startMouth(){
     stopMouth();
     const m=document.getElementById('mouth');
-    const states=['m1','m2','m3','m4','m5','m6'];
+    const s=['m1','m2','m3','m4','m5','m6'];
     let i=0;
-    talkInterval=setInterval(()=>{
-        m.className='mouth';
-        m.classList.add(states[i%states.length]);
-        i++;
-    },80+Math.random()*30);
+    talkInt=setInterval(()=>{m.className='mouth';m.classList.add(s[i%s.length]);i++},85+Math.random()*35);
 }
+function stopMouth(){if(talkInt){clearInterval(talkInt);talkInt=null}document.getElementById('mouth').className='mouth'}
 
-function stopMouth(){
-    if(talkInterval){clearInterval(talkInterval);talkInterval=null}
-    document.getElementById('mouth').className='mouth';
-}
-
-// ===== PARPADEO =====
-function startBlinking(){
-    function blink(){
-        const el=document.getElementById('eyeL'),er=document.getElementById('eyeR');
-        el.classList.add('blink');er.classList.add('blink');
-        setTimeout(()=>{el.classList.remove('blink');er.classList.remove('blink')},200);
-        if(Math.random()>.65){
-            setTimeout(()=>{el.classList.add('blink');er.classList.add('blink');setTimeout(()=>{el.classList.remove('blink');er.classList.remove('blink')},150)},350);
-        }
-        blinkTimer=setTimeout(blink,2200+Math.random()*4500);
+// ===== BLINK =====
+function startBlink(){
+    function b(){
+        const l=document.getElementById('eyeL'),r=document.getElementById('eyeR');
+        l.classList.add('blink');r.classList.add('blink');
+        setTimeout(()=>{l.classList.remove('blink');r.classList.remove('blink')},220);
+        if(Math.random()>.6)setTimeout(()=>{l.classList.add('blink');r.classList.add('blink');setTimeout(()=>{l.classList.remove('blink');r.classList.remove('blink')},160)},380);
+        blinkT=setTimeout(b,2400+Math.random()*5000);
     }
-    blinkTimer=setTimeout(blink,1200);
+    blinkT=setTimeout(b,1400);
 }
 
-// ===== RESPIRACIÓN IDLE =====
-function startIdleBreathe(){
-    const body=document.querySelector('.body');
-    let breathePhase=0;
-    function breathe(){
-        if(!A.classList.contains('idle')&&!A.classList.contains('talking')){
-            breathePhase+=0.02;
-            const y=Math.sin(breathePhase)*2;
-            const s=1+Math.sin(breathePhase)*0.005;
-            body.style.transform=`translateY(${y}px) scale(${s})`;
-        }
-        requestAnimationFrame(breathe);
-    }
-    breathe();
+// ===== BREATH =====
+function startBreath(){
+    let ph=0;
+    const b=()=>{ph+=.018;if(A.classList.contains('idle')||A.classList.contains('talking')){
+        const y=Math.sin(ph)*3;const s=1+Math.sin(ph)*.004;
+        A.style.transform=`translateY(${y}px) scale(${s})`;
+    }requestAnimationFrame(b)};b();
 }
 
-// ===== EXPRESIONES =====
+// ===== EXPRESSIONS =====
 function setExpr(t){
-    const el=document.getElementById('eyeL'),er=document.getElementById('eyeR');
+    const l=document.getElementById('eyeL'),r=document.getElementById('eyeR');
     const m=document.getElementById('mouth');
     const cl=document.getElementById('cheekL'),cr=document.getElementById('cheekR');
     const bl=document.getElementById('browL'),br=document.getElementById('browR');
-    
-    el.className='eye eye-left';er.className='eye eye-right';
-    m.className='mouth';
+    l.className='eye eye-l';r.className='eye eye-r';m.className='mouth';
     cl.classList.remove('visible');cr.classList.remove('visible');
     bl.classList.remove('raised','furrowed');br.classList.remove('raised','furrowed');
-    
     switch(t){
-        case'happy':
-            el.classList.add('happy');er.classList.add('happy');
-            m.classList.add('smile');
-            cl.classList.add('visible');cr.classList.add('visible');
-            break;
-        case'surprised':
-            el.classList.add('surprised');er.classList.add('surprised');
-            m.classList.add('surprised');
-            bl.classList.add('raised');br.classList.add('raised');
-            break;
-        case'wink':
-            el.classList.add('happy');er.classList.add('blink');
-            m.classList.add('smile');
-            cl.classList.add('visible');cr.classList.add('visible');
-            break;
+        case'happy':l.classList.add('happy');r.classList.add('happy');m.classList.add('smile');cl.classList.add('visible');cr.classList.add('visible');break;
+        case'surprised':l.classList.add('surprised');r.classList.add('surprised');m.classList.add('surprised');bl.classList.add('raised');br.classList.add('raised');break;
+        case'wink':l.classList.add('happy');r.classList.add('wink');m.classList.add('smile');cl.classList.add('visible');cr.classList.add('visible');break;
     }
 }
 
-function showBubble(t){document.getElementById('speechText').textContent=t;document.getElementById('speechBubble').classList.add('visible')}
-function hideBubble(){document.getElementById('speechBubble').classList.remove('visible')}
+function showBubble(t){document.getElementById('bubbleText').textContent=t;document.getElementById('bubble').classList.add('visible')}
+function hideBubble(){document.getElementById('bubble').classList.remove('visible')}
 
 function toggleVoice(){
-    voiceOn=!voiceOn;
-    const b=document.getElementById('voiceBtn');
-    b.className=voiceOn?'v-btn active':'v-btn';
+    voiceOn=!voiceOn;const b=document.getElementById('voiceBtn');
+    b.className=voiceOn?'bar-btn active':'bar-btn';
     b.textContent=voiceOn?'🔊 Voz':'🔇 Mute';
     if(!voiceOn){S&&S.cancel();stopMouth();setExpr('');hideBubble()}
 }
-
 function changeSpeed(){
-    const sp=[.75,.9,1.05,1.2];
-    const lb=['Lenta','Normal','Rápida','Muy rápida'];
-    const i=sp.indexOf(rate);
-    rate=sp[(i+1)%sp.length];
+    const sp=[.75,.9,1.1,1.25];const lb=['Lenta','Normal','Rápida','Muy rápida'];
+    const i=sp.indexOf(rate);rate=sp[(i+1)%sp.length];
     document.getElementById('speedBtn').textContent='⚡ '+lb[(i+1)%sp.length];
 }
 
-// ===== PRODUCTOS =====
-const prodDB={
+// ===== PRODUCTS =====
+const DB={
     cake:{emoji:'🍰',name:'Pastel de Chocolate Premium',desc:'Chocolate belga 70% cacao, capa por capa con ganache tradicional y fresas frescas orgánicas.',price:'$35.000',
         ing:['Chocolate belga 70% cacao','Mantequilla francesa','Huevos frescos orgánicos','Fresas del rancho','Nata montada natural','Vainilla de Madagascar'],
         prep:['Temperar chocolate baño maría','Mezclar con mantequilla y huevos','Hornear a 175° por 28 minutos','Enfriar y cubrir con ganache','Decorar con fresas frescas']},
@@ -640,40 +611,31 @@ const prodDB={
         prep:['Cocinar arroz al vapor','Sazonar con vinagre y enfriar','Enrollar con técnica japonesa','Cortar con cuchillo cerámico','Servir con jengibre y wasabi']}
 };
 
-function showProduct(type){
-    const d=prodDB[type];
-    const sw=document.getElementById('smokeWrap');
+function showProduct(t){
+    const d=DB[t];const sw=document.getElementById('smoke');
     document.getElementById('smokeEmoji').textContent=d.emoji;
     document.getElementById('smokeName').textContent=d.name;
     document.getElementById('smokeDesc').textContent=d.desc;
     document.getElementById('smokePrice').textContent=d.price;
-    
-    const r=A.getBoundingClientRect();
-    sw.style.left=Math.min(r.right+25,innerWidth-280)+'px';
-    sw.style.top=Math.max(r.top+25,25)+'px';
+    const r=W.getBoundingClientRect();
+    sw.style.left=Math.min(r.right+28,innerWidth-300)+'px';
+    sw.style.top=Math.max(r.top+30,30)+'px';
     sw.classList.add('visible');
-    
-    setExpr('surprised');
-    setTimeout(()=>setExpr('happy'),400);
-    spawnP(10);
-    
+    setExpr('surprised');setTimeout(()=>setExpr('happy'),450);spawnP(12);
     document.getElementById('rTitle').textContent=d.emoji+' '+d.name;
     document.getElementById('rIng').innerHTML=d.ing.map(x=>'<li>'+x+'</li>').join('');
     document.getElementById('rSteps').innerHTML=d.prep.map(x=>'<li>'+x+'</li>').join('');
-    
-    walkTo(innerWidth/2-110,innerHeight/4-30,()=>{
+    walkTo(innerWidth/2-110,innerHeight/4-40,()=>{
         speak(d.name+'. '+d.desc+'. Precio: '+d.price+' pesos colombianos.');
-        document.getElementById('recipeModal').classList.add('open');
+        document.getElementById('modal').classList.add('open');
         document.getElementById('armR').classList.add('point');
-        setTimeout(()=>document.getElementById('armR').classList.remove('point'),4000);
+        setTimeout(()=>document.getElementById('armR').classList.remove('point'),4500);
     });
-    
-    setTimeout(()=>sw.classList.remove('visible'),8000);
+    setTimeout(()=>sw.classList.remove('visible'),9000);
 }
+function closeModal(){document.getElementById('modal').classList.remove('open')}
 
-function closeRecipe(){document.getElementById('recipeModal').classList.remove('open')}
-
-const menuData={
+const menu={
     ent:['Bruschetta $18.000','Calamares $32.000','Sopa del día $15.000','Ensalada César $25.000'],
     pas:['Espagueti Boloñesa $42.000','Fettuccine Alfredo $45.000','Penne Arrabiata $38.000','Lasagna $52.000'],
     tac:['Tacos de Carne $28.000','Tacos de Pollo $24.000','Tacos de Pescado $35.000','Tacos Veganos $22.000'],
@@ -681,93 +643,67 @@ const menuData={
     pos:['Tiramisú $28.000','Churros $15.000','Cheesecake $25.000','Pastel de Chocolate $35.000'],
     beb:['Agua Fresca $8.000','Limonada $10.000','Café $5.000','Té $5.000','Jugo Natural $12.000']
 };
-
-function showMenu(){
-    const t='Nuestro menú completo. Entradas: '+menuData.ent.join(', ')+'. Pastas: '+menuData.pas.join(', ')+'. Tacos: '+menuData.tac.join(', ')+'. Sushi: '+menuData.sus.join(', ')+'. Postres: '+menuData.pos.join(', ')+'. Bebidas: '+menuData.beb.join('. ');
-    moveSay(t);
-}
-
-function showPrices(){moveSay('Pastas desde 38.000 pesos, tacos desde 22.000, sushi desde 55.000, postres desde 15.000. Todos los precios en pesos colombianos, IVA incluido.')}
-
+function showMenu(){moveSay('Menú completo. Entradas: '+menu.ent.join(', ')+'. Pastas: '+menu.pas.join(', ')+'. Tacos: '+menu.tac.join(', ')+'. Sushi: '+menu.sus.join(', ')+'. Postres: '+menu.pos.join(', ')+'. Bebidas: '+menu.beb.join('. '))}
+function showPrices(){moveSay('Pastas desde 38.000 pesos, tacos desde 22.000, sushi desde 55.000, postres desde 15.000. Precios en pesos colombianos, IVA incluido.')}
 function greet(){
     const g=['¡Hola! Bienvenido a Chef Byte. ¿Qué te gustaría conocer?','¡Bienvenido! Explora nuestros platillos en el menú.','¡Qué tal! Soy tu asistente gastronómico.'];
     document.getElementById('armL').classList.add('wave');
-    setTimeout(()=>document.getElementById('armL').classList.remove('wave'),2000);
-    spawnP(8);setExpr('happy');moveSay(g[~~(Math.random()*g.length)]);
+    setTimeout(()=>document.getElementById('armL').classList.remove('wave'),2200);
+    spawnP(10);setExpr('happy');moveSay(g[~~(Math.random()*g.length)]);
 }
-
-function moveSay(t){
-    walkTo(innerWidth/2-110,innerHeight/4-30,()=>{speak(t);spawnP(8)});
-}
+function moveSay(t){walkTo(innerWidth/2-110,innerHeight/4-40,()=>{speak(t);spawnP(10)})}
 
 // ===== UTILS =====
-function mkStars(){const c=document.getElementById('stars');for(let i=0;i<50;i++){const s=document.createElement('div');s.className='star';s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${2+Math.random()*2.5}s`;c.appendChild(s)}}
+function mkStars(){const c=document.getElementById('stars');for(let i=0;i<55;i++){const s=document.createElement('div');s.className='star';s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*3.5}s;animation-duration:${2.5+Math.random()*3}s`;c.appendChild(s)}}
+
+function mkDust(){const c=document.getElementById('dust');for(let i=0;i<25;i++){const p=document.createElement('div');p.className='dust-p';p.style.cssText=`left:${Math.random()*100}%;animation-delay:${Math.random()*15}s;animation-duration:${12+Math.random()*10}s;width:${1+Math.random()*2}px;height:${1+Math.random()*2}px`;c.appendChild(p)}}
 
 function setupDrag(){
-    A.addEventListener('mousedown',dStart);A.addEventListener('touchstart',dStart,{passive:false});
-    document.addEventListener('mousemove',dMove);document.addEventListener('touchmove',dMove,{passive:false});
-    document.addEventListener('mouseup',dEnd);document.addEventListener('touchend',dEnd);
+    W.addEventListener('mousedown',dS);W.addEventListener('touchstart',dS,{passive:false});
+    document.addEventListener('mousemove',dM);document.addEventListener('touchmove',dM,{passive:false});
+    document.addEventListener('mouseup',dE);document.addEventListener('touchend',dE);
 }
-function dStart(e){e.preventDefault();dragging=true;A.classList.remove('idle');A.style.cursor='grabbing';const p=e.touches?e.touches[0]:e;dragOff.x=p.clientX-A.offsetLeft;dragOff.y=p.clientY-A.offsetTop}
-function dMove(e){if(!dragging)return;e.preventDefault();const p=e.touches?e.touches[0]:e;cx=p.clientX-dragOff.x;cy=p.clientY-dragOff.y;A.style.left=cx+'px';A.style.top=cy+'px'}
-function dEnd(){if(!dragging)return;dragging=false;A.style.cursor='grab';A.classList.add('idle');spawnP(5)}
+let cx=innerWidth/2-110,cy=innerHeight/3-50;
+function dS(e){e.preventDefault();dragging=true;A.classList.remove('idle');W.style.cursor='grabbing';const p=e.touches?e.touches[0]:e;dragOff.x=p.clientX-W.offsetLeft;dragOff.y=p.clientY-W.offsetTop}
+function dM(e){if(!dragging)return;e.preventDefault();const p=e.touches?e.touches[0]:e;cx=p.clientX-dragOff.x-W.offsetWidth/2;cy=p.clientY-dragOff.y-W.offsetHeight/2;W.style.transform=`translate(calc(-50% + ${cx}px),calc(-50% + ${cy}px))`}
+function dE(){if(!dragging)return;dragging=false;W.style.cursor='grab';A.classList.add('idle');spawnP(6)}
 
-function trackMouse(){
-    document.addEventListener('mousemove',e=>{
-        if(dragging)return;
-        const r=A.getBoundingClientRect(),dx=(e.clientX-r.left-r.width/2)/100,dy=(e.clientY-r.top-r.height/2)/100;
-        const pl=document.getElementById('pupilL'),pr=document.getElementById('pupilR');
-        if(pl)pl.style.transform=`translate(${dx}px,${dy}px)`;
-        if(pr)pr.style.transform=`translate(${dx}px,${dy}px)`;
-    });
-}
+function trackMouse(){document.addEventListener('mousemove',e=>{
+    if(dragging)return;const r=W.getBoundingClientRect();
+    const dx=(e.clientX-r.left-r.width/2)/120,dy=(e.clientY-r.top-r.height/2)/120;
+    ['pupilL','pupilR'].forEach(id=>{const p=document.getElementById(id);if(p)p.style.transform=`translate(${dx}px,${dy}px)`});
+})}
 
 function walkTo(tx,ty,cb){
-    A.classList.remove('idle','talking');
-    A.classList.add('walking');
+    A.classList.remove('idle','talking');A.classList.add('walking');
     document.getElementById('armL').classList.add('gesture');
     document.getElementById('armR').classList.add('gesture');
-    
-    const sx=cx,sy=cy,d=Math.sqrt((tx-sx)**2+(ty-sy)**2);
-    const dur=Math.min(d*2.2,2500),st=Date.now();
-    
+    const sr=W.getBoundingClientRect();
+    const sx=sr.left+sr.width/2-110,sy=sr.top+sr.height/2-150;
+    const d=Math.sqrt((tx-sx)**2+(ty-sy)**2);
+    const dur=Math.min(d*2.5,2800);const st=Date.now();
     (function anim(){
         const t=Math.min((Date.now()-st)/dur,1);
         const ease=1-Math.pow(1-t,5);
-        cx=sx+(tx-sx)*ease; cy=sy+(ty-sy)*ease;
-        A.style.left=cx+'px'; A.style.top=cy+'px';
+        const x=sx+(tx-sx)*ease,y=sy+(ty-sy)*ease;
+        W.style.transform=`translate(calc(-50% + ${x+110-innerWidth/2}px),calc(-50% + ${y+150-innerHeight/2}px))`;
         A.style.transform=tx>sx?'scaleX(1)':'scaleX(-1)';
-        
-        if(t<1){requestAnimationFrame(anim)}
-        else{
-            A.classList.remove('walking');
-            document.getElementById('armL').classList.remove('gesture');
-            document.getElementById('armR').classList.remove('gesture');
-            A.style.transform='';
-            A.classList.add('idle');
-            if(cb)cb();
-        }
+        if(t<1)requestAnimationFrame(anim);
+        else{A.classList.remove('walking');document.getElementById('armL').classList.remove('gesture');document.getElementById('armR').classList.remove('gesture');A.style.transform='';A.classList.add('idle');if(cb)cb()}
     })();
 }
 
 function spawnP(n){
-    const c=document.getElementById('particles'),emj=['✨','⭐','💫','🌟','🍰','🧁','💖','🎂'];
-    for(let i=0;i<n;i++){
-        const p=document.createElement('div');p.className='particle';
-        p.textContent=emj[~~(Math.random()*emj.length)];
-        const r=A.getBoundingClientRect();
-        p.style.left=(r.left+r.width/2)+'px';p.style.top=(r.top+r.height/2)+'px';
-        p.style.setProperty('--tx',(Math.random()-.5)*250+'px');
-        p.style.setProperty('--ty',(Math.random()-.5)*250-70+'px');
-        c.appendChild(p);setTimeout(()=>p.remove(),1400);
-    }
+    const c=document.getElementById('particles'),e=['✨','⭐','💫','🌟','🍰','🧁','💖','🎂'];
+    for(let i=0;i<n;i++){const p=document.createElement('div');p.className='particle';p.textContent=e[~~(Math.random()*e.length)];
+    const r=W.getBoundingClientRect();p.style.left=(r.left+r.width/2)+'px';p.style.top=(r.top+r.height/2)+'px';
+    p.style.setProperty('--tx',(Math.random()-.5)*280+'px');p.style.setProperty('--ty',(Math.random()-.5)*280-80+'px');
+    c.appendChild(p);setTimeout(()=>p.remove(),1600)}
 }
 
 if(S)S.onvoiceschanged=()=>S.getVoices();
-A.addEventListener('click',()=>{if(!dragging)greet()});
-
+W.addEventListener('click',()=>{if(!dragging)greet()});
 init();
 </script>
-<!-- v12.0 - 2024 -->
 </body>
 </html>
