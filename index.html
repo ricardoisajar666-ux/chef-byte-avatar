@@ -172,15 +172,42 @@ if(!eyeL||!eyeR)return;let f=0;
 const a=()=>{f++;const s=f<=4?1-f/4:f<=8?(f-4)/4:1;eyeL.scale.y=Math.max(0.05,s);eyeR.scale.y=Math.max(0.05,s);if(f<8)requestAnimationFrame(a);};a();
 }
 
-// Voice
-function speak(txt){
+// Voice - ElevenLabs + fallback
+const EL_KEY='sk_112617f23620344b47cad6da36eaab66088582e8c18b7016';
+const EL_VOICE='s91wgzodwL1wfwitqbIm';
+const EL_MODEL='eleven_multilingual_v2';
+
+async function speak(txt){
 if(!voiceOn){showBubble(txt);return;}
-if(S){S.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang='es-ES';u.rate=0.9;u.pitch=1.05;u.volume=1;
-const vs=S.getVoices();const p=['Microsoft Sabina','Microsoft Helena','Google espanol','Paulina'];
+try{
+const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+EL_VOICE,{
+method:'POST',
+headers:{'Content-Type':'application/json','xi-api-key':EL_KEY},
+body:JSON.stringify({text:txt,model_id:EL_MODEL,voice_settings:{stability:0.5,similarity_boost:0.75}})
+});
+if(!r.ok)throw new Error(r.status);
+const blob=await r.blob();
+const url=URL.createObjectURL(blob);
+const audio=new Audio(url);
+audio.onplay=()=>{isTalking=true;showBubble(txt)};
+audio.onended=()=>{isTalking=false;hideBubble();URL.revokeObjectURL(url)};
+audio.onerror=()=>{speakFB(txt)};
+await audio.play();
+}catch(e){speakFB(txt);}
+}
+
+function speakFB(txt){
+if(!S){showBubble(txt);return;}
+S.cancel();
+const u=new SpeechSynthesisUtterance(txt);
+u.lang='es-ES';u.rate=0.9;u.pitch=1.05;u.volume=1;
+const vs=S.getVoices();
+const p=['Microsoft Sabina','Microsoft Helena','Google espanol','Paulina'];
 let v=null;for(const n of p){v=vs.find(x=>x.name.includes(n));if(v)break;}
 if(!v)v=vs.find(x=>x.lang.startsWith('es'));if(v)u.voice=v;
-u.onstart=()=>{isTalking=true;showBubble(txt)};u.onend=()=>{isTalking=false;hideBubble()};
-S.speak(u);}
+u.onstart=()=>{isTalking=true;showBubble(txt)};
+u.onend=()=>{isTalking=false;hideBubble()};
+S.speak(u);
 }
 
 function showBubble(t){document.getElementById('bubbleText').textContent=t;document.getElementById('bubble').classList.add('show');}
