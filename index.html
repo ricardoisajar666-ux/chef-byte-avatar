@@ -260,12 +260,12 @@ wave();
 // Auto greet
 setTimeout(()=>{speak('Hola! Soy Chef Byte, bienvenidos a mi tienda de postres.');},1500);
 
-// Loop promo
+// Loop promo cada 5 segundos
 let promoInterval=setInterval(()=>{
 if(voiceOn&&!isTalking){
 speak('Chef Byte - Tienda de Postres 3D. Donde cada postre es una obra de arte.');
 }
-},12000);
+},5000);
 
 // Mouse tracking for eyes
 window.addEventListener('mousemove',(e)=>{
