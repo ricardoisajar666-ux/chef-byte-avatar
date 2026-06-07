@@ -3,271 +3,160 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chef Byte - Tienda de Postres v16</title>
+<title>Chef Byte - Avatar 3D</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍰</text></svg>">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:#f5e6d3;overflow:hidden;color:#333}
-canvas{display:block;position:fixed;inset:0;z-index:1}
-.brand{position:fixed;top:14px;right:16px;z-index:100;text-align:right}
-.brand h1{font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,#ff6b6b,#f5a623);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
-.brand p{font-size:.6rem;color:#888;letter-spacing:4px;text-transform:uppercase;margin-top:3px}
-.panel{position:fixed;top:14px;left:14px;z-index:100;display:flex;flex-direction:column;gap:6px}
-.btn{padding:9px 16px;border:1px solid rgba(0,0,0,.08);border-radius:10px;font-size:.78rem;cursor:pointer;transition:all .3s;font-weight:600;background:rgba(255,255,255,.85);color:#555;backdrop-filter:blur(10px)}
-.btn:hover{background:rgba(255,107,107,.15);border-color:rgba(255,107,107,.3);color:#333;transform:translateX(4px)}
-.btn.active{background:linear-gradient(135deg,#ff6b6b,#ee5a24);border-color:transparent;color:#fff}
-.info-panel{position:fixed;bottom:14px;left:14px;z-index:100;background:rgba(255,255,255,.92);border:1px solid rgba(0,0,0,.06);border-radius:14px;padding:16px 20px;min-width:240px;max-width:320px;backdrop-filter:blur(12px);transition:all .4s;opacity:0;transform:translateY(10px);box-shadow:0 4px 20px rgba(0,0,0,.08)}
-.info-panel.show{opacity:1;transform:translateY(0)}
-.info-panel h3{font-size:.95rem;color:#ff6b6b;margin-bottom:6px}
-.info-panel .price{font-size:1.1rem;color:#00b894;font-weight:700;margin:6px 0}
-.info-panel .desc{font-size:.78rem;color:#777;line-height:1.5}
-.bar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:7px;z-index:100}
-.bar button{padding:8px 16px;border:1px solid rgba(0,0,0,.08);border-radius:10px;font-size:.78rem;cursor:pointer;font-weight:600;background:rgba(255,255,255,.85);color:#555;backdrop-filter:blur(10px);transition:all .3s}
-.bar button:hover{background:rgba(255,255,255,1);color:#333}
-.bar button.on{background:linear-gradient(135deg,#00b894,#00cec9);border-color:transparent;color:#fff}
-.bubble{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(15px);background:rgba(255,255,255,.95);border:1px solid rgba(255,107,107,.2);border-radius:16px;padding:14px 22px;max-width:500px;min-width:260px;box-shadow:0 10px 35px rgba(0,0,0,.1);z-index:100;text-align:center;opacity:0;transition:all .4s;pointer-events:none}
-.bubble.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.bubble::after{content:'';position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);border-width:12px;border-style:solid;border-color:rgba(255,255,255,.95) transparent transparent}
-.bubble p{font-size:.85rem;color:#444;line-height:1.55}
-.splash{position:fixed;inset:0;z-index:999;background:linear-gradient(135deg,#fff5ee,#ffe4d6,#ffd4c4);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:opacity .6s}
-.splash.hide{opacity:0;pointer-events:none}
-.splash h1{font-size:2.2rem;font-weight:800;background:linear-gradient(135deg,#ff6b6b,#f5a623);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;letter-spacing:3px}
-.splash p{color:#999;font-size:.75rem;letter-spacing:5px;text-transform:uppercase;margin-bottom:30px}
-.splash button{padding:14px 45px;background:linear-gradient(135deg,#ff6b6b,#ee5a24);border:none;border-radius:28px;color:#fff;font-weight:700;font-size:.95rem;cursor:pointer;transition:all .3s;box-shadow:0 8px 28px rgba(255,107,107,.35);letter-spacing:1.5px}
-.splash button:hover{transform:scale(1.06);box-shadow:0 10px 38px rgba(255,107,107,.5)}
-.loading{position:fixed;bottom:45px;left:50%;transform:translateX(-50%);background:rgba(0,184,148,.92);color:#fff;padding:7px 18px;border-radius:18px;font-size:.78rem;font-weight:600;z-index:300;display:none;align-items:center;gap:7px}
-.loading.on{display:flex}
-.loading::before{content:'';width:11px;height:11px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .5s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-@media(max-width:700px){.bar{bottom:55px}}
+body{background:#0a0a14;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif}
+canvas{display:block}
+.ui{position:fixed;top:20px;left:20px;z-index:10;display:flex;flex-direction:column;gap:8px}
+.btn{padding:10px 18px;border:1px solid rgba(255,255,255,.1);border-radius:10px;font-size:.8rem;cursor:pointer;background:rgba(255,255,255,.06);color:#ccc;backdrop-filter:blur(8px);transition:all .3s;font-weight:600}
+.btn:hover{background:rgba(255,107,107,.15);border-color:rgba(255,107,107,.3);color:#fff}
+.btn.on{background:linear-gradient(135deg,#ff6b6b,#ee5a24);border-color:transparent;color:#fff}
+.brand{position:fixed;top:20px;right:20px;text-align:right;z-index:10}
+.brand h1{font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,#ff6b6b,#f5a623);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.brand p{font-size:.6rem;color:#555;letter-spacing:3px;text-transform:uppercase;margin-top:2px}
+.bubble{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.92);border:1px solid rgba(255,107,107,.2);border-radius:16px;padding:14px 24px;max-width:450px;min-width:200px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.3);z-index:10;opacity:0;transition:opacity .4s;pointer-events:none}
+.bubble.show{opacity:1}
+.bubble p{font-size:.85rem;color:#333;line-height:1.5}
 </style>
 </head>
 <body>
-<div class="splash" id="splash"><h1>CHEF BYTE</h1><p>Tienda de Postres 3D</p><button id="startBtn">ENTRAR A LA TIENDA</button></div>
-<div class="brand"><h1>CHEF BYTE</h1><p>Pasteleria Virtual</p></div>
-<div class="panel">
-<button class="btn" id="promoBtn" onclick="togglePromo()">Modo Promocion</button>
-<button class="btn" onclick="resetCamera()">Camara</button>
+<div class="brand"><h1>CHEF BYTE</h1><p>Tienda de Postres 3D</p></div>
+<div class="ui">
+<button class="btn on" id="voiceBtn" onclick="toggleVoice()">Voz On</button>
 <button class="btn" onclick="greet()">Saludar</button>
 </div>
-<div class="bar">
-<button class="on" id="voiceBtn" onclick="toggleVoice()">Voz On</button>
-<button onclick="resetView()">Reset</button>
-</div>
-<div class="info-panel" id="infoPanel"><h3 id="infoName"></h3><div class="price" id="infoPrice"></div><div class="desc" id="infoDesc"></div></div>
 <div class="bubble" id="bubble"><p id="bubbleText"></p></div>
-<div class="loading" id="loading">Generando voz...</div>
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
 <script type="module">
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+
 let scene,camera,renderer,controls,clock;
 let avatar,faceGroup,eyeL,eyeR,mouthObj,cherryObj;
-let products=[],displayCases=[];
-let selectedProduct=null,promoMode=false,promoTimer=null,promoIndex=0;
-let voiceOn=true,isTalking=false;
-let appState='IDLE';
+let voiceOn=true,isTalking=false,breathPhase=0,blinkTimer=0,nextBlink=2+Math.random()*4,mouthPhase=0;
 const S=window.speechSynthesis;
-const EL_KEY='sk_112617f23620344b47cad6da36eaab66088582e8c18b7016';
-const EL_VOICE='s91wgzodwL1wfwitqbIm';
-const EL_MODEL='eleven_multilingual_v2';
-const raycaster=new THREE.Raycaster();
-const mouse=new THREE.Vector2();
-const productData=[
-{id:'tarta',name:'Tarta de Fresa Celestial',price:'$35.000',desc:'Una exquisita tarta de fresa con crema batida fresca y una base crujiente. Decorada con fresas naturales y un toque de vainilla de Madagascar.',color:0xff6b8a,accent:0xffb6c1},
-{id:'cupcake',name:'Cupcake de Chocolate Divino',price:'$18.000',desc:'Un suave cupcake de chocolate con glaseado intenso y chispas de cacao belga. El favorito de nuestros clientes.',color:0x8b4513,accent:0xd2691e},
-{id:'macaron',name:'Macaron Arcoiris',price:'$12.000',desc:'Delicados macarons de colores variados, cada uno con un sabor unico. Textura crujiente por fuera, suave por dentro.',color:0xff69b4,accent:0xba55d3},
-{id:'donut',name:'Donut Glaseado Clasico',price:'$8.000',desc:'El clasico donut glaseado, suave y esponjoso, ideal para acompanar tu cafe favorito.',color:0xffa500,accent:0xffd700}
-];
-function initThree(){
+
+// Scene
 scene=new THREE.Scene();
-scene.background=new THREE.Color(0xf5e6d3);
-scene.fog=new THREE.Fog(0xf5e6d3,18,35);
+scene.background=new THREE.Color(0x0a0a14);
+scene.fog=new THREE.FogExp2(0x0a0a14,0.03);
+
 camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,0.1,100);
-camera.position.set(0,3.5,9);
-renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+camera.position.set(0,2,6);
+
+renderer=new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(innerWidth,innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.shadowMap.enabled=true;
 renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=1.3;
-renderer.outputColorSpace=THREE.sRGBColorSpace;
+renderer.toneMappingExposure=1.2;
 document.body.prepend(renderer.domElement);
+
 controls=new OrbitControls(camera,renderer.domElement);
-controls.enableDamping=true;controls.dampingFactor=0.08;controls.enablePan=false;
-controls.minDistance=4;controls.maxDistance=14;controls.maxPolarAngle=Math.PI/2.1;
-controls.target.set(0,1.2,0);
+controls.enableDamping=true;
+controls.dampingFactor=0.08;
+controls.enablePan=false;
+controls.minDistance=3;
+controls.maxDistance=12;
+controls.target.set(0,1,0);
+
 clock=new THREE.Clock();
-scene.add(new THREE.HemisphereLight(0xffffff,0x444444,0.6));
-const sun=new THREE.DirectionalLight(0xfff5e6,1.0);
-sun.position.set(4,8,5);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
-sun.shadow.camera.near=0.5;sun.shadow.camera.far=25;
-sun.shadow.camera.left=-10;sun.shadow.camera.right=10;sun.shadow.camera.top=10;sun.shadow.camera.bottom=-10;
-sun.shadow.bias=-0.001;scene.add(sun);
-const fillL=new THREE.DirectionalLight(0xffe8d0,0.4);fillL.position.set(-5,4,3);scene.add(fillL);
-const rim=new THREE.DirectionalLight(0xffd4b8,0.3);rim.position.set(0,3,-5);scene.add(rim);
-const plL=new THREE.PointLight(0xfff0e0,0.3,6);plL.position.set(-3,3,1);scene.add(plL);
-const plR=new THREE.PointLight(0xfff0e0,0.3,6);plR.position.set(3,3,1);scene.add(plR);
-}
-function createEnvironment(){
-const floorMat=new THREE.MeshStandardMaterial({color:0xdeb896,roughness:0.6,metalness:0.05});
-const floor=new THREE.Mesh(new THREE.PlaneGeometry(20,20),floorMat);
-floor.rotation.x=-Math.PI/2;floor.position.y=-0.5;floor.receiveShadow=true;scene.add(floor);
-const ceilMat=new THREE.MeshStandardMaterial({color:0xf5e6d3,roughness:0.95,side:THREE.BackSide});
-const ceil=new THREE.Mesh(new THREE.PlaneGeometry(20,20),ceilMat);ceil.rotation.x=Math.PI/2;ceil.position.y=7;scene.add(ceil);
-const tileMat=new THREE.MeshStandardMaterial({color:0xc9a882,roughness:0.8});
-for(let i=-10;i<11;i+=2){
-const l1=new THREE.Mesh(new THREE.PlaneGeometry(0.02,20),tileMat);l1.rotation.x=-Math.PI/2;l1.position.set(i,-0.49,0);scene.add(l1);
-const l2=new THREE.Mesh(new THREE.PlaneGeometry(20,0.02),tileMat);l2.rotation.x=-Math.PI/2;l2.position.set(0,-0.49,i);scene.add(l2);
-}
-const wallMat=new THREE.MeshStandardMaterial({color:0xf0dcc8,roughness:0.9});
-const bw=new THREE.Mesh(new THREE.PlaneGeometry(16,7),wallMat);bw.position.set(0,3,-5);bw.receiveShadow=true;scene.add(bw);
-const swl=new THREE.Mesh(new THREE.PlaneGeometry(12,7),wallMat);swl.position.set(-8,3,1);swl.rotation.y=Math.PI/2;scene.add(swl);
-const swr=new THREE.Mesh(new THREE.PlaneGeometry(12,7),wallMat);swr.position.set(8,3,1);swr.rotation.y=-Math.PI/2;scene.add(swr);
-const fwMat=new THREE.MeshStandardMaterial({color:0xf0dcc8,roughness:0.9,side:THREE.DoubleSide});
-const fwL=new THREE.Mesh(new THREE.PlaneGeometry(4,7),fwMat);fwL.position.set(-5,3,7);fwL.rotation.y=Math.PI;scene.add(fwL);
-const fwR=new THREE.Mesh(new THREE.PlaneGeometry(4,7),fwMat);fwR.position.set(5,3,7);fwR.rotation.y=Math.PI;scene.add(fwR);
-const fwT=new THREE.Mesh(new THREE.PlaneGeometry(6,1.5),fwMat);fwT.position.set(0,5.75,7);fwT.rotation.y=Math.PI;scene.add(fwT);
-const stripeMat=new THREE.MeshStandardMaterial({color:0xe8d0bc,roughness:0.85});
-for(let i=-7;i<8;i+=2){const st=new THREE.Mesh(new THREE.PlaneGeometry(0.1,7),stripeMat);st.position.set(i,3,-4.98);scene.add(st);}
-const moldMat=new THREE.MeshStandardMaterial({color:0xe0c8b0,roughness:0.5});
-const tm=new THREE.Mesh(new THREE.BoxGeometry(16,0.1,0.12),moldMat);tm.position.set(0,6.3,-4.94);scene.add(tm);
-const shMat=new THREE.MeshStandardMaterial({color:0xc9a882,roughness:0.5,metalness:0.05});
-const s1=new THREE.Mesh(new THREE.BoxGeometry(6,0.06,0.3),shMat);s1.position.set(0,4,-4.85);scene.add(s1);
-const s2=new THREE.Mesh(new THREE.BoxGeometry(4,0.06,0.3),shMat);s2.position.set(0,2.5,-4.85);scene.add(s2);
-const vMat=new THREE.MeshStandardMaterial({color:0xe8c8a0,roughness:0.35,metalness:0.1});
-[-2,-0.7,0.7,2].forEach(x=>{
-const v=new THREE.Group();
-v.add(new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.09,0.18,12),vMat).translateY(0.09));
-const nk=new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.04,0.07,12),vMat);nk.position.y=0.21;v.add(nk);
-const lp=new THREE.Mesh(new THREE.TorusGeometry(0.035,0.008,8,16),vMat);lp.position.y=0.24;lp.rotation.x=Math.PI/2;v.add(lp);
-v.position.set(x,4.03,-4.7);scene.add(v);
-});
-[0xc0392b,0x2980b9,0x27ae60,0xf39c12].forEach((c,i)=>{
-const bk=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.18,0.06),new THREE.MeshStandardMaterial({color:c,roughness:0.6}));
-bk.position.set(-0.8+i*0.55,2.59,-4.7);bk.rotation.z=0.05*(i%2===0?1:-1);scene.add(bk);
-});
-const lc=new THREE.Mesh(new THREE.CylinderGeometry(0.008,0.008,0.8,6),new THREE.MeshStandardMaterial({color:0x555555,roughness:0.4}));
-lc.position.set(0,6,0);scene.add(lc);
-const ls=new THREE.Mesh(new THREE.ConeGeometry(0.35,0.25,16,1,true),new THREE.MeshStandardMaterial({color:0xfff0e0,roughness:0.4,side:THREE.DoubleSide,transparent:true,opacity:0.8}));
-ls.position.set(0,5.55,0);ls.rotation.x=Math.PI;scene.add(ls);
-const ll=new THREE.PointLight(0xffeedd,0.5,10);ll.position.set(0,5.5,0);scene.add(ll);
-const rl1=new THREE.PointLight(0xFFFDD0,0.6,8);rl1.position.set(-2,6,0);scene.add(rl1);
-const rl2=new THREE.PointLight(0xFFFDD0,0.6,8);rl2.position.set(2,6,0);scene.add(rl2);
-const signMat=new THREE.MeshStandardMaterial({color:0xff6b6b,roughness:0.3,metalness:0.2,emissive:0xff6b6b,emissiveIntensity:0.15});
-const signBoard=new THREE.Mesh(new THREE.BoxGeometry(4,0.8,0.08),signMat);
-signBoard.position.set(0,6.8,-4.9);scene.add(signBoard);
-const nameMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:0.2,metalness:0.3,emissive:0xffffff,emissiveIntensity:0.1});
-const n1=new THREE.Mesh(new THREE.BoxGeometry(2.8,0.25,0.02),nameMat);n1.position.set(0,6.9,-4.82);scene.add(n1);
-const n2=new THREE.Mesh(new THREE.BoxGeometry(1.8,0.12,0.02),nameMat);n2.position.set(0,6.65,-4.82);scene.add(n2);
-const seatMat=new THREE.MeshStandardMaterial({color:0xb8956a,roughness:0.5,metalness:0.1});
-const seatTop=new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.35,0.06,16),seatMat);seatTop.position.set(0,-0.45,-0.8);scene.add(seatTop);
-const seatLeg=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,0.45,8),new THREE.MeshStandardMaterial({color:0x8a7050,roughness:0.4}));seatLeg.position.set(0,-0.25,-0.8);scene.add(seatLeg);
-createDisplayCases();
-}
-function createDisplayCases(){
-const gMat=new THREE.MeshPhysicalMaterial({color:0xffffff,transparent:true,opacity:0.12,roughness:0.05,metalness:0.05,transmission:0.9,thickness:0.3,ior:1.5,clearcoat:0.1,clearcoatRoughness:0.1});
-const fMat=new THREE.MeshStandardMaterial({color:0xc9a882,roughness:0.35,metalness:0.15});
-const mc=makeCase(gMat,fMat,2.6,1.2,1.5,true);mc.position.set(0,-0.1,0.5);scene.add(mc);displayCases.push(mc);
-[{x:-3.2,z:1.5},{x:3.2,z:1.5}].forEach(p=>{
-const c=makeCase(gMat,fMat,1.5,0.9,1.1,false);c.position.set(p.x,-0.1,p.z);scene.add(c);displayCases.push(c);
-});
-}
-function makeCase(gM,fM,w,h,d,isMain){
-const g=new THREE.Group();
-g.add(new THREE.Mesh(new THREE.BoxGeometry(w,h,d),gM).translateY(h/2+0.05));
-const ft=new THREE.Mesh(new THREE.BoxGeometry(w+0.04,0.04,d+0.04),fM);ft.position.y=h+0.05;g.add(ft);
-const fb=new THREE.Mesh(new THREE.BoxGeometry(w+0.04,0.04,d+0.04),fM);fb.position.y=0.05;g.add(fb);
-const eg=new THREE.BoxGeometry(0.04,h,0.04);
-[[-w/2,-d/2],[w/2,-d/2],[-w/2,d/2],[w/2,d/2]].forEach(([x,z])=>{const e=new THREE.Mesh(eg,fM);e.position.set(x,h/2+0.05,z);g.add(e);});
-const il=new THREE.PointLight(isMain?0xfff5e6:0xffeedd,isMain?0.5:0.25,3);il.position.y=h;g.add(il);
-const sp=new THREE.SpotLight(0xffffff,isMain?1.0:0.5,5,Math.PI/4,0.5,1);
-sp.position.set(0,h+0.5,0);sp.target.position.set(0,0,0);sp.castShadow=isMain;
-if(isMain){sp.shadow.mapSize.set(1024,1024);}
-g.add(sp);g.add(sp.target);
-if(isMain){const pd=new THREE.MeshStandardMaterial({color:0xb8956a,roughness:0.4,metalness:0.1});const p=new THREE.Mesh(new THREE.BoxGeometry(w+0.08,0.12,d+0.08),pd);p.position.y=0.01;g.add(p);}
-return g;
-}
-function createProducts(){
-productData.forEach((d,i)=>{
-const p=mkProduct(d);
-let initPos,initRot;
-if(i===0){const mc=displayCases[0];initPos=new THREE.Vector3(mc.position.x,0.75,mc.position.z);}
-else if(i===1)initPos=new THREE.Vector3(-3.2,0.65,1.5);
-else if(i===2)initPos=new THREE.Vector3(3.2,0.65,1.5);
-else initPos=new THREE.Vector3(0,0.65,2.5);
-initRot=new THREE.Euler(0,0,0);
-p.userData={...d,index:i,initialPosition:initPos.clone(),initialRotation:initRot.clone()};
-p.position.copy(initPos);
-p.castShadow=true;scene.add(p);products.push(p);
-});
-}
-function mkProduct(d){
-const g=new THREE.Group();
-const m=new THREE.MeshStandardMaterial({color:d.color,roughness:0.3,metalness:0.1});
-const ma=new THREE.MeshStandardMaterial({color:d.accent,roughness:0.25,metalness:0.05});
-if(d.id==='tarta'){
-g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.4,0.45,0.1,32),m).translateY(0.05));
-g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.38,0.4,0.07,32),ma).translateY(0.135));
-g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.38,0.08,32),new THREE.MeshStandardMaterial({color:0xff8a9a,roughness:0.3})).translateY(0.21));
-g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.33,0.35,0.05,32),new THREE.MeshStandardMaterial({color:0xffc0cb,roughness:0.2})).translateY(0.275));
-const s=new THREE.Mesh(new THREE.SphereGeometry(0.06,16,16),new THREE.MeshStandardMaterial({color:0xff2244,roughness:0.25}));s.position.y=0.35;g.add(s);
-}else if(d.id==='cupcake'){
-g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.22,0.2,16),new THREE.MeshStandardMaterial({color:0xf5deb3,roughness:0.55})).translateY(0.1));
-g.add(new THREE.Mesh(new THREE.ConeGeometry(0.18,0.25,16),m).translateY(0.33));
-const c=new THREE.Mesh(new THREE.SphereGeometry(0.035,12,12),new THREE.MeshStandardMaterial({color:0xff0000,roughness:0.2}));c.position.y=0.48;g.add(c);
-}else if(d.id==='macaron'){
-const sT=new THREE.Mesh(new THREE.SphereGeometry(0.16,24,12,0,Math.PI*2,0,Math.PI/2),m);sT.position.y=0.18;sT.rotation.x=Math.PI;g.add(sT);
-g.add(new THREE.Mesh(new THREE.SphereGeometry(0.16,24,12,0,Math.PI*2,0,Math.PI/2),m).translateY(0.14));
-g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.14,0.14,0.035,24),ma).translateY(0.16));
-}else if(d.id==='donut'){
-const dn=new THREE.Mesh(new THREE.TorusGeometry(0.17,0.075,16,32),m);dn.position.y=0.1;dn.rotation.x=Math.PI/2;g.add(dn);
-const gl=new THREE.Mesh(new THREE.TorusGeometry(0.17,0.06,16,32,Math.PI),ma);gl.position.y=0.12;gl.rotation.x=Math.PI/2;g.add(gl);
-const cols=[0xff0000,0x00ff00,0x0000ff,0xffff00,0xff00ff];
-for(let i=0;i<10;i++){
-const sp=new THREE.Mesh(new THREE.BoxGeometry(0.006,0.02,0.006),new THREE.MeshStandardMaterial({color:cols[i%5],roughness:0.3}));
-const a=(i/10)*Math.PI*2;sp.position.set(Math.cos(a)*0.17,0.16,Math.sin(a)*0.17);
-sp.rotation.set(Math.random(),Math.random(),Math.random());g.add(sp);
-}
-}
-return g;
-}
-function createAvatar(){
+
+// Lighting
+scene.add(new THREE.HemisphereLight(0xffffff,0x222244,0.4));
+const dir=new THREE.DirectionalLight(0xfff0e0,1.0);
+dir.position.set(3,6,4);dir.castShadow=true;
+dir.shadow.mapSize.set(1024,1024);dir.shadow.camera.near=0.5;dir.shadow.camera.far=20;
+dir.shadow.camera.left=-5;dir.shadow.camera.right=5;dir.shadow.camera.top=5;dir.shadow.camera.bottom=-5;
+scene.add(dir);
+const rim=new THREE.DirectionalLight(0xff6b6b,0.3);
+rim.position.set(-3,3,-3);scene.add(rim);
+const spot=new THREE.SpotLight(0xffffff,0.6,10,Math.PI/5,0.5);
+spot.position.set(0,5,2);spot.target.position.set(0,0,0);scene.add(spot);scene.add(spot.target);
+
+// Platform
+const platMat=new THREE.MeshStandardMaterial({color:0x1a1a2e,roughness:0.3,metalness:0.5});
+const platform=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.4,0.15,32),platMat);
+platform.position.y=-0.5;platform.receiveShadow=true;platform.castShadow=true;scene.add(platform);
+const ringMat=new THREE.MeshStandardMaterial({color:0xff6b6b,roughness:0.3,metalness:0.3,emissive:0xff6b6b,emissiveIntensity:0.2});
+const ring=new THREE.Mesh(new THREE.TorusGeometry(1.3,0.03,8,48),ringMat);
+ring.position.y=-0.42;ring.rotation.x=Math.PI/2;scene.add(ring);
+
+// Dust particles
+const partGeo=new THREE.BufferGeometry();
+const partCount=60;
+const posArr=new Float32Array(partCount*3);
+for(let i=0;i<partCount*3;i+=3){posArr[i]=(Math.random()-0.5)*8;posArr[i+1]=Math.random()*5;posArr[i+2]=(Math.random()-0.5)*8;}
+partGeo.setAttribute('position',new THREE.BufferAttribute(posArr,3));
+const partMat=new THREE.PointsMaterial({color:0xffd4b8,size:0.03,transparent:true,opacity:0.4});
+scene.add(new THREE.Points(partGeo,partMat));
+
+// Avatar
 avatar=new THREE.Group();
 const mB=new THREE.MeshStandardMaterial({color:0xf5a623,roughness:0.35});
 const mM=new THREE.MeshStandardMaterial({color:0xffe8d0,roughness:0.3});
 const mT=new THREE.MeshStandardMaterial({color:0xff9ab0,roughness:0.25});
 const mC=new THREE.MeshStandardMaterial({color:0xe74c3c,roughness:0.2,metalness:0.15});
 const mA=new THREE.MeshStandardMaterial({color:0xffb0c0,roughness:0.35});
-const base=new THREE.Mesh(new THREE.CylinderGeometry(0.6,0.65,0.4,32),mB);base.position.y=0.2;base.castShadow=true;avatar.add(base);
-const dm=new THREE.MeshStandardMaterial({color:0xf5a623,roughness:0.3,metalness:0.05});
+
+const base=new THREE.Mesh(new THREE.CylinderGeometry(0.6,0.65,0.4,32),mB);
+base.position.y=0.2;base.castShadow=true;avatar.add(base);
+
+const dm=new THREE.MeshStandardMaterial({color:0xf5a623,roughness:0.3});
 for(let i=0;i<5;i++){const dr=new THREE.Mesh(new THREE.SphereGeometry(0.035,8,8),dm);const a=(i/5)*Math.PI*2;dr.scale.y=1.5;dr.position.set(Math.cos(a)*0.61,0.3,Math.sin(a)*0.61);avatar.add(dr);}
-avatar.add(new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.55,0.28,32),mM).translateY(0.59));
-const tp=new THREE.Mesh(new THREE.CylinderGeometry(0.4,0.45,0.22,32),mT);tp.position.y=0.85;tp.castShadow=true;avatar.add(tp);
-cherryObj=new THREE.Mesh(new THREE.SphereGeometry(0.08,16,16),mC);cherryObj.position.y=1.02;cherryObj.castShadow=true;avatar.add(cherryObj);
-const st=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007,0.1,6),new THREE.MeshStandardMaterial({color:0x2d5a1e,roughness:0.5}));st.position.y=1.12;st.rotation.z=0.2;avatar.add(st);
-const cl=new THREE.Mesh(new THREE.SphereGeometry(0.025,8,8),new THREE.MeshStandardMaterial({color:0x3a8a2a,roughness:0.4}));cl.scale.set(0.4,1.2,0.8);cl.position.set(0.035,1.14,0);cl.rotation.z=-0.5;avatar.add(cl);
-faceGroup=new THREE.Group();faceGroup.position.set(0,0.5,0.55);
+
+const mid=new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.55,0.28,32),mM);
+mid.position.y=0.59;mid.castShadow=true;avatar.add(mid);
+
+const top=new THREE.Mesh(new THREE.CylinderGeometry(0.4,0.45,0.22,32),mT);
+top.position.y=0.85;top.castShadow=true;avatar.add(top);
+
+cherryObj=new THREE.Mesh(new THREE.SphereGeometry(0.08,16,16),mC);
+cherryObj.position.y=1.02;cherryObj.castShadow=true;avatar.add(cherryObj);
+
+const stem=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007,0.1,6),new THREE.MeshStandardMaterial({color:0x2d5a1e,roughness:0.5}));
+stem.position.y=1.12;stem.rotation.z=0.2;avatar.add(stem);
+const cLeaf=new THREE.Mesh(new THREE.SphereGeometry(0.025,8,8),new THREE.MeshStandardMaterial({color:0x3a8a2a,roughness:0.4}));
+cLeaf.scale.set(0.4,1.2,0.8);cLeaf.position.set(0.035,1.14,0);cLeaf.rotation.z=-0.5;avatar.add(cLeaf);
+
+faceGroup=new THREE.Group();
+faceGroup.position.set(0,0.5,0.55);
+
 eyeL=mkEye();eyeL.position.set(-0.14,0.07,0);faceGroup.add(eyeL);
 eyeR=mkEye();eyeR.position.set(0.14,0.07,0);faceGroup.add(eyeR);
+
 const brM=new THREE.MeshStandardMaterial({color:0x5a3a2a,roughness:0.5});
-const bL=new THREE.Mesh(new THREE.BoxGeometry(0.07,0.012,0.008),brM);bL.position.set(-0.14,0.17,0.035);bL.rotation.z=0.15;faceGroup.add(bL);
-const bR=new THREE.Mesh(new THREE.BoxGeometry(0.07,0.012,0.008),brM);bR.position.set(0.14,0.17,0.035);bR.rotation.z=-0.15;faceGroup.add(bR);
+const bL=new THREE.Mesh(new THREE.BoxGeometry(0.07,0.012,0.008),brM);
+bL.position.set(-0.14,0.17,0.035);bL.rotation.z=0.15;faceGroup.add(bL);
+const bR=new THREE.Mesh(new THREE.BoxGeometry(0.07,0.012,0.008),brM);
+bR.position.set(0.14,0.17,0.035);bR.rotation.z=-0.15;faceGroup.add(bR);
+
 const blM=new THREE.MeshStandardMaterial({color:0xff8888,roughness:0.6,transparent:true,opacity:0.35});
-faceGroup.add(new THREE.Mesh(new THREE.CircleGeometry(0.035,16),blM).translateX(-0.22).translateY(-0.02).translateZ(0.035));
-faceGroup.add(new THREE.Mesh(new THREE.CircleGeometry(0.035,16),blM).translateX(0.22).translateY(-0.02).translateZ(0.035));
-const ns=new THREE.Mesh(new THREE.SphereGeometry(0.02,12,12),new THREE.MeshStandardMaterial({color:0xffb0c0,roughness:0.3}));ns.position.set(0,-0.015,0.05);ns.scale.set(1,0.8,0.7);faceGroup.add(ns);
-mouthObj=new THREE.Mesh(new THREE.SphereGeometry(0.04,16,8,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({color:0xe74c3c,roughness:0.3}));mouthObj.rotation.x=Math.PI;mouthObj.position.set(0,-0.09,0.01);faceGroup.add(mouthObj);
+const cL=new THREE.Mesh(new THREE.CircleGeometry(0.035,16),blM);cL.position.set(-0.22,-0.02,0.035);faceGroup.add(cL);
+const cR=new THREE.Mesh(new THREE.CircleGeometry(0.035,16),blM);cR.position.set(0.22,-0.02,0.035);faceGroup.add(cR);
+
+const nose=new THREE.Mesh(new THREE.SphereGeometry(0.02,12,12),new THREE.MeshStandardMaterial({color:0xffb0c0,roughness:0.3}));
+nose.position.set(0,-0.015,0.05);nose.scale.set(1,0.8,0.7);faceGroup.add(nose);
+
+mouthObj=new THREE.Mesh(new THREE.SphereGeometry(0.04,16,8,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({color:0xe74c3c,roughness:0.3}));
+mouthObj.rotation.x=Math.PI;mouthObj.position.set(0,-0.09,0.01);faceGroup.add(mouthObj);
+
 avatar.add(faceGroup);
+
 const ag=new THREE.CapsuleGeometry(0.035,0.2,8,12);
 const aL=new THREE.Mesh(ag,mA);aL.position.set(-0.7,0.5,0.1);aL.rotation.z=0.6;aL.name='armL';avatar.add(aL);
 const aR=new THREE.Mesh(ag,mA);aR.position.set(0.7,0.5,0.1);aR.rotation.z=-0.6;aR.name='armR';avatar.add(aR);
+
 const hM=new THREE.MeshStandardMaterial({color:0xffc0cb,roughness:0.35});
-const hL=new THREE.Mesh(new THREE.SphereGeometry(0.04,12,12),hM);hL.position.set(-0.88,0.38,0.1);hL.name='handL';avatar.add(hL);
-const hR=new THREE.Mesh(new THREE.SphereGeometry(0.04,12,12),hM);hR.position.set(0.88,0.38,0.1);hR.name='handR';avatar.add(hR);
-avatar.position.set(0,0,-0.8);scene.add(avatar);
-}
+const hL=new THREE.Mesh(new THREE.SphereGeometry(0.04,12,12),hM);hL.position.set(-0.88,0.38,0.1);avatar.add(hL);
+const hR=new THREE.Mesh(new THREE.SphereGeometry(0.04,12,12),hM);hR.position.set(0.88,0.38,0.1);avatar.add(hR);
+
+avatar.position.set(0,0,0);
+scene.add(avatar);
+
 function mkEye(){
 const g=new THREE.Group();
 g.add(new THREE.Mesh(new THREE.SphereGeometry(0.06,16,16),new THREE.MeshStandardMaterial({color:0xffffff,roughness:0.08})).scale.set(1,1.15,0.6));
@@ -277,91 +166,81 @@ g.add(new THREE.Mesh(new THREE.CircleGeometry(0.007,8),new THREE.MeshBasicMateri
 g.add(new THREE.Mesh(new THREE.CircleGeometry(0.004,8),new THREE.MeshBasicMaterial({color:0xffffff})).translateX(0.006).translateY(-0.004).translateZ(0.048));
 return g;
 }
-let breathPhase=0,blinkTimer=0,nextBlink=2+Math.random()*4,mouthPhase=0;
+
+function blink(){
+if(!eyeL||!eyeR)return;let f=0;
+const a=()=>{f++;const s=f<=4?1-f/4:f<=8?(f-4)/4:1;eyeL.scale.y=Math.max(0.05,s);eyeR.scale.y=Math.max(0.05,s);if(f<8)requestAnimationFrame(a);};a();
+}
+
+// Voice
+function speak(txt){
+if(!voiceOn){showBubble(txt);return;}
+if(S){S.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang='es-ES';u.rate=0.9;u.pitch=1.05;u.volume=1;
+const vs=S.getVoices();const p=['Microsoft Sabina','Microsoft Helena','Google espanol','Paulina'];
+let v=null;for(const n of p){v=vs.find(x=>x.name.includes(n));if(v)break;}
+if(!v)v=vs.find(x=>x.lang.startsWith('es'));if(v)u.voice=v;
+u.onstart=()=>{isTalking=true;showBubble(txt)};u.onend=()=>{isTalking=false;hideBubble()};
+S.speak(u);}
+}
+
+function showBubble(t){document.getElementById('bubbleText').textContent=t;document.getElementById('bubble').classList.add('show');}
+function hideBubble(){document.getElementById('bubble').classList.remove('show');}
+
+window.toggleVoice=function(){
+voiceOn=!voiceOn;
+const b=document.getElementById('voiceBtn');
+b.className=voiceOn?'btn on':'btn';
+b.textContent=voiceOn?'Voz On':'Voz Off';
+if(!voiceOn){S&&S.cancel();isTalking=false;hideBubble();}
+};
+
+window.greet=function(){speak('Bienvenidos a Chef Byte, su tienda de postres favorita.');};
+
+// Auto greet
+setTimeout(()=>{speak('Hola! Soy Chef Byte, bienvenidos a mi tienda de postres.');},1500);
+
+// Loop promo
+let promoInterval=setInterval(()=>{
+if(voiceOn&&!isTalking){
+speak('Chef Byte - Tienda de Postres 3D. Donde cada postre es una obra de arte.');
+}
+},12000);
+
+// Animate
 function animate(){
 requestAnimationFrame(animate);
 const dt=clock.getDelta(),t=clock.getElapsedTime();
 breathPhase+=dt*1.5;blinkTimer+=dt;
+
 if(avatar){
-avatar.position.y=-0.5+Math.sin(breathPhase)*0.012;
+avatar.position.y=Math.sin(breathPhase)*0.015;
 avatar.rotation.z=Math.sin(breathPhase*0.7)*0.01;
+
 if(blinkTimer>nextBlink){blinkTimer=0;nextBlink=2+Math.random()*4;blink();}
-if(isTalking){mouthPhase+=dt*14;if(mouthObj){const s=0.5+Math.abs(Math.sin(mouthPhase))*0.7;mouthObj.scale.set(s,1+Math.sin(mouthPhase*1.3)*0.3,1);}}
-else{if(mouthObj)mouthObj.scale.set(1,1,1);}
+
+if(isTalking){
+mouthPhase+=dt*14;
+if(mouthObj){const s=0.5+Math.abs(Math.sin(mouthPhase))*0.7;mouthObj.scale.set(s,1+Math.sin(mouthPhase*1.3)*0.3,1);}
+}else{if(mouthObj)mouthObj.scale.set(1,1,1);}
+
 if(cherryObj)cherryObj.position.y=1.02+Math.sin(t*1.5)*0.01;
+
 const aL=avatar.getObjectByName('armL'),aR=avatar.getObjectByName('armR');
 if(aL)aL.rotation.z=0.6+Math.sin(t*0.8)*0.05;
 if(aR)aR.rotation.z=-0.6+Math.sin(t*0.8+1)*0.05;
-if(selectedProduct&&faceGroup){const tp=selectedProduct.position.clone();tp.y=faceGroup.getWorldPosition(new THREE.Vector3()).y;faceGroup.lookAt(tp);}
-else if(faceGroup)faceGroup.rotation.y+=(0-faceGroup.rotation.y)*0.05;
 }
-products.forEach((p,i)=>{const ty=i===0?0.75:0.65;p.position.y+=(ty-p.position.y)*0.08;if(p===selectedProduct)p.rotation.y+=dt*0.5;});
-controls.update();updateBubble();renderer.render(scene,camera);
+
+controls.update();
+renderer.render(scene,camera);
 }
-function blink(){if(!eyeL||!eyeR)return;let f=0;const a=()=>{f++;const s=f<=4?1-f/4:f<=8?(f-4)/4:1;eyeL.scale.y=Math.max(0.05,s);eyeR.scale.y=Math.max(0.05,s);if(f<8)requestAnimationFrame(a);};a();}
-function onMouseMove(e){mouse.x=(e.clientX/innerWidth)*2-1;mouse.y=-(e.clientY/innerHeight)*2+1;raycaster.setFromCamera(mouse,camera);document.body.style.cursor=raycaster.intersectObjects(products,true).length>0?'pointer':'default';}
-function onClick(e){mouse.x=(e.clientX/innerWidth)*2-1;mouse.y=-(e.clientY/innerHeight)*2+1;raycaster.setFromCamera(mouse,camera);const h=raycaster.intersectObjects(products,true);if(h.length>0){let o=h[0].object;while(o.parent&&!o.userData.id)o=o.parent;if(o.userData.id)selectProduct(o);}}
-function selectProduct(p){
-if(appState==='PROMOTIONAL_MODE')return;
-selectedProduct=p;appState='PRODUCT_SELECTED';const d=p.userData;
-document.getElementById('infoName').textContent=d.name;
-document.getElementById('infoPrice').textContent=d.price;
-document.getElementById('infoDesc').textContent=d.desc;
-document.getElementById('infoPanel').classList.add('show');
-const mc=displayCases[0];const tp=mc.position.clone();tp.y=0.75;animProd(p,tp);
-speak(d.name+'. '+d.desc+'. Precio: '+d.price+' pesos colombianos.');
-}
-function animProd(p,tgt,cb){const start=p.position.clone();const dur=900;const st=performance.now();(function a(){const t=Math.min((performance.now()-st)/dur,1);const e=1-Math.pow(1-t,3);p.position.lerpVectors(start,tgt,e);if(t<1)requestAnimationFrame(a);else if(cb)cb();})();}
-async function speakEL(txt,cb){document.getElementById('loading').classList.add('on');try{const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+EL_VOICE,{method:'POST',headers:{'Content-Type':'application/json','xi-api-key':EL_KEY},body:JSON.stringify({text:txt,model_id:EL_MODEL,voice_settings:{stability:0.5,similarity_boost:0.75}})});if(!r.ok)throw new Error(r.status);const b=await r.blob();const u=URL.createObjectURL(b);const a=new Audio(u);document.getElementById('loading').classList.remove('on');a.onplay=()=>{isTalking=true;showBubble(txt)};a.onended=()=>{isTalking=false;hideBubble();URL.revokeObjectURL(u);if(cb)cb();};a.onerror=()=>{document.getElementById('loading').classList.remove('on');speakFB(txt,cb)};await a.play();}catch(e){document.getElementById('loading').classList.remove('on');speakFB(txt,cb);}}
-function speakFB(txt,cb){if(!S){showBubble(txt);if(cb)cb();return;}S.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang='es-ES';u.rate=0.9;u.pitch=1.05;u.volume=1;const vs=S.getVoices();const p=['Microsoft Sabina','Microsoft Helena','Google espanol','Paulina','es-ES'];let v=null;for(const n of p){v=vs.find(x=>x.name.includes(n));if(v)break;}if(!v)v=vs.find(x=>x.lang.startsWith('es'));if(v)u.voice=v;u.onstart=()=>{isTalking=true;showBubble(txt)};u.onend=()=>{isTalking=false;hideBubble();if(cb)cb();};S.speak(u);}
-function speak(txt,cb){if(!voiceOn){showBubble(txt);if(cb)cb();return;}if(EL_KEY&&EL_VOICE){speakEL(txt,cb);return;}speakFB(txt,cb);}
-function showBubble(t){
-document.getElementById('bubbleText').textContent=t;
-document.getElementById('bubble').classList.add('show');
-updateBubble();
-}
-function hideBubble(){document.getElementById('bubble').classList.remove('show');}
-const bubbleEl=document.getElementById('bubble');
-const avatarWorldPos=new THREE.Vector3();
-function updateBubble(){
-if(!avatar||!bubbleEl.classList.contains('show'))return;
-avatar.getWorldPosition(avatarWorldPos);
-avatarWorldPos.y+=1.5;
-avatarWorldPos.project(camera);
-const x=(avatarWorldPos.x*0.5+0.5)*innerWidth;
-const y=(-avatarWorldPos.y*0.5+0.5)*innerHeight;
-bubbleEl.style.left=x+'px';
-bubbleEl.style.top=(y-90)+'px';
-bubbleEl.style.transform='translateX(-50%)';
-}
-window.togglePromo=function(){promoMode=!promoMode;document.getElementById('promoBtn').className=promoMode?'btn active':'btn';if(promoMode){appState='PROMOTIONAL_MODE';promoIndex=0;showNextPromo();}else{clearTimeout(promoTimer);promoTimer=null;appState='IDLE';}};
-function showNextPromo(){
-if(!promoMode)return;
-const d=productData[promoIndex];const p=products[promoIndex];
-selectedProduct=p;
-document.getElementById('infoName').textContent=d.name;
-document.getElementById('infoPrice').textContent=d.price;
-document.getElementById('infoDesc').textContent=d.desc;
-document.getElementById('infoPanel').classList.add('show');
-const mc=displayCases[0];const tp=mc.position.clone();tp.y=0.75;animProd(p,tp);
-speak(d.name+'. '+d.price+' pesos colombianos.',()=>{
-promoTimer=setTimeout(()=>{
-animProd(p,p.userData.initialPosition.clone());
-promoIndex=(promoIndex+1)%productData.length;
-setTimeout(showNextPromo,2000);
-},8000);
-});
-}
-window.toggleVoice=function(){voiceOn=!voiceOn;const b=document.getElementById('voiceBtn');b.className=voiceOn?'on':'';b.textContent=voiceOn?'Voz On':'Voz Off';if(!voiceOn){S&&S.cancel();isTalking=false;hideBubble();}};
-window.resetCamera=function(){controls.target.set(0,1.2,0);camera.position.set(0,3.5,9);};
-window.resetView=function(){selectedProduct=null;appState='IDLE';document.getElementById('infoPanel').classList.remove('show');products.forEach((p,i)=>{animProd(p,p.userData.initialPosition.clone());});if(faceGroup)faceGroup.rotation.y=0;};
-window.greet=function(){speak('Hola! Bienvenido a nuestra tienda de postres. Selecciona un producto para conocerlo.');};
-document.getElementById('startBtn').onclick=()=>{document.getElementById('splash').classList.add('hide');setTimeout(()=>{document.getElementById('splash').remove();speak('Bienvenido a Chef Byte! Esta es nuestra tienda de postres 3D. Selecciona cualquier postre de la vitrina para conocerlo.');},700);};
-initThree();createEnvironment();createProducts();createAvatar();
-renderer.domElement.addEventListener('mousemove',onMouseMove);
-renderer.domElement.addEventListener('click',onClick);
+
 animate();
-window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+
+window.addEventListener('resize',()=>{
+camera.aspect=innerWidth/innerHeight;
+camera.updateProjectionMatrix();
+renderer.setSize(innerWidth,innerHeight);
+});
 </script>
 </body>
 </html>
