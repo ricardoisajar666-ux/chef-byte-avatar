@@ -61,9 +61,6 @@ canvas{display:block;position:fixed;inset:0;z-index:1}
 <script type="module">
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
-import {RectAreaLightUniformsLib} from 'three/addons/lights/RectAreaLightUniformsLib.js';
-import * as TWEEN from 'three/addons/libs/tween.module.js';
-RectAreaLightUniformsLib.init();
 let scene,camera,renderer,controls,clock;
 let avatar,faceGroup,eyeL,eyeR,mouthObj,cherryObj;
 let products=[],displayCases=[];
@@ -156,8 +153,8 @@ lc.position.set(0,6,0);scene.add(lc);
 const ls=new THREE.Mesh(new THREE.ConeGeometry(0.35,0.25,16,1,true),new THREE.MeshStandardMaterial({color:0xfff0e0,roughness:0.4,side:THREE.DoubleSide,transparent:true,opacity:0.8}));
 ls.position.set(0,5.55,0);ls.rotation.x=Math.PI;scene.add(ls);
 const ll=new THREE.PointLight(0xffeedd,0.5,10);ll.position.set(0,5.5,0);scene.add(ll);
-const rl1=new THREE.RectAreaLight(0xFFFDD0,3,4,4);rl1.position.set(-2,5.8,0);rl1.lookAt(0,0,0);scene.add(rl1);
-const rl2=new THREE.RectAreaLight(0xFFFDD0,3,4,4);rl2.position.set(2,5.8,0);rl2.lookAt(0,0,0);scene.add(rl2);
+const rl1=new THREE.PointLight(0xFFFDD0,0.6,8);rl1.position.set(-2,6,0);scene.add(rl1);
+const rl2=new THREE.PointLight(0xFFFDD0,0.6,8);rl2.position.set(2,6,0);scene.add(rl2);
 const signMat=new THREE.MeshStandardMaterial({color:0xff6b6b,roughness:0.3,metalness:0.2,emissive:0xff6b6b,emissiveIntensity:0.15});
 const signBoard=new THREE.Mesh(new THREE.BoxGeometry(4,0.8,0.08),signMat);
 signBoard.position.set(0,6.8,-4.9);scene.add(signBoard);
@@ -299,7 +296,7 @@ if(selectedProduct&&faceGroup){const tp=selectedProduct.position.clone();tp.y=fa
 else if(faceGroup)faceGroup.rotation.y+=(0-faceGroup.rotation.y)*0.05;
 }
 products.forEach((p,i)=>{const ty=i===0?0.75:0.65;p.position.y+=(ty-p.position.y)*0.08;if(p===selectedProduct)p.rotation.y+=dt*0.5;});
-TWEEN.update();controls.update();updateBubble();renderer.render(scene,camera);
+controls.update();updateBubble();renderer.render(scene,camera);
 }
 function blink(){if(!eyeL||!eyeR)return;let f=0;const a=()=>{f++;const s=f<=4?1-f/4:f<=8?(f-4)/4:1;eyeL.scale.y=Math.max(0.05,s);eyeR.scale.y=Math.max(0.05,s);if(f<8)requestAnimationFrame(a);};a();}
 function onMouseMove(e){mouse.x=(e.clientX/innerWidth)*2-1;mouse.y=-(e.clientY/innerHeight)*2+1;raycaster.setFromCamera(mouse,camera);document.body.style.cursor=raycaster.intersectObjects(products,true).length>0?'pointer':'default';}
@@ -314,7 +311,7 @@ document.getElementById('infoPanel').classList.add('show');
 const mc=displayCases[0];const tp=mc.position.clone();tp.y=0.75;animProd(p,tp);
 speak(d.name+'. '+d.desc+'. Precio: '+d.price+' pesos colombianos.');
 }
-function animProd(p,tgt,cb){new TWEEN.Tween(p.position).to({x:tgt.x,y:tgt.y,z:tgt.z},900).easing(TWEEN.Easing.Quadratic.Out).onComplete(()=>{if(cb)cb();}).start();}
+function animProd(p,tgt,cb){const start=p.position.clone();const dur=900;const st=performance.now();(function a(){const t=Math.min((performance.now()-st)/dur,1);const e=1-Math.pow(1-t,3);p.position.lerpVectors(start,tgt,e);if(t<1)requestAnimationFrame(a);else if(cb)cb();})();}
 async function speakEL(txt,cb){document.getElementById('loading').classList.add('on');try{const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+EL_VOICE,{method:'POST',headers:{'Content-Type':'application/json','xi-api-key':EL_KEY},body:JSON.stringify({text:txt,model_id:EL_MODEL,voice_settings:{stability:0.5,similarity_boost:0.75}})});if(!r.ok)throw new Error(r.status);const b=await r.blob();const u=URL.createObjectURL(b);const a=new Audio(u);document.getElementById('loading').classList.remove('on');a.onplay=()=>{isTalking=true;showBubble(txt)};a.onended=()=>{isTalking=false;hideBubble();URL.revokeObjectURL(u);if(cb)cb();};a.onerror=()=>{document.getElementById('loading').classList.remove('on');speakFB(txt,cb)};await a.play();}catch(e){document.getElementById('loading').classList.remove('on');speakFB(txt,cb);}}
 function speakFB(txt,cb){if(!S){showBubble(txt);if(cb)cb();return;}S.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang='es-ES';u.rate=0.9;u.pitch=1.05;u.volume=1;const vs=S.getVoices();const p=['Microsoft Sabina','Microsoft Helena','Google espanol','Paulina','es-ES'];let v=null;for(const n of p){v=vs.find(x=>x.name.includes(n));if(v)break;}if(!v)v=vs.find(x=>x.lang.startsWith('es'));if(v)u.voice=v;u.onstart=()=>{isTalking=true;showBubble(txt)};u.onend=()=>{isTalking=false;hideBubble();if(cb)cb();};S.speak(u);}
 function speak(txt,cb){if(!voiceOn){showBubble(txt);if(cb)cb();return;}if(EL_KEY&&EL_VOICE){speakEL(txt,cb);return;}speakFB(txt,cb);}
