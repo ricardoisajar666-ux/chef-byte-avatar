@@ -10,210 +10,311 @@
 body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0a0a1a 0%,#1a1a3e 50%,#0d1b2a 100%);min-height:100vh;overflow:hidden;color:#fff}
 
 /* ===== AVATAR ===== */
-.avatar{position:fixed;width:200px;height:280px;z-index:100;cursor:grab;user-select:none}
+.avatar{position:fixed;width:220px;height:300px;z-index:100;cursor:grab;user-select:none;filter:drop-shadow(0 20px 40px rgba(0,0,0,.4))}
 .avatar:active{cursor:grabbing}
 
 .avatar.idle{animation:avIdle 4s cubic-bezier(.4,0,.2,1) infinite}
-@keyframes avIdle{0%,100%{transform:translateY(0) rotate(0) scale(1)}25%{transform:translateY(-12px) rotate(1.5deg) scale(1.01)}50%{transform:translateY(-5px) rotate(0) scale(1)}75%{transform:translateY(-8px) rotate(-1.5deg) scale(1.01)}}
+@keyframes avIdle{
+    0%,100%{transform:translateY(0) rotate(0) scale(1)}
+    20%{transform:translateY(-14px) rotate(2deg) scale(1.015)}
+    40%{transform:translateY(-6px) rotate(.5deg) scale(1.005)}
+    60%{transform:translateY(-10px) rotate(-1.5deg) scale(1.01)}
+    80%{transform:translateY(-4px) rotate(-.5deg) scale(1)}
+}
 
-.avatar.talking{animation:avTalk .35s ease-in-out infinite}
-@keyframes avTalk{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.015)}}
+.avatar.talking{animation:avTalk .4s ease-in-out infinite}
+@keyframes avTalk{
+    0%,100%{transform:translateY(0) scale(1) rotate(0)}
+    30%{transform:translateY(-4px) scale(1.02) rotate(1deg)}
+    60%{transform:translateY(-2px) scale(1.01) rotate(-.5deg)}
+}
 
-.avatar.walking{animation:avWalk .6s ease-in-out infinite}
-@keyframes avWalk{0%,100%{transform:translateY(0) rotate(-2deg)}25%{transform:translateY(-20px) rotate(3deg)}50%{transform:translateY(-4px) rotate(-1deg)}75%{transform:translateY(-24px) rotate(2deg)}}
+.avatar.walking{animation:avWalk .7s ease-in-out infinite}
+@keyframes avWalk{
+    0%,100%{transform:translateY(0) rotate(-2deg)}
+    20%{transform:translateY(-22px) rotate(4deg)}
+    40%{transform:translateY(-6px) rotate(-1deg)}
+    60%{transform:translateY(-26px) rotate(3deg)}
+    80%{transform:translateY(-4px) rotate(-2deg)}
+}
 
 /* ===== CUERPO ===== */
-.body{position:relative;width:180px;height:200px;margin:40px auto 0}
+.body{position:relative;width:200px;height:220px;margin:50px auto 0;filter:drop-shadow(0 8px 20px rgba(0,0,0,.3))}
 
-.cake-base{position:absolute;width:170px;height:90px;background:linear-gradient(180deg,#f5a623 0%,#e8941a 50%,#d4840f 100%);border-radius:20px;bottom:0;left:50%;transform:translateX(-50%);box-shadow:0 12px 35px rgba(0,0,0,.5),inset 0 -8px 15px rgba(0,0,0,.2),inset 0 2px 5px rgba(255,255,255,.1)}
+/* Capas del pastel */
+.cake-base{position:absolute;width:185px;height:95px;background:linear-gradient(180deg,#f7b731 0%,#f5a623 30%,#e8941a 60%,#d4840f 100%);border-radius:22px;bottom:0;left:50%;transform:translateX(-50%);box-shadow:0 14px 40px rgba(0,0,0,.5),inset 0 -10px 20px rgba(0,0,0,.2),inset 0 3px 8px rgba(255,255,255,.15)}
 
-.cake-mid{position:absolute;width:155px;height:55px;background:linear-gradient(180deg,#fff5e6 0%,#ffd4a4 100%);border-radius:16px;bottom:85px;left:50%;transform:translateX(-50%);box-shadow:0 8px 20px rgba(0,0,0,.3),inset 0 5px 12px rgba(255,255,255,.7)}
+.cake-mid{position:absolute;width:168px;height:58px;background:linear-gradient(180deg,#fff8f0 0%,#ffe8d0 40%,#ffd4a4 100%);border-radius:18px;bottom:90px;left:50%;transform:translateX(-50%);box-shadow:0 10px 25px rgba(0,0,0,.3),inset 0 6px 15px rgba(255,255,255,.8)}
 
-.cake-top{position:absolute;width:135px;height:48px;background:linear-gradient(180deg,#ffb6c1 0%,#ff7088 100%);border-radius:15px;bottom:132px;left:50%;transform:translateX(-50%);box-shadow:0 6px 16px rgba(0,0,0,.3),inset 0 4px 10px rgba(255,255,255,.5)}
+.cake-top{position:absolute;width:148px;height:52px;background:linear-gradient(180deg,#ffc4d0 0%,#ff9ab0 40%,#ff7088 100%);border-radius:17px;bottom:142px;left:50%;transform:translateX(-50%);box-shadow:0 8px 20px rgba(0,0,0,.3),inset 0 5px 12px rgba(255,255,255,.6)}
 
-/* ===== GLAZIADO FLUIDO ===== */
-.glaze-wrap{position:absolute;width:145px;height:60px;bottom:128px;left:50%;transform:translateX(-50%);z-index:3;overflow:visible}
+/* ===== GLAZIADO ANIMADO ===== */
+.glaze-wrap{position:absolute;width:160px;height:70px;bottom:140px;left:50%;transform:translateX(-50%);z-index:3;overflow:visible}
 
-.glaze-wave{position:absolute;width:100%;height:100%;animation:glazeFlow 4s ease-in-out infinite}
-@keyframes glazeFlow{0%,100%{transform:translateX(0) scaleY(1)}50%{transform:translateX(3px) scaleY(1.05)}}
+/* Brillo principal */
+.glaze-shine{position:absolute;width:50px;height:10px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.95),rgba(255,255,255,.8),transparent);border-radius:5px;bottom:45px;animation:shineMove 3s ease-in-out infinite;z-index:5}
+@keyframes shineMove{
+    0%{left:5%;opacity:0;transform:scaleX(.3) rotate(-5deg)}
+    20%{opacity:1;transform:scaleX(1) rotate(0)}
+    80%{opacity:1;transform:scaleX(1) rotate(0)}
+    100%{left:75%;opacity:0;transform:scaleX(.3) rotate(5deg)}
+}
 
-.glaze-shine{position:absolute;width:40px;height:8px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.95),transparent);border-radius:4px;bottom:42px;animation:shineMove 2.5s ease-in-out infinite;z-index:5}
-@keyframes shineMove{0%{left:10%;opacity:0;transform:scaleX(.5)}30%{opacity:1;transform:scaleX(1)}70%{opacity:1;transform:scaleX(1)}100%{left:80%;opacity:0;transform:scaleX(.5)}}
+/* Segundo brillo */
+.glaze-shine2{position:absolute;width:30px;height:6px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);border-radius:3px;bottom:52px;animation:shineMove2 4s ease-in-out infinite 1s;z-index:5}
+@keyframes shineMove2{
+    0%{left:60%;opacity:0;transform:scaleX(.4)}
+    30%{opacity:.8;transform:scaleX(1)}
+    70%{opacity:.8;transform:scaleX(1)}
+    100%{left:10%;opacity:0;transform:scaleX(.4)}
+}
 
-/* Goteo animado */
-.drip{position:absolute;width:16px;border-radius:0 0 9px 9px;bottom:0;transform-origin:top center}
-.drip-inner{width:100%;height:100%;border-radius:inherit;animation:dripFlow 3s ease-in-out infinite}
-@keyframes dripFlow{0%,100%{transform:scaleY(1);opacity:.85}50%{transform:scaleY(1.15);opacity:1}}
+/* Goteos con vida */
+.drip{position:absolute;width:18px;border-radius:0 0 10px 10px;bottom:0;transform-origin:top center}
+.drip-core{width:100%;height:100%;border-radius:inherit;position:relative;overflow:hidden}
+.drip-core::after{content:'';position:absolute;top:0;left:2px;width:4px;height:60%;background:rgba(255,255,255,.5);border-radius:50%;animation:dripGlint 2s ease-in-out infinite}
 
-.d1{left:5px;height:26px}.d1 .drip-inner{background:linear-gradient(180deg,#fff 0%,#ffe8e8 100%);animation-delay:0s}
-.d2{left:28px;height:35px}.d2 .drip-inner{background:linear-gradient(180deg,#fff5f5 0%,#ffd4d4 100%);animation-delay:.5s}
-.d3{right:28px;height:22px}.d3 .drip-inner{background:linear-gradient(180deg,#fff 0%,#ffe0e0 100%);animation-delay:1s}
-.d4{right:5px;height:30px}.d4 .drip-inner{background:linear-gradient(180deg,#fff8f8 0%,#ffcccc 100%);animation-delay:1.5s}
+.d1{left:8px;height:28px}.d1 .drip-core{background:linear-gradient(180deg,#fff 0%,#fff0f0 50%,#ffe0e0 100%);animation:dripPulse 3.5s ease-in-out infinite}
+.d2{left:32px;height:38px}.d2 .drip-core{background:linear-gradient(180deg,#fff8f8 0%,#ffd8d8 50%,#ffc8c8 100%);animation:dripPulse 4s ease-in-out infinite .5s}
+.d3{right:32px;height:24px}.d3 .drip-core{background:linear-gradient(180deg,#fff 0%,#ffe8e8 50%,#ffd8d8 100%);animation:dripPulse 3s ease-in-out infinite 1s}
+.d4{right:8px;height:32px}.d4 .drip-core{background:linear-gradient(180deg,#fff5f5 0%,#ffd0d0 50%,#ffc0c0 100%);animation:dripPulse 3.8s ease-in-out infinite 1.5s}
+.d5{left:52px;height:18px}.d5 .drip-core{background:linear-gradient(180deg,#fff 0%,#ffe5e5 100%);animation:dripPulse 2.8s ease-in-out infinite .3s}
 
-/* Cereza */
-.cherry{position:absolute;width:24px;height:24px;background:radial-gradient(circle at 35% 35%,#ff6b6b 0%,#c0392b 100%);border-radius:50%;top:0;left:50%;transform:translateX(-50%);box-shadow:0 4px 12px rgba(0,0,0,.4),0 0 20px rgba(255,107,107,.3);animation:cherryFloat 2.5s ease-in-out infinite;z-index:6}
-@keyframes cherryFloat{0%,100%{transform:translateX(-50%) translateY(0) rotate(0)}50%{transform:translateX(-50%) translateY(-4px) rotate(6deg)}}
-.cherry::before{content:'';position:absolute;top:-12px;left:50%;transform-origin:bottom center;width:3px;height:14px;background:linear-gradient(180deg,#2d5016,#4a7c23);border-radius:2px;animation:stemWave 2s ease-in-out infinite}
-@keyframes stemWave{0%,100%{transform:translateX(-50%) rotate(0)}50%{transform:translateX(-50%) rotate(10deg)}}
+@keyframes dripPulse{
+    0%,100%{transform:scaleY(1) scaleX(1);opacity:.85}
+    50%{transform:scaleY(1.18) scaleX(.95);opacity:1}
+}
+@keyframes dripGlint{
+    0%,100%{opacity:.3;transform:translateX(0)}
+    50%{opacity:.7;transform:translateX(2px)}
+}
 
-/* ===== BRAZOS ===== */
-.arm{position:absolute;width:45px;height:18px;border-radius:9px;bottom:80px;z-index:12;transition:all .4s cubic-bezier(.4,0,.2,1)}
-.arm-left{left:-32px;transform-origin:right center;background:linear-gradient(90deg,#ff91a4 0%,#ffb6c1 50%,#ffd4dc 100%);transform:rotate(15deg);border-radius:9px 14px 14px 9px}
-.arm-right{right:-32px;transform-origin:left center;background:linear-gradient(90deg,#ffd4dc 0%,#ffb6c1 50%,#ff91a4 100%);transform:rotate(-15deg);border-radius:14px 9px 9px 14px}
+/* Cereza con personalidad */
+.cherry-wrap{position:absolute;top:-5px;left:50%;transform:translateX(-50%);z-index:6}
+.cherry{position:absolute;width:26px;height:26px;background:radial-gradient(circle at 35% 35%,#ff7070 0%,#e74c3c 40%,#c0392b 100%);border-radius:50%;left:50%;transform:translateX(-50%);box-shadow:0 5px 15px rgba(0,0,0,.4),0 0 25px rgba(255,100,100,.3),inset 0 -3px 6px rgba(0,0,0,.2);animation:cherryBounce 2.5s ease-in-out infinite}
+@keyframes cherryBounce{
+    0%,100%{transform:translateX(-50%) translateY(0) rotate(0) scale(1)}
+    30%{transform:translateX(-50%) translateY(-5px) rotate(8deg) scale(1.05)}
+    60%{transform:translateX(-50%) translateY(-2px) rotate(-4deg) scale(1.02)}
+}
+.cherry::after{content:'';position:absolute;top:3px;left:6px;width:8px;height:6px;background:rgba(255,255,255,.5);border-radius:50%;transform:rotate(-20deg)}
 
-.hand{position:absolute;width:22px;height:22px;background:radial-gradient(circle at 40% 40%,#ffd4dc,#ffb6c1);border-radius:50%;top:-2px;box-shadow:inset 0 2px 4px rgba(0,0,0,.1)}
-.arm-left .hand{left:-8px}
-.arm-right .hand{right:-8px}
+.stem{position:absolute;width:4px;height:16px;background:linear-gradient(180deg,#3d7a1e 0%,#5a9e2f 100%);border-radius:2px;left:50%;transform-origin:bottom center;animation:stemWave 2.5s ease-in-out infinite;top:-14px}
+@keyframes stemWave{
+    0%,100%{transform:translateX(-50%) rotate(0)}
+    30%{transform:translateX(-50%) rotate(12deg)}
+    60%{transform:translateX(-50%) rotate(-6deg)}
+}
 
-.arm.wave{animation:armWave .5s ease-in-out infinite}
-@keyframes armWave{0%,100%{transform:rotate(15deg)}50%{transform:rotate(-40deg)}}
+/* Hoja */
+.leaf{position:absolute;width:10px;height:7px;background:linear-gradient(135deg,#5a9e2f,#3d7a1e);border-radius:0 50% 0 50%;top:-10px;left:calc(50% + 2px);animation:leafSway 2.5s ease-in-out infinite}
+@keyframes leafSway{
+    0%,100%{transform:rotate(0) scale(1)}
+    50%{transform:rotate(15deg) scale(1.1)}
+}
 
-.arm.point{animation:armPoint .8s cubic-bezier(.4,0,.2,1) forwards}
-@keyframes armPoint{0%{transform:rotate(-15deg)}100%{transform:rotate(-70deg) translateX(15px)}}
+/* ===== BRAZOS EXPRESIVOS ===== */
+.arm{position:absolute;width:50px;height:20px;border-radius:10px;bottom:85px;z-index:12;transition:all .5s cubic-bezier(.4,0,.2,1)}
 
-.arm.gesture{animation:armGesture 2s ease-in-out infinite}
-@keyframes armGesture{0%,100%{transform:rotate(15deg) translateY(0)}25%{transform:rotate(5deg) translateY(-5px)}50%{transform:rotate(20deg) translateY(0)}75%{transform:rotate(10deg) translateY(-3px)}}
+.arm-left{left:-35px;transform-origin:right center;background:linear-gradient(90deg,#ff8fa0 0%,#ffb0c0 40%,#ffd0dc 80%,#ffe8f0 100%);transform:rotate(18deg);border-radius:10px 16px 16px 10px;box-shadow:inset 0 2px 4px rgba(255,255,255,.3),0 3px 8px rgba(0,0,0,.2)}
 
-/* ===== CARA NATURAL ===== */
-.face{position:absolute;top:18px;left:50%;transform:translateX(-50%);width:110px;height:75px;z-index:15}
+.arm-right{right:-35px;transform-origin:left center;background:linear-gradient(90deg,#ffe8f0 0%,#ffd0dc 20%,#ffb0c0 60%,#ff8fa0 100%);transform:rotate(-18deg);border-radius:16px 10px 10px 16px;box-shadow:inset 0 2px 4px rgba(255,255,255,.3),0 3px 8px rgba(0,0,0,.2)}
 
-/* Ojos - más redondeados y suaves */
-.eye{position:absolute;width:30px;height:34px;background:radial-gradient(circle at 30% 30%,#fff 0%,#fafafa 40%,#f0f0f0 70%,#e5e5e5 100%);border-radius:50%;top:6px;box-shadow:inset 0 2px 8px rgba(0,0,0,.06),0 3px 8px rgba(0,0,0,.12);overflow:hidden}
-.eye-left{left:8px}.eye-right{right:8px}
+/* Manos con dedos sugeridos */
+.hand{position:absolute;width:24px;height:24px;background:radial-gradient(circle at 40% 35%,#ffe8f0 0%,#ffd0dc 50%,#ffb0c0 100%);border-radius:50%;top:-3px;box-shadow:inset 0 2px 5px rgba(255,255,255,.4),0 2px 6px rgba(0,0,0,.15);transition:transform .3s ease}
+.arm-left .hand{left:-10px}
+.arm-right .hand{right:-10px}
 
-/* Pupila con reflejos */
-.pupil{position:absolute;width:14px;height:18px;background:radial-gradient(circle at 35% 35%,#6a6a6a 0%,#3a3a3a 40%,#1a1a1a 100%);border-radius:50%;top:9px;left:8px;transition:transform .12s cubic-bezier(.4,0,.2,1)}
-.pupil::after{content:'';position:absolute;top:3px;left:3px;width:5px;height:5px;background:rgba(255,255,255,.95);border-radius:50%}
-.pupil::before{content:'';position:absolute;top:8px;left:9px;width:3px;height:3px;background:rgba(255,255,255,.5);border-radius:50%}
+/* Dedos */
+.finger{position:absolute;width:6px;height:10px;background:linear-gradient(180deg,#ffe8f0,#ffd0dc);border-radius:3px 3px 4px 4px;bottom:-6px;transition:transform .3s ease}
+.finger:nth-child(1){left:2px;transform:rotate(-15deg)}
+.finger:nth-child(2){left:8px;transform:rotate(-5deg)}
+.finger:nth-child(3){right:8px;transform:rotate(5deg)}
+.finger:nth-child(4){right:2px;transform:rotate(15deg)}
 
-/* Párpados - animación natural */
-.lid{position:absolute;width:100%;height:0;background:linear-gradient(180deg,#ffb6c1,#ff91a4);border-radius:50% 50% 0 0;top:0;left:0;z-index:2;transition:height .12s cubic-bezier(.4,0,.2,1);transform-origin:top}
+/* Animaciones de brazos */
+.arm.wave{animation:armWave .6s ease-in-out infinite}
+@keyframes armWave{0%,100%{transform:rotate(18deg)}50%{transform:rotate(-45deg)}}
+
+.arm.point{animation:armPoint .9s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes armPoint{0%{transform:rotate(-18deg)}100%{transform:rotate(-75deg) translateX(18px)}}
+
+.arm.gesture{animation:armGesture 2.5s ease-in-out infinite}
+@keyframes armGesture{
+    0%,100%{transform:rotate(18deg) translateY(0)}
+    25%{transform:rotate(8deg) translateY(-6px)}
+    50%{transform:rotate(22deg) translateY(0)}
+    75%{transform:rotate(12deg) translateY(-4px)}
+}
+
+.arm.excited{animation:armExcited .4s ease-in-out infinite}
+@keyframes armExcited{
+    0%,100%{transform:rotate(18deg) scale(1)}
+    50%{transform:rotate(-30deg) scale(1.05)}
+}
+
+/* ===== CARA CON EXPRESIONES ===== */
+.face{position:absolute;top:20px;left:50%;transform:translateX(-50%);width:120px;height:80px;z-index:15}
+
+/* Pómulos sutiles */
+.cheekbone{position:absolute;width:12px;height:8px;background:radial-gradient(ellipse,rgba(255,180,180,.3) 0%,transparent 70%);border-radius:50%;top:22px}
+.cheekbone-left{left:2px}.cheekbone-right{right:2px}
+
+/* Ojos expresivos */
+.eye{position:absolute;width:32px;height:36px;background:radial-gradient(circle at 30% 25%,#fff 0%,#fafafa 30%,#f5f5f5 60%,#eee 100%);border-radius:50%;top:8px;box-shadow:inset 0 3px 10px rgba(0,0,0,.06),0 4px 10px rgba(0,0,0,.1);overflow:visible}
+.eye-left{left:10px}.eye-right{right:10px}
+
+/* Párpado superior */
+.lid{position:absolute;width:100%;height:0;background:linear-gradient(180deg,#ffb0c0 0%,#ff90a0 100%);border-radius:50% 50% 0 0;top:0;left:0;z-index:3;transition:height .15s cubic-bezier(.4,0,.2,1);transform-origin:top}
 .eye.blink .lid{height:100%}
-.eye.happy .lid{height:70%}
+.eye.happy .lid{height:65%}
 .eye.surprised .lid{height:0}
 
-.eye.happy{transform:scaleY(.9)}
-.eye.surprised{transform:scale(1.3)}
+.eye.happy{transform:scaleY(.85)}
+.eye.surprised{transform:scale(1.35)}
 
-/* Cejas */
-.brow{position:absolute;width:20px;height:4px;background:linear-gradient(90deg,#a08070,#8b7060);border-radius:2px;top:0;transition:all .2s cubic-bezier(.4,0,.2,1)}
-.brow-left{left:10px;transform:rotate(-5deg)}
-.brow-right{right:10px;transform:rotate(5deg)}
-.brow.raised{transform:translateY(-4px) rotate(0) scaleX(1.1)}
+/* Pupila con vida */
+.pupil{position:absolute;width:16px;height:20px;background:radial-gradient(circle at 35% 35%,#7a7a7a 0%,#4a4a4a 30%,#2a2a2a 60%,#1a1a1a 100%);border-radius:50%;top:10px;left:8px;z-index:2;transition:transform .12s cubic-bezier(.4,0,.2,1)}
+.pupil::after{content:'';position:absolute;top:3px;left:4px;width:6px;height:6px;background:rgba(255,255,255,.95);border-radius:50%;box-shadow:0 0 4px rgba(255,255,255,.8)}
+.pupil::before{content:'';position:absolute;top:10px;left:10px;width:4px;height:4px;background:rgba(255,255,255,.5);border-radius:50%}
 
-/* Mejillas */
-.cheek{position:absolute;width:22px;height:16px;background:radial-gradient(ellipse,rgba(255,140,140,.45) 0%,transparent 70%);border-radius:50%;top:28px;opacity:0;transition:opacity .3s ease}
-.cheek-left{left:-6px}.cheek-right{right:-6px}
+/* Reflejo del ojo */
+.eye-shine{position:absolute;width:8px;height:8px;background:rgba(255,255,255,.9);border-radius:50%;top:6px;left:6px;z-index:4;animation:eyeShine 3s ease-in-out infinite}
+@keyframes eyeShine{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
+
+/* Cejas expresivas */
+.brow{position:absolute;width:22px;height:5px;background:linear-gradient(90deg,#a08878 0%,#8b7060 50%,#a08878 100%);border-radius:3px;top:0;transition:all .25s cubic-bezier(.4,0,.2,1);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.brow-left{left:10px;transform:rotate(-6deg)}
+.brow-right{right:10px;transform:rotate(6deg)}
+.brow.raised{transform:translateY(-5px) rotate(0) scaleX(1.15)}
+.brow.furrowed{transform:translateY(2px) rotate(0) scaleX(.95)}
+
+/* Mejillas sonroadas */
+.cheek{position:absolute;width:24px;height:18px;background:radial-gradient(ellipse,rgba(255,140,140,.5) 0%,rgba(255,140,140,.2) 40%,transparent 70%);border-radius:50%;top:30px;opacity:0;transition:opacity .4s ease}
+.cheek-left{left:-8px}.cheek-right{right:-8px}
 .cheek.visible{opacity:1}
 
-/* Boca natural */
-.mouth{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:44px;height:18px;background:linear-gradient(180deg,#d44 0%,#e55 50%,#f77 100%);border-radius:0 0 22px 22px;box-shadow:inset 0 -4px 8px rgba(0,0,0,.2),0 2px 4px rgba(0,0,0,.08);overflow:hidden;transition:all .1s ease-out}
+/* Nariz sutil */
+.nose{position:absolute;width:8px;height:6px;background:radial-gradient(ellipse,rgba(255,180,180,.4) 0%,transparent 70%);border-radius:50%;top:20px;left:50%;transform:translateX(-50%)}
+
+/* Boca expresiva */
+.mouth-wrap{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:48px;height:22px}
+
+.mouth{width:100%;height:100%;background:linear-gradient(180deg,#d44 0%,#e55 40%,#f77 100%);border-radius:0 0 24px 24px;box-shadow:inset 0 -5px 10px rgba(0,0,0,.25),0 2px 6px rgba(0,0,0,.1);overflow:hidden;transition:all .12s ease-out;position:relative}
 
 /* Dientes */
-.teeth{position:absolute;top:0;left:50%;transform:translateX(-50%);width:22px;height:6px;background:#fff;border-radius:0 0 5px 5px;z-index:1}
+.teeth{position:absolute;top:0;left:50%;transform:translateX(-50%);width:24px;height:7px;background:linear-gradient(180deg,#fff 0%,#f8f8f8 100%);border-radius:0 0 6px 6px;z-index:1;box-shadow:0 1px 2px rgba(0,0,0,.1)}
 
-/* Labio inferior */
-.mouth::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:18px;height:4px;background:rgba(200,60,60,.6);border-radius:50%}
+/* Lengua */
+.tongue{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:16px;height:10px;background:radial-gradient(ellipse,#ff8888,#ff6666);border-radius:50% 50% 50% 50%;opacity:0;transition:opacity .2s}
 
 /* Estados de boca */
-.mouth.m1{height:5px;width:28px;border-radius:0 0 14px 14px}
-.mouth.m2{height:24px;width:40px;border-radius:0 0 20px 20px}
-.mouth.m3{height:10px;width:46px;border-radius:0 0 23px 23px}
-.mouth.m4{height:30px;width:24px;border-radius:0 0 12px 12px}
-.mouth.m5{height:6px;width:42px;border-radius:0 0 21px 21px}
-.mouth.m6{height:34px;width:20px;border-radius:0 0 10px 10px}
+.mouth.m1{height:5px;width:32px;border-radius:0 0 16px 16px}
+.mouth.m2{height:26px;width:42px;border-radius:0 0 21px 21px}
+.mouth.m3{height:12px;width:48px;border-radius:0 0 24px 24px}
+.mouth.m4{height:32px;width:28px;border-radius:0 0 14px 14px}
+.mouth.m5{height:8px;width:44px;border-radius:0 0 22px 22px}
+.mouth.m6{height:36px;width:24px;border-radius:0 0 12px 12px}
+.mouth.m4 .tongue,.mouth.m6 .tongue{opacity:1}
 
-.mouth.smile{height:28px;border-radius:18px 18px 22px 22px;background:linear-gradient(180deg,#f77 0%,#faa 100%)}
-.mouth.surprised{width:26px;height:26px;border-radius:50%}
+.mouth.smile{height:30px;border-radius:20px 20px 24px 24px;background:linear-gradient(180deg,#f77 0%,#faa 100%)}
+.mouth.smile .teeth{height:8px}
+.mouth.surprised{width:28px;height:28px;border-radius:50%;background:radial-gradient(circle,#d44,#a22)}
+.mouth.sad{border-radius:24px 24px 0 0;bottom:4px;background:linear-gradient(0deg,#d44,#c33)}
+
+/* ===== BARBA/SOMBRA SUTIL ===== */
+.shadow{position:absolute;width:140px;height:20px;background:radial-gradient(ellipse,rgba(0,0,0,.2) 0%,transparent 70%);border-radius:50%;bottom:-15px;left:50%;transform:translateX(-50%)}
 
 /* ===== EFECTOS ===== */
 .particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:200}
-.particle{position:absolute;font-size:1.1rem;animation:particleFly 1.2s cubic-bezier(.4,0,.2,1) forwards}
-@keyframes particleFly{0%{opacity:1;transform:translate(0,0) scale(1) rotate(0)}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(.3) rotate(360deg)}}
+.particle{position:absolute;font-size:1.2rem;animation:particleFly 1.4s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes particleFly{0%{opacity:1;transform:translate(0,0) scale(1) rotate(0)}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(.2) rotate(360deg)}}
 
 .stars{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
-.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:twinkle 2.5s ease-in-out infinite}
-@keyframes twinkle{0%,100%{opacity:.1;transform:scale(1)}50%{opacity:.7;transform:scale(1.3)}}
+.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:twinkle 3s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.08;transform:scale(1)}50%{opacity:.6;transform:scale(1.4)}}
 
 /* Burbuja */
-.speech-bubble{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(10px);background:rgba(15,15,35,.95);border:1px solid rgba(255,107,107,.4);border-radius:18px;padding:16px 26px;max-width:520px;min-width:280px;box-shadow:0 10px 40px rgba(0,0,0,.5),0 0 30px rgba(255,107,107,.08);z-index:150;text-align:center;opacity:0;transition:all .4s cubic-bezier(.4,0,.2,1);pointer-events:none}
+.speech-bubble{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(15px);background:rgba(12,12,30,.96);border:1px solid rgba(255,107,107,.35);border-radius:20px;padding:18px 28px;max-width:540px;min-width:300px;box-shadow:0 12px 45px rgba(0,0,0,.5),0 0 35px rgba(255,107,107,.06);z-index:150;text-align:center;opacity:0;transition:all .45s cubic-bezier(.4,0,.2,1);pointer-events:none}
 .speech-bubble.visible{opacity:1;transform:translateX(-50%) translateY(0)}
-.speech-bubble::after{content:'';position:absolute;bottom:-13px;left:50%;transform:translateX(-50%);border-width:13px;border-style:solid;border-color:rgba(15,15,35,.95) transparent transparent}
-.speech-text{font-size:.92rem;color:#eee;line-height:1.6}
+.speech-bubble::after{content:'';position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);border-width:14px;border-style:solid;border-color:rgba(12,12,30,.96) transparent transparent}
+.speech-text{font-size:.95rem;color:#eee;line-height:1.65}
 
 /* Humo */
-.smoke-wrap{position:fixed;z-index:250;pointer-events:none;opacity:0;transition:all .5s cubic-bezier(.68,-.55,.27,1.55)}
+.smoke-wrap{position:fixed;z-index:250;pointer-events:none;opacity:0;transition:all .55s cubic-bezier(.68,-.55,.27,1.55)}
 .smoke-wrap.visible{opacity:1}
-.smoke-card{background:rgba(12,12,30,.96);border:1px solid rgba(255,107,107,.25);border-radius:18px;padding:22px;box-shadow:0 12px 45px rgba(0,0,0,.6),0 0 40px rgba(255,107,107,.08)}
-.smoke-emoji{font-size:3.2rem;margin-bottom:8px}
-.smoke-name{font-size:1.15rem;font-weight:700;color:#ff6b6b}
-.smoke-desc{font-size:.85rem;color:#bbb;margin-top:6px;line-height:1.5}
-.smoke-price{font-size:1.1rem;color:#00b894;margin-top:10px;font-weight:700}
+.smoke-card{background:rgba(10,10,25,.97);border:1px solid rgba(255,107,107,.2);border-radius:20px;padding:24px;box-shadow:0 14px 50px rgba(0,0,0,.6),0 0 45px rgba(255,107,107,.06)}
+.smoke-emoji{font-size:3.4rem;margin-bottom:10px;animation:smokeEmoji 2s ease-in-out infinite}
+@keyframes smokeEmoji{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-8px) rotate(5deg)}}
+.smoke-name{font-size:1.2rem;font-weight:700;color:#ff6b6b;letter-spacing:.5px}
+.smoke-desc{font-size:.88rem;color:#bbb;margin-top:8px;line-height:1.6}
+.smoke-price{font-size:1.15rem;color:#00b894;margin-top:12px;font-weight:700}
 
 /* ===== CONTROLES ===== */
-.ctrl-panel{position:fixed;top:14px;left:14px;z-index:200;display:flex;flex-direction:column;gap:6px}
-.btn{padding:10px 18px;border:1px solid rgba(255,255,255,.08);border-radius:12px;font-size:.82rem;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);font-weight:600;background:rgba(255,255,255,.06);color:#ddd;backdrop-filter:blur(12px);letter-spacing:.3px;display:flex;align-items:center;gap:8px}
-.btn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,107,107,.4);transform:translateX(5px);color:#fff}
-.btn:active{transform:scale(.97) translateX(5px)}
+.ctrl-panel{position:fixed;top:14px;left:14px;z-index:200;display:flex;flex-direction:column;gap:7px}
+.btn{padding:11px 20px;border:1px solid rgba(255,255,255,.07);border-radius:14px;font-size:.84rem;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);font-weight:600;background:rgba(255,255,255,.05);color:#ddd;backdrop-filter:blur(14px);letter-spacing:.4px;display:flex;align-items:center;gap:9px}
+.btn:hover{background:rgba(255,255,255,.1);border-color:rgba(255,107,107,.35);transform:translateX(6px);color:#fff;box-shadow:0 4px 15px rgba(255,107,107,.1)}
+.btn:active{transform:scale(.96) translateX(6px)}
 
-.products-panel{position:fixed;top:50%;right:14px;transform:translateY(-50%);z-index:200;display:flex;flex-direction:column;gap:8px}
-.product-card{background:rgba(12,12,30,.9);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 18px;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);backdrop-filter:blur(12px);display:flex;align-items:center;gap:12px;min-width:170px}
-.product-card:hover{border-color:rgba(255,107,107,.5);transform:translateX(-8px) scale(1.02);box-shadow:0 6px 25px rgba(255,107,107,.15)}
-.product-card .emoji{font-size:1.6rem;transition:transform .3s ease}
-.product-card:hover .emoji{transform:scale(1.2) rotate(-5deg)}
+.products-panel{position:fixed;top:50%;right:14px;transform:translateY(-50%);z-index:200;display:flex;flex-direction:column;gap:9px}
+.product-card{background:rgba(10,10,25,.92);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:15px 20px;cursor:pointer;transition:all .35s cubic-bezier(.4,0,.2,1);backdrop-filter:blur(14px);display:flex;align-items:center;gap:14px;min-width:180px}
+.product-card:hover{border-color:rgba(255,107,107,.45);transform:translateX(-10px) scale(1.03);box-shadow:0 8px 30px rgba(255,107,107,.12)}
+.product-card .emoji{font-size:1.7rem;transition:transform .35s ease}
+.product-card:hover .emoji{transform:scale(1.25) rotate(-8deg)}
 .product-card .info{text-align:left}
-.product-card .name{font-size:.84rem;font-weight:600;color:#fff}
-.product-card .price{font-size:.76rem;color:#00b894;margin-top:3px}
+.product-card .name{font-size:.86rem;font-weight:600;color:#fff}
+.product-card .price{font-size:.78rem;color:#00b894;margin-top:3px}
 
-.voice-bar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:200}
-.v-btn{padding:9px 18px;border:1px solid rgba(255,255,255,.1);border-radius:12px;font-size:.82rem;cursor:pointer;font-weight:600;transition:all .25s cubic-bezier(.4,0,.2,1);background:rgba(255,255,255,.06);color:#ddd;backdrop-filter:blur(12px)}
-.v-btn:hover{background:rgba(255,255,255,.12);color:#fff}
+.voice-bar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:9px;z-index:200}
+.v-btn{padding:10px 20px;border:1px solid rgba(255,255,255,.09);border-radius:14px;font-size:.84rem;cursor:pointer;font-weight:600;transition:all .3s cubic-bezier(.4,0,.2,1);background:rgba(255,255,255,.05);color:#ddd;backdrop-filter:blur(14px)}
+.v-btn:hover{background:rgba(255,255,255,.1);color:#fff}
 .v-btn.active{background:linear-gradient(135deg,#00b894,#00cec9);border-color:transparent;color:#fff}
 
 .brand{position:fixed;top:14px;right:14px;z-index:200;text-align:right}
-.brand-name{font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,#ff6b6b 0%,#f5a623 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1.5px}
-.brand-tag{font-size:.68rem;color:#666;letter-spacing:3px;text-transform:uppercase;margin-top:3px}
+.brand-name{font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#ff6b6b 0%,#f5a623 50%,#ff6b6b 100%);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px;animation:brandShine 4s ease-in-out infinite}
+@keyframes brandShine{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.brand-tag{font-size:.7rem;color:#555;letter-spacing:4px;text-transform:uppercase;margin-top:4px}
 
-.recipe-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);z-index:400;max-width:440px;width:92%;max-height:82vh;overflow-y:auto;background:rgba(12,12,30,.98);border:1px solid rgba(255,107,107,.25);border-radius:20px;padding:30px;box-shadow:0 24px 70px rgba(0,0,0,.7),0 0 50px rgba(255,107,107,.08);transition:transform .4s cubic-bezier(.68,-.55,.27,1.55);opacity:0}
+.recipe-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);z-index:400;max-width:460px;width:92%;max-height:84vh;overflow-y:auto;background:rgba(10,10,25,.99);border:1px solid rgba(255,107,107,.2);border-radius:22px;padding:32px;box-shadow:0 28px 80px rgba(0,0,0,.7),0 0 55px rgba(255,107,107,.06);transition:transform .45s cubic-bezier(.68,-.55,.27,1.55);opacity:0}
 .recipe-modal.open{transform:translate(-50%,-50%) scale(1);opacity:1}
-.recipe-modal h2{font-size:1.25rem;color:#ff6b6b;margin-bottom:14px}
-.recipe-modal h3{color:#00b894;margin:14px 0 8px;font-size:.88rem;letter-spacing:.5px}
-.recipe-modal ul,.recipe-modal ol{padding-left:20px}
-.recipe-modal li{padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.86rem;color:#bbb;line-height:1.5}
-.recipe-close{position:absolute;top:14px;right:18px;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#666;transition:all .2s}
-.recipe-close:hover{color:#ff6b6b;transform:rotate(90deg)}
+.recipe-modal h2{font-size:1.3rem;color:#ff6b6b;margin-bottom:16px;letter-spacing:.5px}
+.recipe-modal h3{color:#00b894;margin:16px 0 10px;font-size:.9rem;letter-spacing:.6px}
+.recipe-modal ul,.recipe-modal ol{padding-left:22px}
+.recipe-modal li{padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.88rem;color:#bbb;line-height:1.55}
+.recipe-close{position:absolute;top:16px;right:20px;background:none;border:none;font-size:1.6rem;cursor:pointer;color:#555;transition:all .25s}
+.recipe-close:hover{color:#ff6b6b;transform:rotate(90deg) scale(1.1)}
 
 /* Splash */
-.splash{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#0a0a1a,#1a1a3e,#0d1b2a);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:opacity .5s ease}
+.splash{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#0a0a1a 0%,#1a1a3e 50%,#0d1b2a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:opacity .6s ease}
 .splash.hide{opacity:0;pointer-events:none}
-.splash-cake{font-size:5.5rem;animation:floatCake 3s ease-in-out infinite}
-@keyframes floatCake{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-20px) rotate(3deg)}}
-.splash-title{font-size:2.2rem;font-weight:800;background:linear-gradient(135deg,#ff6b6b,#f5a623);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:20px 0 8px;letter-spacing:2px}
-.splash-sub{color:#666;font-size:.85rem;letter-spacing:4px;text-transform:uppercase;margin-bottom:35px}
-.splash-btn{padding:16px 50px;background:linear-gradient(135deg,#ff6b6b,#ee5a24);border:none;border-radius:30px;color:#fff;font-weight:700;font-size:1rem;cursor:pointer;transition:all .3s;box-shadow:0 6px 25px rgba(255,107,107,.3);letter-spacing:1px}
-.splash-btn:hover{transform:scale(1.05);box-shadow:0 8px 35px rgba(255,107,107,.5)}
+.splash-cake{font-size:6rem;animation:floatCake 3.5s ease-in-out infinite;filter:drop-shadow(0 20px 40px rgba(255,107,107,.3))}
+@keyframes floatCake{0%,100%{transform:translateY(0) rotate(-4deg) scale(1)}50%{transform:translateY(-25px) rotate(4deg) scale(1.05)}}
+.splash-title{font-size:2.5rem;font-weight:800;background:linear-gradient(135deg,#ff6b6b,#f5a623,#ff6b6b);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:25px 0 10px;letter-spacing:3px;animation:brandShine 3s ease-in-out infinite}
+.splash-sub{color:#555;font-size:.88rem;letter-spacing:5px;text-transform:uppercase;margin-bottom:40px}
+.splash-btn{padding:18px 55px;background:linear-gradient(135deg,#ff6b6b,#ee5a24);border:none;border-radius:35px;color:#fff;font-weight:700;font-size:1.05rem;cursor:pointer;transition:all .35s;box-shadow:0 8px 30px rgba(255,107,107,.35);letter-spacing:1.5px}
+.splash-btn:hover{transform:scale(1.06);box-shadow:0 10px 40px rgba(255,107,107,.5)}
 
-/* Loading indicator */
-.loading-voice{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:rgba(0,184,148,.9);color:#fff;padding:8px 20px;border-radius:20px;font-size:.8rem;font-weight:600;z-index:300;display:none;align-items:center;gap:8px}
+.loading-voice{position:fixed;bottom:55px;left:50%;transform:translateX(-50%);background:rgba(0,184,148,.92);color:#fff;padding:9px 22px;border-radius:22px;font-size:.82rem;font-weight:600;z-index:300;display:none;align-items:center;gap:9px;box-shadow:0 4px 15px rgba(0,184,148,.4)}
 .loading-voice.visible{display:flex}
-.loading-voice::before{content:'';width:12px;height:12px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite}
+.loading-voice::before{content:'';width:14px;height:14px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 @media(max-width:700px){
-.avatar{width:150px;height:220px}
-.body{width:140px;height:160px}
-.cake-base{width:130px;height:70px}
-.cake-mid{width:118px;height:42px;bottom:65px}
-.cake-top{width:105px;height:38px;bottom:102px}
-.face{top:14px;width:85px;height:60px}
-.eye{width:22px;height:26px}.pupil{width:10px;height:13px}
-.mouth{width:34px;height:14px}
-.arm{width:35px;height:14px}
-.hand{width:18px;height:18px}
+.avatar{width:160px;height:230px}
+.body{width:150px;height:170px}
+.cake-base{width:140px;height:72px}
+.cake-mid{width:128px;height:45px;bottom:68px}
+.cake-top{width:112px;height:40px;bottom:108px}
+.face{top:16px;width:90px;height:65px}
+.eye{width:24px;height:28px}.pupil{width:12px;height:15px}
+.mouth-wrap{width:38px;height:18px}
+.arm{width:38px;height:16px}
+.hand{width:20px;height:20px}
+.finger{width:5px;height:8px}
 .ctrl-panel{top:auto;bottom:70px;left:8px}
 .products-panel{top:auto;bottom:120px;right:8px}
 .brand{top:8px;right:8px}
-.brand-name{font-size:1.2rem}
+.brand-name{font-size:1.3rem}
 }
 </style>
 </head>
@@ -222,7 +323,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <div class="splash" id="splash">
     <div class="splash-cake">🍰</div>
     <div class="splash-title">CHEF BYTE</div>
-    <div class="splash-sub">Asistente Gastronómico</div>
+    <div class="splash-sub">Tu Asistente Gastronómico</div>
     <button class="splash-btn" id="startBtn">INICIAR</button>
 </div>
 
@@ -238,28 +339,57 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 
 <div class="avatar idle" id="avatar">
     <div class="body">
-        <div class="cherry"></div>
+        <div class="cherry-wrap">
+            <div class="stem"></div>
+            <div class="leaf"></div>
+            <div class="cherry"></div>
+        </div>
         <div class="cake-top"></div>
         <div class="glaze-wrap">
             <div class="glaze-shine"></div>
-            <div class="drip d1"><div class="drip-inner"></div></div>
-            <div class="drip d2"><div class="drip-inner"></div></div>
-            <div class="drip d3"><div class="drip-inner"></div></div>
-            <div class="drip d4"><div class="drip-inner"></div></div>
+            <div class="glaze-shine2"></div>
+            <div class="drip d1"><div class="drip-core"></div></div>
+            <div class="drip d2"><div class="drip-core"></div></div>
+            <div class="drip d3"><div class="drip-core"></div></div>
+            <div class="drip d4"><div class="drip-core"></div></div>
+            <div class="drip d5"><div class="drip-core"></div></div>
         </div>
         <div class="cake-mid"></div>
         <div class="cake-base">
-            <div class="arm arm-left" id="armL"><div class="hand"></div></div>
-            <div class="arm arm-right" id="armR"><div class="hand"></div></div>
+            <div class="arm arm-left" id="armL">
+                <div class="hand">
+                    <div class="finger"></div><div class="finger"></div><div class="finger"></div><div class="finger"></div>
+                </div>
+            </div>
+            <div class="arm arm-right" id="armR">
+                <div class="hand">
+                    <div class="finger"></div><div class="finger"></div><div class="finger"></div><div class="finger"></div>
+                </div>
+            </div>
             <div class="face">
                 <div class="brow brow-left" id="browL"></div>
                 <div class="brow brow-right" id="browR"></div>
-                <div class="eye eye-left" id="eyeL"><div class="lid"></div><div class="pupil" id="pupilL"></div></div>
-                <div class="eye eye-right" id="eyeR"><div class="lid"></div><div class="pupil" id="pupilR"></div></div>
+                <div class="eye eye-left" id="eyeL">
+                    <div class="lid"></div>
+                    <div class="eye-shine"></div>
+                    <div class="pupil" id="pupilL"></div>
+                </div>
+                <div class="eye eye-right" id="eyeR">
+                    <div class="lid"></div>
+                    <div class="eye-shine"></div>
+                    <div class="pupil" id="pupilR"></div>
+                </div>
+                <div class="nose"></div>
                 <div class="cheek cheek-left" id="cheekL"></div>
                 <div class="cheek cheek-right" id="cheekR"></div>
-                <div class="mouth" id="mouth"><div class="teeth"></div></div>
+                <div class="mouth-wrap">
+                    <div class="mouth" id="mouth">
+                        <div class="teeth"></div>
+                        <div class="tongue"></div>
+                    </div>
+                </div>
             </div>
+            <div class="shadow"></div>
         </div>
     </div>
 </div>
@@ -313,128 +443,87 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 </div>
 
 <script>
-let voiceOn=true, rate=1.0, dragging=false, dragOff={x:0,y:0};
-let cx=innerWidth/2-100, cy=innerHeight/3-40;
+let voiceOn=true, rate=0.9, dragging=false, dragOff={x:0,y:0};
+let cx=innerWidth/2-110, cy=innerHeight/3-50;
 const A=document.getElementById('avatar');
 const S=window.speechSynthesis;
 let talkInterval=null, blinkTimer=null;
 
-// ===== ELEVENLABS CONFIG =====
 const ELEVENLABS_API_KEY='sk_112617f23620344b47cad6da36eaab66088582e8c18b7016';
 const ELEVENLABS_VOICE_ID='s91wgzodwL1wfwitqbIm';
 const ELEVENLABS_MODEL='eleven_multilingual_v2';
 
-// ===== INIT =====
 function init(){
     A.style.left=cx+'px'; A.style.top=cy+'px';
     mkStars(); setupDrag(); trackMouse();
     startBlinking();
+    startIdleBreathe();
     
     document.getElementById('startBtn').addEventListener('click',()=>{
         document.getElementById('splash').classList.add('hide');
         setTimeout(()=>{
             document.getElementById('splash').remove();
-            speak('Bienvenido a Chef Byte. Soy tu asistente gastronómico. Selecciona un platillo del menú para conocer nuestra propuesta.');
+            speak('¡Hola! Soy Chef Byte, tu asistente gastronómico. Selecciona un platillo del menú para conocer nuestra propuesta.');
             document.getElementById('armL').classList.add('wave');
-            setTimeout(()=>document.getElementById('armL').classList.remove('wave'),2000);
-        },500);
+            setTimeout(()=>document.getElementById('armL').classList.remove('wave'),2200);
+        },600);
     });
 }
 
-// ===== VOZ CON ELEVENLABS =====
+// ===== ELEVENLABS =====
 async function speakWithElevenLabs(txt){
     const loading=document.getElementById('loadingVoice');
     loading.classList.add('visible');
-    
-    console.log('ElevenLabs - Intentando con voice ID:', ELEVENLABS_VOICE_ID);
     
     try{
         const response=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE_ID}`,{
             method:'POST',
             headers:{'Content-Type':'application/json','xi-api-key':ELEVENLABS_API_KEY},
-            body:JSON.stringify({
-                text:txt,
-                model_id:ELEVENLABS_MODEL,
-                voice_settings:{stability:0.5,similarity_boost:0.75}
-            })
+            body:JSON.stringify({text:txt,model_id:ELEVENLABS_MODEL,voice_settings:{stability:0.5,similarity_boost:0.75}})
         });
         
-        console.log('ElevenLabs - Status:', response.status);
-        
-        if(!response.ok){
-            const err=await response.json().catch(()=>({}));
-            console.error('ElevenLabs error:', err);
-            throw new Error(err.detail?.message || `Error ${response.status}`);
-        }
+        if(!response.ok)throw new Error(`Error ${response.status}`);
         
         const audioBlob=await response.blob();
         const audioUrl=URL.createObjectURL(audioBlob);
         const audio=new Audio(audioUrl);
-        
         loading.classList.remove('visible');
-        console.log('ElevenLabs - Audio generado correctamente');
         
         audio.onplay=()=>{startMouth();A.classList.remove('idle');A.classList.add('talking');showBubble(txt)};
-        audio.onended=()=>{stopMouth();A.classList.remove('talking');A.classList.add('idle');setExpr('happy');setTimeout(()=>setExpr(''),2000);URL.revokeObjectURL(audioUrl)};
+        audio.onended=()=>{stopMouth();A.classList.remove('talking');A.classList.add('idle');setExpr('happy');setTimeout(()=>setExpr(''),2500);URL.revokeObjectURL(audioUrl)};
         audio.onerror=()=>{loading.classList.remove('visible');speakFallback(txt)};
         
         await audio.play();
     }catch(e){
-        console.error('Voice error:',e.message);
         loading.classList.remove('visible');
         speakFallback(txt);
     }
 }
 
-// ===== VOZ FALLBACK (NAVEGADOR) =====
 function speakFallback(txt){
     if(!S){showBubble(txt);return}
     S.cancel();
-    
     const u=new SpeechSynthesisUtterance(txt);
-    u.lang='es-ES';
-    u.rate=0.9;
-    u.pitch=1.05;
-    u.volume=1;
-    
-    // Buscar mejor voz disponible
+    u.lang='es-ES';u.rate=rate;u.pitch=1.05;u.volume=1;
     const vs=S.getVoices();
-    const preferidas=[
-        'Microsoft Sabina','Microsoft Helena',
-        'Google español','Google Spanish (Spain)',
-        'Paulina','Esperanza','Helena',
-        'Sabina','Helena',
-        'es-ES','es-MX','es-CO'
-    ];
-    
+    const pref=['Microsoft Sabina','Microsoft Helena','Google español','Paulina','Esperanza','Helena','es-ES','es-MX'];
     let v=null;
-    for(const nombre of preferidas){
-        v=vs.find(x=>x.name.includes(nombre));
-        if(v)break;
-    }
-    if(!v)v=vs.find(x=>x.lang==='es-ES');
-    if(!v)v=vs.find(x=>x.lang==='es-MX');
+    for(const n of pref){v=vs.find(x=>x.name.includes(n));if(v)break}
     if(!v)v=vs.find(x=>x.lang.startsWith('es'));
-    if(v){
-        u.voice=v;
-        console.log('Usando voz:',v.name,v.lang);
-    }
-    
+    if(v)u.voice=v;
     u.onstart=()=>{startMouth();A.classList.remove('idle');A.classList.add('talking');showBubble(txt)};
-    u.onend=()=>{stopMouth();A.classList.remove('talking');A.classList.add('idle');setExpr('happy');setTimeout(()=>setExpr(''),2000)};
+    u.onend=()=>{stopMouth();A.classList.remove('talking');A.classList.add('idle');setExpr('happy');setTimeout(()=>setExpr(''),2500)};
     u.onerror=()=>{stopMouth();showBubble(txt)};
-    
     S.speak(u);
 }
 
-// ===== VOZ PRINCIPAL =====
 function speak(txt){
     if(!voiceOn){showBubble(txt);return}
-    if(ELEVENLABS_API_KEY && ELEVENLABS_VOICE_ID){speakWithElevenLabs(txt);return}
+    if(ELEVENLABS_API_KEY&&ELEVENLABS_VOICE_ID){speakWithElevenLabs(txt);return}
     speakFallback(txt);
 }
 
-// ===== BOCA SINCRONIZADA =====
+// ===== BOCA =====
 function startMouth(){
     stopMouth();
     const m=document.getElementById('mouth');
@@ -443,38 +532,43 @@ function startMouth(){
     talkInterval=setInterval(()=>{
         m.className='mouth';
         m.classList.add(states[i%states.length]);
-        const teeth=m.querySelector('.teeth');
-        if(teeth)teeth.style.display=i%3===0?'none':'block';
         i++;
-    },75+Math.random()*25);
+    },80+Math.random()*30);
 }
 
 function stopMouth(){
     if(talkInterval){clearInterval(talkInterval);talkInterval=null}
-    const m=document.getElementById('mouth');
-    m.className='mouth';
-    const teeth=m.querySelector('.teeth');
-    if(teeth)teeth.style.display='block';
+    document.getElementById('mouth').className='mouth';
 }
 
-// ===== PARPADEO NATURAL =====
+// ===== PARPADEO =====
 function startBlinking(){
     function blink(){
         const el=document.getElementById('eyeL'),er=document.getElementById('eyeR');
         el.classList.add('blink');er.classList.add('blink');
-        setTimeout(()=>{el.classList.remove('blink');er.classList.remove('blink')},180);
-        
-        // Parpadeo doble ocacional
-        if(Math.random()>.7){
-            setTimeout(()=>{
-                el.classList.add('blink');er.classList.add('blink');
-                setTimeout(()=>{el.classList.remove('blink');er.classList.remove('blink')},120);
-            },300);
+        setTimeout(()=>{el.classList.remove('blink');er.classList.remove('blink')},200);
+        if(Math.random()>.65){
+            setTimeout(()=>{el.classList.add('blink');er.classList.add('blink');setTimeout(()=>{el.classList.remove('blink');er.classList.remove('blink')},150)},350);
         }
-        
-        blinkTimer=setTimeout(blink,2000+Math.random()*4000);
+        blinkTimer=setTimeout(blink,2200+Math.random()*4500);
     }
-    blinkTimer=setTimeout(blink,1000);
+    blinkTimer=setTimeout(blink,1200);
+}
+
+// ===== RESPIRACIÓN IDLE =====
+function startIdleBreathe(){
+    const body=document.querySelector('.body');
+    let breathePhase=0;
+    function breathe(){
+        if(!A.classList.contains('idle')&&!A.classList.contains('talking')){
+            breathePhase+=0.02;
+            const y=Math.sin(breathePhase)*2;
+            const s=1+Math.sin(breathePhase)*0.005;
+            body.style.transform=`translateY(${y}px) scale(${s})`;
+        }
+        requestAnimationFrame(breathe);
+    }
+    breathe();
 }
 
 // ===== EXPRESIONES =====
@@ -484,12 +578,10 @@ function setExpr(t){
     const cl=document.getElementById('cheekL'),cr=document.getElementById('cheekR');
     const bl=document.getElementById('browL'),br=document.getElementById('browR');
     
-    el.className='eye eye-left';er.className='eye eye-right';m.className='mouth';
+    el.className='eye eye-left';er.className='eye eye-right';
+    m.className='mouth';
     cl.classList.remove('visible');cr.classList.remove('visible');
-    bl.classList.remove('raised');br.classList.remove('raised');
-    
-    // Reagregar dientes
-    const teeth=m.querySelector('.teeth');
+    bl.classList.remove('raised','furrowed');br.classList.remove('raised','furrowed');
     
     switch(t){
         case'happy':
@@ -501,6 +593,11 @@ function setExpr(t){
             el.classList.add('surprised');er.classList.add('surprised');
             m.classList.add('surprised');
             bl.classList.add('raised');br.classList.add('raised');
+            break;
+        case'wink':
+            el.classList.add('happy');er.classList.add('blink');
+            m.classList.add('smile');
+            cl.classList.add('visible');cr.classList.add('visible');
             break;
     }
 }
@@ -517,8 +614,8 @@ function toggleVoice(){
 }
 
 function changeSpeed(){
-    const sp=[.8,1,1.15,1.3];
-    const lb=['Normal','Media','Rápida','Muy rápida'];
+    const sp=[.75,.9,1.05,1.2];
+    const lb=['Lenta','Normal','Rápida','Muy rápida'];
     const i=sp.indexOf(rate);
     rate=sp[(i+1)%sp.length];
     document.getElementById('speedBtn').textContent='⚡ '+lb[(i+1)%sp.length];
@@ -549,26 +646,26 @@ function showProduct(type){
     document.getElementById('smokePrice').textContent=d.price;
     
     const r=A.getBoundingClientRect();
-    sw.style.left=Math.min(r.right+20,innerWidth-260)+'px';
-    sw.style.top=Math.max(r.top+20,20)+'px';
+    sw.style.left=Math.min(r.right+25,innerWidth-280)+'px';
+    sw.style.top=Math.max(r.top+25,25)+'px';
     sw.classList.add('visible');
     
     setExpr('surprised');
-    setTimeout(()=>setExpr('happy'),350);
-    spawnP(8);
+    setTimeout(()=>setExpr('happy'),400);
+    spawnP(10);
     
     document.getElementById('rTitle').textContent=d.emoji+' '+d.name;
     document.getElementById('rIng').innerHTML=d.ing.map(x=>'<li>'+x+'</li>').join('');
     document.getElementById('rSteps').innerHTML=d.prep.map(x=>'<li>'+x+'</li>').join('');
     
-    walkTo(innerWidth/2-100,innerHeight/4-20,()=>{
+    walkTo(innerWidth/2-110,innerHeight/4-30,()=>{
         speak(d.name+'. '+d.desc+'. Precio: '+d.price+' pesos colombianos.');
         document.getElementById('recipeModal').classList.add('open');
         document.getElementById('armR').classList.add('point');
-        setTimeout(()=>document.getElementById('armR').classList.remove('point'),3500);
+        setTimeout(()=>document.getElementById('armR').classList.remove('point'),4000);
     });
     
-    setTimeout(()=>sw.classList.remove('visible'),7500);
+    setTimeout(()=>sw.classList.remove('visible'),8000);
 }
 
 function closeRecipe(){document.getElementById('recipeModal').classList.remove('open')}
@@ -587,23 +684,21 @@ function showMenu(){
     moveSay(t);
 }
 
-function showPrices(){
-    moveSay('Pastas desde 38.000 pesos, tacos desde 22.000, sushi desde 55.000, postres desde 15.000. Todos los precios en pesos colombianos, IVA incluido.');
-}
+function showPrices(){moveSay('Pastas desde 38.000 pesos, tacos desde 22.000, sushi desde 55.000, postres desde 15.000. Todos los precios en pesos colombianos, IVA incluido.')}
 
 function greet(){
     const g=['¡Hola! Bienvenido a Chef Byte. ¿Qué te gustaría conocer?','¡Bienvenido! Explora nuestros platillos en el menú.','¡Qué tal! Soy tu asistente gastronómico.'];
     document.getElementById('armL').classList.add('wave');
-    setTimeout(()=>document.getElementById('armL').classList.remove('wave'),1800);
-    spawnP(6);setExpr('happy');moveSay(g[~~(Math.random()*g.length)]);
+    setTimeout(()=>document.getElementById('armL').classList.remove('wave'),2000);
+    spawnP(8);setExpr('happy');moveSay(g[~~(Math.random()*g.length)]);
 }
 
 function moveSay(t){
-    walkTo(innerWidth/2-100,innerHeight/4-20,()=>{speak(t);spawnP(6)});
+    walkTo(innerWidth/2-110,innerHeight/4-30,()=>{speak(t);spawnP(8)});
 }
 
 // ===== UTILS =====
-function mkStars(){const c=document.getElementById('stars');for(let i=0;i<45;i++){const s=document.createElement('div');s.className='star';s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*2.5}s;animation-duration:${2+Math.random()*2}s`;c.appendChild(s)}}
+function mkStars(){const c=document.getElementById('stars');for(let i=0;i<50;i++){const s=document.createElement('div');s.className='star';s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${2+Math.random()*2.5}s`;c.appendChild(s)}}
 
 function setupDrag(){
     A.addEventListener('mousedown',dStart);A.addEventListener('touchstart',dStart,{passive:false});
@@ -612,12 +707,12 @@ function setupDrag(){
 }
 function dStart(e){e.preventDefault();dragging=true;A.classList.remove('idle');A.style.cursor='grabbing';const p=e.touches?e.touches[0]:e;dragOff.x=p.clientX-A.offsetLeft;dragOff.y=p.clientY-A.offsetTop}
 function dMove(e){if(!dragging)return;e.preventDefault();const p=e.touches?e.touches[0]:e;cx=p.clientX-dragOff.x;cy=p.clientY-dragOff.y;A.style.left=cx+'px';A.style.top=cy+'px'}
-function dEnd(){if(!dragging)return;dragging=false;A.style.cursor='grab';A.classList.add('idle');spawnP(4)}
+function dEnd(){if(!dragging)return;dragging=false;A.style.cursor='grab';A.classList.add('idle');spawnP(5)}
 
 function trackMouse(){
     document.addEventListener('mousemove',e=>{
         if(dragging)return;
-        const r=A.getBoundingClientRect(),dx=(e.clientX-r.left-r.width/2)/90,dy=(e.clientY-r.top-r.height/2)/90;
+        const r=A.getBoundingClientRect(),dx=(e.clientX-r.left-r.width/2)/100,dy=(e.clientY-r.top-r.height/2)/100;
         const pl=document.getElementById('pupilL'),pr=document.getElementById('pupilR');
         if(pl)pl.style.transform=`translate(${dx}px,${dy}px)`;
         if(pr)pr.style.transform=`translate(${dx}px,${dy}px)`;
@@ -631,11 +726,11 @@ function walkTo(tx,ty,cb){
     document.getElementById('armR').classList.add('gesture');
     
     const sx=cx,sy=cy,d=Math.sqrt((tx-sx)**2+(ty-sy)**2);
-    const dur=Math.min(d*2,2200),st=Date.now();
+    const dur=Math.min(d*2.2,2500),st=Date.now();
     
     (function anim(){
         const t=Math.min((Date.now()-st)/dur,1);
-        const ease=1-Math.pow(1-t,4);
+        const ease=1-Math.pow(1-t,5);
         cx=sx+(tx-sx)*ease; cy=sy+(ty-sy)*ease;
         A.style.left=cx+'px'; A.style.top=cy+'px';
         A.style.transform=tx>sx?'scaleX(1)':'scaleX(-1)';
@@ -653,15 +748,15 @@ function walkTo(tx,ty,cb){
 }
 
 function spawnP(n){
-    const c=document.getElementById('particles'),emj=['✨','⭐','💫','🌟','🍰','🧁'];
+    const c=document.getElementById('particles'),emj=['✨','⭐','💫','🌟','🍰','🧁','💖','🎂'];
     for(let i=0;i<n;i++){
         const p=document.createElement('div');p.className='particle';
         p.textContent=emj[~~(Math.random()*emj.length)];
         const r=A.getBoundingClientRect();
         p.style.left=(r.left+r.width/2)+'px';p.style.top=(r.top+r.height/2)+'px';
-        p.style.setProperty('--tx',(Math.random()-.5)*220+'px');
-        p.style.setProperty('--ty',(Math.random()-.5)*220-60+'px');
-        c.appendChild(p);setTimeout(()=>p.remove(),1200);
+        p.style.setProperty('--tx',(Math.random()-.5)*250+'px');
+        p.style.setProperty('--ty',(Math.random()-.5)*250-70+'px');
+        c.appendChild(p);setTimeout(()=>p.remove(),1400);
     }
 }
 
