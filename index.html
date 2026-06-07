@@ -31,14 +31,29 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 
 .cake-top{position:absolute;width:135px;height:48px;background:linear-gradient(180deg,#ffb6c1 0%,#ff7088 100%);border-radius:15px;bottom:132px;left:50%;transform:translateX(-50%);box-shadow:0 6px 16px rgba(0,0,0,.3),inset 0 4px 10px rgba(255,255,255,.5)}
 
-/* Goteo */
-.drip{position:absolute;width:15px;background:linear-gradient(180deg,#fff 0%,#ffe4e1 100%);border-radius:0 0 8px 8px;bottom:128px}
-.d1{left:40px;height:26px}.d2{left:62px;height:35px}.d3{right:62px;height:22px}.d4{right:40px;height:30px}
+/* ===== GLAZIADO ANIMADO ===== */
+.drip{position:absolute;width:16px;border-radius:0 0 9px 9px;bottom:128px;animation:dripPulse 3s ease-in-out infinite}
+.d1{left:40px;height:26px;background:linear-gradient(180deg,#fff 0%,#ffe8e8 100%);animation-delay:0s}
+.d2{left:62px;height:35px;background:linear-gradient(180deg,#fff5f5 0%,#ffd4d4 100%);animation-delay:.4s}
+.d3{right:62px;height:22px;background:linear-gradient(180deg,#fff 0%,#ffe0e0 100%);animation-delay:.8s}
+.d4{right:40px;height:30px;background:linear-gradient(180deg,#fff8f8 0%,#ffcccc 100%);animation-delay:1.2s}
+@keyframes dripPulse{0%,100%{height:var(--h);opacity:.9;transform:scaleY(1)}50%{height:calc(var(--h) + 6px);opacity:1;transform:scaleY(1.08)}}
+.d1{--h:26px}.d2{--h:35px}.d3{--h:22px}.d4{--h:30px}
+
+/* Glaziado extra animado */
+.glaze{position:absolute;width:145px;height:12px;background:linear-gradient(90deg,rgba(255,255,255,.3),rgba(255,255,255,.8),rgba(255,255,255,.3));border-radius:50%;bottom:142px;left:50%;transform:translateX(-50%);animation:glazeShine 4s ease-in-out infinite;z-index:3}
+@keyframes glazeShine{0%,100%{opacity:.4;transform:translateX(-50%) scaleX(.9)}50%{opacity:.8;transform:translateX(-50%) scaleX(1.1)}}
+
+/* Brillo del glaziado */
+.glaze-glint{position:absolute;width:30px;height:6px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent);border-radius:3px;bottom:148px;z-index:4;animation:glintMove 3s ease-in-out infinite}
+@keyframes glintMove{0%{left:20%;opacity:0}50%{opacity:1}100%{left:70%;opacity:0}}
 
 /* Cereza */
-.cherry{position:absolute;width:24px;height:24px;background:radial-gradient(circle at 35% 35%,#ff6b6b 0%,#c0392b 100%);border-radius:50%;top:0;left:50%;transform:translateX(-50%);box-shadow:0 4px 12px rgba(0,0,0,.4),0 0 20px rgba(255,107,107,.3);animation:cherryGlow 3s ease-in-out infinite}
+.cherry{position:absolute;width:24px;height:24px;background:radial-gradient(circle at 35% 35%,#ff6b6b 0%,#c0392b 100%);border-radius:50%;top:0;left:50%;transform:translateX(-50%);box-shadow:0 4px 12px rgba(0,0,0,.4),0 0 20px rgba(255,107,107,.3);animation:cherryGlow 3s ease-in-out infinite, cherryBounce 2s ease-in-out infinite}
 @keyframes cherryGlow{0%,100%{box-shadow:0 4px 12px rgba(0,0,0,.4),0 0 20px rgba(255,107,107,.3)}50%{box-shadow:0 4px 12px rgba(0,0,0,.4),0 0 35px rgba(255,107,107,.6)}}
-.cherry::before{content:'';position:absolute;top:-12px;left:50%;transform:translateX(-50%);width:3px;height:14px;background:linear-gradient(180deg,#2d5016,#4a7c23);border-radius:2px}
+@keyframes cherryBounce{0%,100%{transform:translateX(-50%) translateY(0) rotate(0)}50%{transform:translateX(-50%) translateY(-3px) rotate(5deg)}}
+.cherry::before{content:'';position:absolute;top:-12px;left:50%;transform:translateX(-50%);width:3px;height:14px;background:linear-gradient(180deg,#2d5016,#4a7c23);border-radius:2px;animation:stemSway 2s ease-in-out infinite}
+@keyframes stemSway{0%,100%{transform:translateX(-50%) rotate(0)}50%{transform:translateX(-50%) rotate(8deg)}}
 
 /* ===== BRAZOS MEJORADOS ===== */
 .arm{position:absolute;width:45px;height:18px;border-radius:9px;bottom:80px;z-index:12;transition:all .4s cubic-bezier(.4,0,.2,1)}
@@ -220,6 +235,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
     <div class="body">
         <div class="cherry"></div>
         <div class="cake-top"></div>
+        <div class="glaze"></div>
+        <div class="glaze-glint"></div>
         <div class="drip d1"></div><div class="drip d2"></div><div class="drip d3"></div><div class="drip d4"></div>
         <div class="cake-mid"></div>
         <div class="cake-base">
@@ -255,19 +272,19 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <div class="products-panel">
     <div class="product-card" onclick="showProduct('cake')">
         <span class="emoji">🍰</span>
-        <div class="info"><div class="name">Pastel Chocolate</div><div class="price">$89</div></div>
+        <div class="info"><div class="name">Pastel Chocolate</div><div class="price">$35.000</div></div>
     </div>
     <div class="product-card" onclick="showProduct('pasta')">
         <span class="emoji">🍝</span>
-        <div class="info"><div class="name">Pasta Italiana</div><div class="price">$99</div></div>
+        <div class="info"><div class="name">Pasta Italiana</div><div class="price">$42.000</div></div>
     </div>
     <div class="product-card" onclick="showProduct('tacos')">
         <span class="emoji">🌮</span>
-        <div class="info"><div class="name">Tacos Gourmet</div><div class="price">$79</div></div>
+        <div class="info"><div class="name">Tacos Gourmet</div><div class="price">$28.000</div></div>
     </div>
     <div class="product-card" onclick="showProduct('sushi')">
         <span class="emoji">🍣</span>
-        <div class="info"><div class="name">Sushi Premium</div><div class="price">$149</div></div>
+        <div class="info"><div class="name">Sushi Premium</div><div class="price">$65.000</div></div>
     </div>
 </div>
 
@@ -321,19 +338,21 @@ function speak(txt){
     S.cancel();
     
     const u=new SpeechSynthesisUtterance(txt);
-    u.lang='es-MX';
+    u.lang='es-CO';
     u.rate=rate;
-    u.pitch=1.02;
+    u.pitch=1.0;
     u.volume=1;
     
+    // Buscar voz colombiana o latina
     const vs=S.getVoices();
-    let v=vs.find(x=>x.lang==='es-MX');
+    let v=vs.find(x=>x.lang==='es-CO');
+    if(!v)v=vs.find(x=>x.lang==='es-MX');
     if(!v)v=vs.find(x=>x.lang==='es-ES');
     if(!v)v=vs.find(x=>x.lang.startsWith('es'));
     if(v)u.voice=v;
     
     u.onstart=()=>{startMouth();A.classList.remove('idle');A.classList.add('talking');showBubble(txt)};
-    u.onend=()=>{stopMouth();A.classList.remove('talking');A.classList.add('idle');setTimeout(()=>setExpr(''),1500);setExpr('happy')};
+    u.onend=()=>{stopMouth();A.classList.remove('talking');A.classList.add('idle');setExpr('happy');setTimeout(()=>setExpr(''),2000)};
     u.onerror=()=>{stopMouth();showBubble(txt)};
     
     S.speak(u);
@@ -406,16 +425,16 @@ function changeSpeed(){
 
 // ===== PRODUCTOS =====
 const prodDB={
-    cake:{emoji:'🍰',name:'Pastel de Chocolate Premium',desc:'Chocolate belga 70% cacao, capa por capa con ganache tradicional y fresas frescas orgánicas.',price:'$89 MXN',
+    cake:{emoji:'🍰',name:'Pastel de Chocolate Premium',desc:'Chocolate belga 70% cacao, capa por capa con ganache tradicional y fresas frescas orgánicas.',price:'$35.000',
         ing:['Chocolate belga 70% cacao','Mantequilla francesa','Huevos frescos orgánicos','Fresas del rancho','Nata montada natural','Vainilla de Madagascar'],
         prep:['Temperar chocolate baño maría','Mezclar con mantequilla y huevos','Hornear a 175° por 28 minutos','Enfriar y cubrir con ganache','Decorar con fresas frescas']},
-    pasta:{emoji:'🍝',name:'Pasta Italiana Artesanal',desc:'Harina 00 importada de Nápoles, elaborada artesanalmente. Salsa San Marzano y parmesano de 24 meses.',price:'$99 MXN',
+    pasta:{emoji:'🍝',name:'Pasta Italiana Artesanal',desc:'Harina 00 importada de Nápoles, elaborada artesanalmente. Salsa San Marzano y parmesano de 24 meses.',price:'$42.000',
         ing:['Harina 00 italiana','Huevos frescos','Aceite de oliva extra virgen','Tomate San Marzano','Parmesano 24 meses','Albahaca fresca'],
         prep:['Amasar a mano con técnica tradicional','Reposar 30 minutos','Cortar al gusto','Cocinar al dente','Servir con salsa y queso recién rallado']},
-    tacos:{emoji:'🌮',name:'Tacos Mexicanos Gourmet',desc:'Tortilla de maíz nixtamalizado fresca cada mañana. Carne Angus madurada 45 días a la parrilla.',price:'$79 MXN',
+    tacos:{emoji:'🌮',name:'Tacos Mexicanos Gourmet',desc:'Tortilla de maíz nixtamalizado fresca cada mañana. Carne Angus madurada 45 días a la parrilla.',price:'$28.000',
         ing:['Maíz nixtamalizado artesanal','Carne Angus madurada','Aguacate Hass fresco','Tomate verde','Cilantro orgánico','Limón tahití'],
         prep:['Nixtamalizar maíz tradicionalmente','Moler y formar tortilla a mano','Asar carne a la parrilla','Preparar guacamole fresco','Servir con tortilla recién hecha']},
-    sushi:{emoji:'🍣',name:'Sushi Premium Japonés',desc:'Pescado fresco del día directo del mercado. Arroz sazonado con vinagre especial, nori premium.',price:'$149 MXN',
+    sushi:{emoji:'🍣',name:'Sushi Premium Japonés',desc:'Pescado fresco del día directo del mercado. Arroz sazonado con vinagre especial, nori premium.',price:'$65.000',
         ing:['Arroz japonés Koshihikari','Vinagre de arroz especial','Nori premium primer corte','Salmón fresco del día','Aguacate japonés','Wasabi auténtico'],
         prep:['Cocinar arroz al vapor','Sazonar con vinagre y enfriar','Enrollar con técnica japonesa','Cortar con cuchillo cerámico','Servir con jengibre y wasabi']}
 };
@@ -455,12 +474,12 @@ function closeRecipe(){document.getElementById('recipeModal').classList.remove('
 
 // ===== MENU =====
 const menuData={
-    ent:['Bruschetta $65','Calamares $85','Sopa del día $55','Ensalada César $75'],
-    pas:['Espagueti Boloñesa $99','Fettuccine Alfredo $109','Penne Arrabiata $89','Lasagna $119'],
-    tac:['Tacos de Carne $79','Tacos de Pollo $69','Tacos de Pescado $89','Tacos Veganos $75'],
-    sus:['California Roll $129','Philadelphia Roll $139','Sashimi Mixto $179','Nigiri $159'],
-    pos:['Tiramisú $79','Churros $49','Cheesecake $69','Pastel de Chocolate $89'],
-    beb:['Agua Fresca $25','Limonada $30','Café $35','Té $25','Jugo Natural $35']
+    ent:['Bruschetta $18.000','Calamares $32.000','Sopa del día $15.000','Ensalada César $25.000'],
+    pas:['Espagueti Boloñesa $42.000','Fettuccine Alfredo $45.000','Penne Arrabiata $38.000','Lasagna $52.000'],
+    tac:['Tacos de Carne $28.000','Tacos de Pollo $24.000','Tacos de Pescado $35.000','Tacos Veganos $22.000'],
+    sus:['California Roll $55.000','Philadelphia Roll $58.000','Sashimi Mixto $78.000','Nigiri $65.000'],
+    pos:['Tiramisú $28.000','Churros $15.000','Cheesecake $25.000','Pastel de Chocolate $35.000'],
+    beb:['Agua Fresca $8.000','Limonada $10.000','Café $5.000','Té $5.000','Jugo Natural $12.000']
 };
 
 function showMenu(){
@@ -469,7 +488,7 @@ function showMenu(){
 }
 
 function showPrices(){
-    moveSay('Pastas desde 89 pesos, tacos desde 69, sushi desde 129, postres desde 49. Precios en pesos mexicanos, IVA incluido.');
+    moveSay('Pastas desde 38.000 pesos, tacos desde 22.000, sushi desde 55.000, postres desde 15.000. Todos los precios en pesos colombianos, IVA incluido.');
 }
 
 function greet(){
