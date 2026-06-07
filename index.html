@@ -62,6 +62,7 @@ canvas{display:block;position:fixed;inset:0;z-index:1}
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {RectAreaLightUniformsLib} from 'three/addons/lights/RectAreaLightUniformsLib.js';
+import * as TWEEN from 'three/addons/libs/tween.module.js';
 RectAreaLightUniformsLib.init();
 let scene,camera,renderer,controls,clock;
 let avatar,faceGroup,eyeL,eyeR,mouthObj,cherryObj;
@@ -116,6 +117,8 @@ function createEnvironment(){
 const floorMat=new THREE.MeshStandardMaterial({color:0xdeb896,roughness:0.6,metalness:0.05});
 const floor=new THREE.Mesh(new THREE.PlaneGeometry(20,20),floorMat);
 floor.rotation.x=-Math.PI/2;floor.position.y=-0.5;floor.receiveShadow=true;scene.add(floor);
+const ceilMat=new THREE.MeshStandardMaterial({color:0xf5e6d3,roughness:0.95,side:THREE.BackSide});
+const ceil=new THREE.Mesh(new THREE.PlaneGeometry(20,20),ceilMat);ceil.rotation.x=Math.PI/2;ceil.position.y=7;scene.add(ceil);
 const tileMat=new THREE.MeshStandardMaterial({color:0xc9a882,roughness:0.8});
 for(let i=-10;i<11;i+=2){
 const l1=new THREE.Mesh(new THREE.PlaneGeometry(0.02,20),tileMat);l1.rotation.x=-Math.PI/2;l1.position.set(i,-0.49,0);scene.add(l1);
@@ -125,6 +128,10 @@ const wallMat=new THREE.MeshStandardMaterial({color:0xf0dcc8,roughness:0.9});
 const bw=new THREE.Mesh(new THREE.PlaneGeometry(16,7),wallMat);bw.position.set(0,3,-5);bw.receiveShadow=true;scene.add(bw);
 const swl=new THREE.Mesh(new THREE.PlaneGeometry(12,7),wallMat);swl.position.set(-8,3,1);swl.rotation.y=Math.PI/2;scene.add(swl);
 const swr=new THREE.Mesh(new THREE.PlaneGeometry(12,7),wallMat);swr.position.set(8,3,1);swr.rotation.y=-Math.PI/2;scene.add(swr);
+const fwMat=new THREE.MeshStandardMaterial({color:0xf0dcc8,roughness:0.9,side:THREE.DoubleSide});
+const fwL=new THREE.Mesh(new THREE.PlaneGeometry(4,7),fwMat);fwL.position.set(-5,3,7);fwL.rotation.y=Math.PI;scene.add(fwL);
+const fwR=new THREE.Mesh(new THREE.PlaneGeometry(4,7),fwMat);fwR.position.set(5,3,7);fwR.rotation.y=Math.PI;scene.add(fwR);
+const fwT=new THREE.Mesh(new THREE.PlaneGeometry(6,1.5),fwMat);fwT.position.set(0,5.75,7);fwT.rotation.y=Math.PI;scene.add(fwT);
 const stripeMat=new THREE.MeshStandardMaterial({color:0xe8d0bc,roughness:0.85});
 for(let i=-7;i<8;i+=2){const st=new THREE.Mesh(new THREE.PlaneGeometry(0.1,7),stripeMat);st.position.set(i,3,-4.98);scene.add(st);}
 const moldMat=new THREE.MeshStandardMaterial({color:0xe0c8b0,roughness:0.5});
@@ -292,7 +299,7 @@ if(selectedProduct&&faceGroup){const tp=selectedProduct.position.clone();tp.y=fa
 else if(faceGroup)faceGroup.rotation.y+=(0-faceGroup.rotation.y)*0.05;
 }
 products.forEach((p,i)=>{const ty=i===0?0.75:0.65;p.position.y+=(ty-p.position.y)*0.08;if(p===selectedProduct)p.rotation.y+=dt*0.5;});
-controls.update();renderer.render(scene,camera);
+TWEEN.update();controls.update();updateBubble();renderer.render(scene,camera);
 }
 function blink(){if(!eyeL||!eyeR)return;let f=0;const a=()=>{f++;const s=f<=4?1-f/4:f<=8?(f-4)/4:1;eyeL.scale.y=Math.max(0.05,s);eyeR.scale.y=Math.max(0.05,s);if(f<8)requestAnimationFrame(a);};a();}
 function onMouseMove(e){mouse.x=(e.clientX/innerWidth)*2-1;mouse.y=-(e.clientY/innerHeight)*2+1;raycaster.setFromCamera(mouse,camera);document.body.style.cursor=raycaster.intersectObjects(products,true).length>0?'pointer':'default';}
@@ -307,12 +314,29 @@ document.getElementById('infoPanel').classList.add('show');
 const mc=displayCases[0];const tp=mc.position.clone();tp.y=0.75;animProd(p,tp);
 speak(d.name+'. '+d.desc+'. Precio: '+d.price+' pesos colombianos.');
 }
-function animProd(p,tgt){const s=p.position.clone(),dur=900,st=Date.now();(function a(){const t=Math.min((Date.now()-st)/dur,1);p.position.lerpVectors(s,tgt,1-Math.pow(1-t,3));if(t<1)requestAnimationFrame(a);})();}
+function animProd(p,tgt,cb){new TWEEN.Tween(p.position).to({x:tgt.x,y:tgt.y,z:tgt.z},900).easing(TWEEN.Easing.Quadratic.Out).onComplete(()=>{if(cb)cb();}).start();}
 async function speakEL(txt){document.getElementById('loading').classList.add('on');try{const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+EL_VOICE,{method:'POST',headers:{'Content-Type':'application/json','xi-api-key':EL_KEY},body:JSON.stringify({text:txt,model_id:EL_MODEL,voice_settings:{stability:0.5,similarity_boost:0.75}})});if(!r.ok)throw new Error(r.status);const b=await r.blob();const u=URL.createObjectURL(b);const a=new Audio(u);document.getElementById('loading').classList.remove('on');a.onplay=()=>{isTalking=true;showBubble(txt)};a.onended=()=>{isTalking=false;hideBubble();URL.revokeObjectURL(u)};a.onerror=()=>{document.getElementById('loading').classList.remove('on');speakFB(txt)};await a.play();}catch(e){document.getElementById('loading').classList.remove('on');speakFB(txt);}}
 function speakFB(txt){if(!S){showBubble(txt);return;}S.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang='es-ES';u.rate=0.9;u.pitch=1.05;u.volume=1;const vs=S.getVoices();const p=['Microsoft Sabina','Microsoft Helena','Google espanol','Paulina','es-ES'];let v=null;for(const n of p){v=vs.find(x=>x.name.includes(n));if(v)break;}if(!v)v=vs.find(x=>x.lang.startsWith('es'));if(v)u.voice=v;u.onstart=()=>{isTalking=true;showBubble(txt)};u.onend=()=>{isTalking=false;hideBubble()};S.speak(u);}
 function speak(txt){if(!voiceOn){showBubble(txt);return;}if(EL_KEY&&EL_VOICE){speakEL(txt);return;}speakFB(txt);}
-function showBubble(t){document.getElementById('bubbleText').textContent=t;document.getElementById('bubble').classList.add('show');}
+function showBubble(t){
+document.getElementById('bubbleText').textContent=t;
+document.getElementById('bubble').classList.add('show');
+updateBubble();
+}
 function hideBubble(){document.getElementById('bubble').classList.remove('show');}
+const bubbleEl=document.getElementById('bubble');
+const avatarWorldPos=new THREE.Vector3();
+function updateBubble(){
+if(!avatar||!bubbleEl.classList.contains('show'))return;
+avatar.getWorldPosition(avatarWorldPos);
+avatarWorldPos.y+=1.5;
+avatarWorldPos.project(camera);
+const x=(avatarWorldPos.x*0.5+0.5)*innerWidth;
+const y=(-avatarWorldPos.y*0.5+0.5)*innerHeight;
+bubbleEl.style.left=x+'px';
+bubbleEl.style.top=(y-90)+'px';
+bubbleEl.style.transform='translateX(-50%)';
+}
 window.togglePromo=function(){promoMode=!promoMode;document.getElementById('promoBtn').className=promoMode?'btn active':'btn';if(promoMode){appState='PROMOTIONAL_MODE';promoIndex=0;showNextPromo();}else{clearTimeout(promoTimer);promoTimer=null;appState='IDLE';}};
 function showNextPromo(){
 if(!promoMode)return;
