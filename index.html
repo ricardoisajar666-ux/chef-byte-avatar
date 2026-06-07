@@ -301,7 +301,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 </div>
 
 <div class="voice-bar">
-    <button class="v-btn active" id="voiceBtn" onclick="toggleVoice()">🔊 Voz IA</button>
+    <button class="v-btn active" id="voiceBtn" onclick="toggleVoice()">🔊 Voz</button>
     <button class="v-btn" id="speedBtn" onclick="changeSpeed()">⚡ Normal</button>
 </div>
 
@@ -320,10 +320,11 @@ const S=window.speechSynthesis;
 let talkInterval=null, blinkTimer=null;
 
 // ===== ELEVENLABS CONFIG =====
-// Free tier: 10,000 caracteres/mes
-// Obtén tu API key gratis en: https://elevenlabs.io
-const ELEVENLABS_API_KEY='sk_112617f23620344b47cad6da36eaab66088582e8c18b7016';
-const ELEVENLABS_VOICE_ID='21m00Tcm4TlvDq8ikWAM'; // Voz Rachel (natural)
+// Para usar ElevenLabs gratis necesitas crear tu propia voz clonada
+// Ve a https://elevenlabs.io → VoiceLab → Add Generative or Cloned Voice
+// Luego cambia el ID de abajo
+const ELEVENLABS_API_KEY=''; // Tu API key aquí
+const ELEVENLABS_VOICE_ID=''; // ID de tu voz clonada (no library voice)
 const ELEVENLABS_MODEL='eleven_multilingual_v2';
 
 // ===== INIT =====
@@ -389,17 +390,33 @@ function speakFallback(txt){
     S.cancel();
     
     const u=new SpeechSynthesisUtterance(txt);
-    u.lang='es-CO';
-    u.rate=rate;
-    u.pitch=1.0;
+    u.lang='es-ES';
+    u.rate=0.9;
+    u.pitch=1.05;
     u.volume=1;
     
+    // Buscar mejor voz disponible
     const vs=S.getVoices();
-    let v=vs.find(x=>x.lang==='es-CO');
-    if(!v)v=vs.find(x=>x.lang==='es-MX');
+    const preferidas=[
+        'Microsoft Sabina','Microsoft Helena',
+        'Google español','Google Spanish (Spain)',
+        'Paulina','Esperanza','Helena',
+        'Sabina','Helena',
+        'es-ES','es-MX','es-CO'
+    ];
+    
+    let v=null;
+    for(const nombre of preferidas){
+        v=vs.find(x=>x.name.includes(nombre));
+        if(v)break;
+    }
     if(!v)v=vs.find(x=>x.lang==='es-ES');
+    if(!v)v=vs.find(x=>x.lang==='es-MX');
     if(!v)v=vs.find(x=>x.lang.startsWith('es'));
-    if(v)u.voice=v;
+    if(v){
+        u.voice=v;
+        console.log('Usando voz:',v.name,v.lang);
+    }
     
     u.onstart=()=>{startMouth();A.classList.remove('idle');A.classList.add('talking');showBubble(txt)};
     u.onend=()=>{stopMouth();A.classList.remove('talking');A.classList.add('idle');setExpr('happy');setTimeout(()=>setExpr(''),2000)};
@@ -411,8 +428,10 @@ function speakFallback(txt){
 // ===== VOZ PRINCIPAL =====
 function speak(txt){
     if(!voiceOn){showBubble(txt);return}
-    if(ELEVENLABS_API_KEY){speakWithElevenLabs(txt)}
-    else{speakFallback(txt)}
+    // ElevenLabs deshabilitado (requiere voz clonada para gratis)
+    // Si tienes API key y voice ID, descomenta la siguiente línea:
+    // if(ELEVENLABS_API_KEY && ELEVENLABS_VOICE_ID){speakWithElevenLabs(txt);return}
+    speakFallback(txt);
 }
 
 // ===== BOCA SINCRONIZADA =====
@@ -493,7 +512,7 @@ function toggleVoice(){
     voiceOn=!voiceOn;
     const b=document.getElementById('voiceBtn');
     b.className=voiceOn?'v-btn active':'v-btn';
-    b.textContent=voiceOn?'🔊 Voz IA':'🔇 Mute';
+    b.textContent=voiceOn?'🔊 Voz':'🔇 Mute';
     if(!voiceOn){S&&S.cancel();stopMouth();setExpr('');hideBubble()}
 }
 
