@@ -16,13 +16,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .avatar.idle{animation:avIdle 4s cubic-bezier(.4,0,.2,1) infinite}
 @keyframes avIdle{0%,100%{transform:translateY(0) rotate(0) scale(1)}25%{transform:translateY(-12px) rotate(1.5deg) scale(1.01)}50%{transform:translateY(-5px) rotate(0) scale(1)}75%{transform:translateY(-8px) rotate(-1.5deg) scale(1.01)}}
 
-.avatar.talking{animation:avTalk .3s ease-in-out infinite}
-@keyframes avTalk{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.02)}}
+.avatar.talking{animation:avTalk .35s ease-in-out infinite}
+@keyframes avTalk{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.015)}}
 
 .avatar.walking{animation:avWalk .6s ease-in-out infinite}
 @keyframes avWalk{0%,100%{transform:translateY(0) rotate(-2deg)}25%{transform:translateY(-20px) rotate(3deg)}50%{transform:translateY(-4px) rotate(-1deg)}75%{transform:translateY(-24px) rotate(2deg)}}
 
-/* Pastel body */
+/* ===== CUERPO ===== */
 .body{position:relative;width:180px;height:200px;margin:40px auto 0}
 
 .cake-base{position:absolute;width:170px;height:90px;background:linear-gradient(180deg,#f5a623 0%,#e8941a 50%,#d4840f 100%);border-radius:20px;bottom:0;left:50%;transform:translateX(-50%);box-shadow:0 12px 35px rgba(0,0,0,.5),inset 0 -8px 15px rgba(0,0,0,.2),inset 0 2px 5px rgba(255,255,255,.1)}
@@ -31,43 +31,40 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 
 .cake-top{position:absolute;width:135px;height:48px;background:linear-gradient(180deg,#ffb6c1 0%,#ff7088 100%);border-radius:15px;bottom:132px;left:50%;transform:translateX(-50%);box-shadow:0 6px 16px rgba(0,0,0,.3),inset 0 4px 10px rgba(255,255,255,.5)}
 
-/* ===== GLAZIADO ANIMADO ===== */
-.drip{position:absolute;width:16px;border-radius:0 0 9px 9px;bottom:128px;animation:dripPulse 3s ease-in-out infinite}
-.d1{left:40px;height:26px;background:linear-gradient(180deg,#fff 0%,#ffe8e8 100%);animation-delay:0s}
-.d2{left:62px;height:35px;background:linear-gradient(180deg,#fff5f5 0%,#ffd4d4 100%);animation-delay:.4s}
-.d3{right:62px;height:22px;background:linear-gradient(180deg,#fff 0%,#ffe0e0 100%);animation-delay:.8s}
-.d4{right:40px;height:30px;background:linear-gradient(180deg,#fff8f8 0%,#ffcccc 100%);animation-delay:1.2s}
-@keyframes dripPulse{0%,100%{height:var(--h);opacity:.9;transform:scaleY(1)}50%{height:calc(var(--h) + 6px);opacity:1;transform:scaleY(1.08)}}
-.d1{--h:26px}.d2{--h:35px}.d3{--h:22px}.d4{--h:30px}
+/* ===== GLAZIADO FLUIDO ===== */
+.glaze-wrap{position:absolute;width:145px;height:60px;bottom:128px;left:50%;transform:translateX(-50%);z-index:3;overflow:visible}
 
-/* Glaziado extra animado */
-.glaze{position:absolute;width:145px;height:12px;background:linear-gradient(90deg,rgba(255,255,255,.3),rgba(255,255,255,.8),rgba(255,255,255,.3));border-radius:50%;bottom:142px;left:50%;transform:translateX(-50%);animation:glazeShine 4s ease-in-out infinite;z-index:3}
-@keyframes glazeShine{0%,100%{opacity:.4;transform:translateX(-50%) scaleX(.9)}50%{opacity:.8;transform:translateX(-50%) scaleX(1.1)}}
+.glaze-wave{position:absolute;width:100%;height:100%;animation:glazeFlow 4s ease-in-out infinite}
+@keyframes glazeFlow{0%,100%{transform:translateX(0) scaleY(1)}50%{transform:translateX(3px) scaleY(1.05)}}
 
-/* Brillo del glaziado */
-.glaze-glint{position:absolute;width:30px;height:6px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent);border-radius:3px;bottom:148px;z-index:4;animation:glintMove 3s ease-in-out infinite}
-@keyframes glintMove{0%{left:20%;opacity:0}50%{opacity:1}100%{left:70%;opacity:0}}
+.glaze-shine{position:absolute;width:40px;height:8px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.95),transparent);border-radius:4px;bottom:42px;animation:shineMove 2.5s ease-in-out infinite;z-index:5}
+@keyframes shineMove{0%{left:10%;opacity:0;transform:scaleX(.5)}30%{opacity:1;transform:scaleX(1)}70%{opacity:1;transform:scaleX(1)}100%{left:80%;opacity:0;transform:scaleX(.5)}}
+
+/* Goteo animado */
+.drip{position:absolute;width:16px;border-radius:0 0 9px 9px;bottom:0;transform-origin:top center}
+.drip-inner{width:100%;height:100%;border-radius:inherit;animation:dripFlow 3s ease-in-out infinite}
+@keyframes dripFlow{0%,100%{transform:scaleY(1);opacity:.85}50%{transform:scaleY(1.15);opacity:1}}
+
+.d1{left:5px;height:26px}.d1 .drip-inner{background:linear-gradient(180deg,#fff 0%,#ffe8e8 100%);animation-delay:0s}
+.d2{left:28px;height:35px}.d2 .drip-inner{background:linear-gradient(180deg,#fff5f5 0%,#ffd4d4 100%);animation-delay:.5s}
+.d3{right:28px;height:22px}.d3 .drip-inner{background:linear-gradient(180deg,#fff 0%,#ffe0e0 100%);animation-delay:1s}
+.d4{right:5px;height:30px}.d4 .drip-inner{background:linear-gradient(180deg,#fff8f8 0%,#ffcccc 100%);animation-delay:1.5s}
 
 /* Cereza */
-.cherry{position:absolute;width:24px;height:24px;background:radial-gradient(circle at 35% 35%,#ff6b6b 0%,#c0392b 100%);border-radius:50%;top:0;left:50%;transform:translateX(-50%);box-shadow:0 4px 12px rgba(0,0,0,.4),0 0 20px rgba(255,107,107,.3);animation:cherryGlow 3s ease-in-out infinite, cherryBounce 2s ease-in-out infinite}
-@keyframes cherryGlow{0%,100%{box-shadow:0 4px 12px rgba(0,0,0,.4),0 0 20px rgba(255,107,107,.3)}50%{box-shadow:0 4px 12px rgba(0,0,0,.4),0 0 35px rgba(255,107,107,.6)}}
-@keyframes cherryBounce{0%,100%{transform:translateX(-50%) translateY(0) rotate(0)}50%{transform:translateX(-50%) translateY(-3px) rotate(5deg)}}
-.cherry::before{content:'';position:absolute;top:-12px;left:50%;transform:translateX(-50%);width:3px;height:14px;background:linear-gradient(180deg,#2d5016,#4a7c23);border-radius:2px;animation:stemSway 2s ease-in-out infinite}
-@keyframes stemSway{0%,100%{transform:translateX(-50%) rotate(0)}50%{transform:translateX(-50%) rotate(8deg)}}
+.cherry{position:absolute;width:24px;height:24px;background:radial-gradient(circle at 35% 35%,#ff6b6b 0%,#c0392b 100%);border-radius:50%;top:0;left:50%;transform:translateX(-50%);box-shadow:0 4px 12px rgba(0,0,0,.4),0 0 20px rgba(255,107,107,.3);animation:cherryFloat 2.5s ease-in-out infinite;z-index:6}
+@keyframes cherryFloat{0%,100%{transform:translateX(-50%) translateY(0) rotate(0)}50%{transform:translateX(-50%) translateY(-4px) rotate(6deg)}}
+.cherry::before{content:'';position:absolute;top:-12px;left:50%;transform-origin:bottom center;width:3px;height:14px;background:linear-gradient(180deg,#2d5016,#4a7c23);border-radius:2px;animation:stemWave 2s ease-in-out infinite}
+@keyframes stemWave{0%,100%{transform:translateX(-50%) rotate(0)}50%{transform:translateX(-50%) rotate(10deg)}}
 
-/* ===== BRAZOS MEJORADOS ===== */
+/* ===== BRAZOS ===== */
 .arm{position:absolute;width:45px;height:18px;border-radius:9px;bottom:80px;z-index:12;transition:all .4s cubic-bezier(.4,0,.2,1)}
-
 .arm-left{left:-32px;transform-origin:right center;background:linear-gradient(90deg,#ff91a4 0%,#ffb6c1 50%,#ffd4dc 100%);transform:rotate(15deg);border-radius:9px 14px 14px 9px}
-
 .arm-right{right:-32px;transform-origin:left center;background:linear-gradient(90deg,#ffd4dc 0%,#ffb6c1 50%,#ff91a4 100%);transform:rotate(-15deg);border-radius:14px 9px 9px 14px}
 
-/* Manos redondeadas */
-.hand{position:absolute;width:22px;height:22px;background:radial-gradient(circle at 40% 40%,#ffd4dc,#ffb6c1);border-radius:50%;top:-2px}
+.hand{position:absolute;width:22px;height:22px;background:radial-gradient(circle at 40% 40%,#ffd4dc,#ffb6c1);border-radius:50%;top:-2px;box-shadow:inset 0 2px 4px rgba(0,0,0,.1)}
 .arm-left .hand{left:-8px}
 .arm-right .hand{right:-8px}
 
-/* Animaciones de brazos */
 .arm.wave{animation:armWave .5s ease-in-out infinite}
 @keyframes armWave{0%,100%{transform:rotate(15deg)}50%{transform:rotate(-40deg)}}
 
@@ -77,48 +74,57 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .arm.gesture{animation:armGesture 2s ease-in-out infinite}
 @keyframes armGesture{0%,100%{transform:rotate(15deg) translateY(0)}25%{transform:rotate(5deg) translateY(-5px)}50%{transform:rotate(20deg) translateY(0)}75%{transform:rotate(10deg) translateY(-3px)}}
 
-/* ===== CARA ===== */
+/* ===== CARA NATURAL ===== */
 .face{position:absolute;top:18px;left:50%;transform:translateX(-50%);width:110px;height:75px;z-index:15}
 
-/* Ojos */
-.eye{position:absolute;width:28px;height:32px;background:radial-gradient(circle at 30% 30%,#fff 0%,#f8f8f8 40%,#e8e8e8 70%,#ddd 100%);border-radius:50%;top:8px;box-shadow:inset 0 2px 6px rgba(0,0,0,.08),0 3px 6px rgba(0,0,0,.15);overflow:hidden;transition:transform .15s cubic-bezier(.4,0,.2,1)}
-.eye-left{left:10px}.eye-right{right:10px}
+/* Ojos - más redondeados y suaves */
+.eye{position:absolute;width:30px;height:34px;background:radial-gradient(circle at 30% 30%,#fff 0%,#fafafa 40%,#f0f0f0 70%,#e5e5e5 100%);border-radius:50%;top:6px;box-shadow:inset 0 2px 8px rgba(0,0,0,.06),0 3px 8px rgba(0,0,0,.12);overflow:hidden}
+.eye-left{left:8px}.eye-right{right:8px}
 
-.pupil{position:absolute;width:13px;height:17px;background:radial-gradient(circle at 35% 35%,#5a5a5a 0%,#2a2a2a 50%,#1a1a1a 100%);border-radius:50%;top:8px;left:7px;transition:transform .1s cubic-bezier(.4,0,.2,1)}
-.pupil::after{content:'';position:absolute;top:2px;left:2px;width:5px;height:5px;background:rgba(255,255,255,.9);border-radius:50%}
-.pupil::before{content:'';position:absolute;top:7px;left:8px;width:3px;height:3px;background:rgba(255,255,255,.5);border-radius:50%}
+/* Pupila con reflejos */
+.pupil{position:absolute;width:14px;height:18px;background:radial-gradient(circle at 35% 35%,#6a6a6a 0%,#3a3a3a 40%,#1a1a1a 100%);border-radius:50%;top:9px;left:8px;transition:transform .12s cubic-bezier(.4,0,.2,1)}
+.pupil::after{content:'';position:absolute;top:3px;left:3px;width:5px;height:5px;background:rgba(255,255,255,.95);border-radius:50%}
+.pupil::before{content:'';position:absolute;top:8px;left:9px;width:3px;height:3px;background:rgba(255,255,255,.5);border-radius:50%}
 
-.eye.happy{transform:scaleY(.25) translateY(7px)}
-.eye.surprised{transform:scale(1.35)}
-.eye.blink{animation:eyeBlink .15s ease-in-out}
-@keyframes eyeBlink{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.05)}}
+/* Párpados - animación natural */
+.lid{position:absolute;width:100%;height:0;background:linear-gradient(180deg,#ffb6c1,#ff91a4);border-radius:50% 50% 0 0;top:0;left:0;z-index:2;transition:height .12s cubic-bezier(.4,0,.2,1);transform-origin:top}
+.eye.blink .lid{height:100%}
+.eye.happy .lid{height:70%}
+.eye.surprised .lid{height:0}
+
+.eye.happy{transform:scaleY(.9)}
+.eye.surprised{transform:scale(1.3)}
 
 /* Cejas */
-.brow{position:absolute;width:18px;height:4px;background:#8b6f5c;border-radius:2px;top:2px;transition:transform .2s ease}
-.brow-left{left:12px;transform:rotate(-8deg)}.brow-right{right:12px;transform:rotate(8deg)}
-.brow.raised{transform:translateY(-3px) rotate(0)}
+.brow{position:absolute;width:20px;height:4px;background:linear-gradient(90deg,#a08070,#8b7060);border-radius:2px;top:0;transition:all .2s cubic-bezier(.4,0,.2,1)}
+.brow-left{left:10px;transform:rotate(-5deg)}
+.brow-right{right:10px;transform:rotate(5deg)}
+.brow.raised{transform:translateY(-4px) rotate(0) scaleX(1.1)}
 
 /* Mejillas */
-.cheek{position:absolute;width:20px;height:14px;background:radial-gradient(ellipse,rgba(255,150,150,.5) 0%,transparent 70%);border-radius:50%;top:26px;opacity:0;transition:opacity .3s ease}
-.cheek-left{left:-5px}.cheek-right{right:-5px}
+.cheek{position:absolute;width:22px;height:16px;background:radial-gradient(ellipse,rgba(255,140,140,.45) 0%,transparent 70%);border-radius:50%;top:28px;opacity:0;transition:opacity .3s ease}
+.cheek-left{left:-6px}.cheek-right{right:-6px}
 .cheek.visible{opacity:1}
 
-/* Boca mejorada */
-.mouth{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:44px;height:18px;background:linear-gradient(180deg,#c0392b 0%,#e74c3c 50%,#ff6b6b 100%);border-radius:0 0 22px 22px;box-shadow:inset 0 -4px 6px rgba(0,0,0,.25),0 2px 4px rgba(0,0,0,.1);transition:all .08s ease-out;overflow:hidden}
+/* Boca natural */
+.mouth{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:44px;height:18px;background:linear-gradient(180deg,#d44 0%,#e55 50%,#f77 100%);border-radius:0 0 22px 22px;box-shadow:inset 0 -4px 8px rgba(0,0,0,.2),0 2px 4px rgba(0,0,0,.08);overflow:hidden;transition:all .1s ease-out}
 
-/* Dientes superiores */
-.mouth::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:20px;height:5px;background:#fff;border-radius:0 0 4px 4px}
+/* Dientes */
+.teeth{position:absolute;top:0;left:50%;transform:translateX(-50%);width:22px;height:6px;background:#fff;border-radius:0 0 5px 5px;z-index:1}
 
-/* Estados de boca para hablar */
-.mouth.m1{height:6px;width:30px;border-radius:0 0 15px 15px}
-.mouth.m2{height:22px;width:38px;border-radius:0 0 19px 19px}
-.mouth.m3{height:12px;width:44px;border-radius:0 0 22px 22px}
-.mouth.m4{height:28px;width:26px;border-radius:0 0 13px 13px}
-.mouth.m5{height:8px;width:40px;border-radius:0 0 20px 20px}
-.mouth.m6{height:32px;width:22px;border-radius:0 0 11px 11px}
+/* Labio inferior */
+.mouth::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:18px;height:4px;background:rgba(200,60,60,.6);border-radius:50%}
 
-.mouth.smile{height:26px;border-radius:16px 16px 22px 22px;background:linear-gradient(180deg,#ff6b6b 0%,#ff91a4 100%)}
-.mouth.surprised{width:24px;height:24px;border-radius:50%}
+/* Estados de boca */
+.mouth.m1{height:5px;width:28px;border-radius:0 0 14px 14px}
+.mouth.m2{height:24px;width:40px;border-radius:0 0 20px 20px}
+.mouth.m3{height:10px;width:46px;border-radius:0 0 23px 23px}
+.mouth.m4{height:30px;width:24px;border-radius:0 0 12px 12px}
+.mouth.m5{height:6px;width:42px;border-radius:0 0 21px 21px}
+.mouth.m6{height:34px;width:20px;border-radius:0 0 10px 10px}
+
+.mouth.smile{height:28px;border-radius:18px 18px 22px 22px;background:linear-gradient(180deg,#f77 0%,#faa 100%)}
+.mouth.surprised{width:26px;height:26px;border-radius:50%}
 
 /* ===== EFECTOS ===== */
 .particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:200}
@@ -135,7 +141,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .speech-bubble::after{content:'';position:absolute;bottom:-13px;left:50%;transform:translateX(-50%);border-width:13px;border-style:solid;border-color:rgba(15,15,35,.95) transparent transparent}
 .speech-text{font-size:.92rem;color:#eee;line-height:1.6}
 
-/* Humo para productos */
+/* Humo */
 .smoke-wrap{position:fixed;z-index:250;pointer-events:none;opacity:0;transition:all .5s cubic-bezier(.68,-.55,.27,1.55)}
 .smoke-wrap.visible{opacity:1}
 .smoke-card{background:rgba(12,12,30,.96);border:1px solid rgba(255,107,107,.25);border-radius:18px;padding:22px;box-shadow:0 12px 45px rgba(0,0,0,.6),0 0 40px rgba(255,107,107,.08)}
@@ -146,14 +152,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 
 /* ===== CONTROLES ===== */
 .ctrl-panel{position:fixed;top:14px;left:14px;z-index:200;display:flex;flex-direction:column;gap:6px}
-
 .btn{padding:10px 18px;border:1px solid rgba(255,255,255,.08);border-radius:12px;font-size:.82rem;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);font-weight:600;background:rgba(255,255,255,.06);color:#ddd;backdrop-filter:blur(12px);letter-spacing:.3px;display:flex;align-items:center;gap:8px}
 .btn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,107,107,.4);transform:translateX(5px);color:#fff}
 .btn:active{transform:scale(.97) translateX(5px)}
-.btn-accent{background:linear-gradient(135deg,#ff6b6b,#ee5a24);border-color:transparent;color:#fff}
-.btn-accent:hover{background:linear-gradient(135deg,#ff7575,#f06535);box-shadow:0 4px 25px rgba(255,107,107,.35)}
 
-/* Productos - derecha */
 .products-panel{position:fixed;top:50%;right:14px;transform:translateY(-50%);z-index:200;display:flex;flex-direction:column;gap:8px}
 .product-card{background:rgba(12,12,30,.9);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 18px;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);backdrop-filter:blur(12px);display:flex;align-items:center;gap:12px;min-width:170px}
 .product-card:hover{border-color:rgba(255,107,107,.5);transform:translateX(-8px) scale(1.02);box-shadow:0 6px 25px rgba(255,107,107,.15)}
@@ -163,18 +165,15 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .product-card .name{font-size:.84rem;font-weight:600;color:#fff}
 .product-card .price{font-size:.76rem;color:#00b894;margin-top:3px}
 
-/* Barra inferior */
 .voice-bar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:200}
 .v-btn{padding:9px 18px;border:1px solid rgba(255,255,255,.1);border-radius:12px;font-size:.82rem;cursor:pointer;font-weight:600;transition:all .25s cubic-bezier(.4,0,.2,1);background:rgba(255,255,255,.06);color:#ddd;backdrop-filter:blur(12px)}
 .v-btn:hover{background:rgba(255,255,255,.12);color:#fff}
 .v-btn.active{background:linear-gradient(135deg,#00b894,#00cec9);border-color:transparent;color:#fff}
 
-/* Brand */
 .brand{position:fixed;top:14px;right:14px;z-index:200;text-align:right}
 .brand-name{font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,#ff6b6b 0%,#f5a623 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1.5px}
 .brand-tag{font-size:.68rem;color:#666;letter-spacing:3px;text-transform:uppercase;margin-top:3px}
 
-/* Modal */
 .recipe-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);z-index:400;max-width:440px;width:92%;max-height:82vh;overflow-y:auto;background:rgba(12,12,30,.98);border:1px solid rgba(255,107,107,.25);border-radius:20px;padding:30px;box-shadow:0 24px 70px rgba(0,0,0,.7),0 0 50px rgba(255,107,107,.08);transition:transform .4s cubic-bezier(.68,-.55,.27,1.55);opacity:0}
 .recipe-modal.open{transform:translate(-50%,-50%) scale(1);opacity:1}
 .recipe-modal h2{font-size:1.25rem;color:#ff6b6b;margin-bottom:14px}
@@ -193,6 +192,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .splash-sub{color:#666;font-size:.85rem;letter-spacing:4px;text-transform:uppercase;margin-bottom:35px}
 .splash-btn{padding:16px 50px;background:linear-gradient(135deg,#ff6b6b,#ee5a24);border:none;border-radius:30px;color:#fff;font-weight:700;font-size:1rem;cursor:pointer;transition:all .3s;box-shadow:0 6px 25px rgba(255,107,107,.3);letter-spacing:1px}
 .splash-btn:hover{transform:scale(1.05);box-shadow:0 8px 35px rgba(255,107,107,.5)}
+
+/* Loading indicator */
+.loading-voice{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:rgba(0,184,148,.9);color:#fff;padding:8px 20px;border-radius:20px;font-size:.8rem;font-weight:600;z-index:300;display:none;align-items:center;gap:8px}
+.loading-voice.visible{display:flex}
+.loading-voice::before{content:'';width:12px;height:12px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 @media(max-width:700px){
 .avatar{width:150px;height:220px}
@@ -214,7 +219,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 </head>
 <body>
 
-<!-- Splash -->
 <div class="splash" id="splash">
     <div class="splash-cake">🍰</div>
     <div class="splash-title">CHEF BYTE</div>
@@ -230,14 +234,19 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
     <div class="brand-tag">Cocina Digital</div>
 </div>
 
-<!-- Avatar -->
+<div class="loading-voice" id="loadingVoice">Generando voz...</div>
+
 <div class="avatar idle" id="avatar">
     <div class="body">
         <div class="cherry"></div>
         <div class="cake-top"></div>
-        <div class="glaze"></div>
-        <div class="glaze-glint"></div>
-        <div class="drip d1"></div><div class="drip d2"></div><div class="drip d3"></div><div class="drip d4"></div>
+        <div class="glaze-wrap">
+            <div class="glaze-shine"></div>
+            <div class="drip d1"><div class="drip-inner"></div></div>
+            <div class="drip d2"><div class="drip-inner"></div></div>
+            <div class="drip d3"><div class="drip-inner"></div></div>
+            <div class="drip d4"><div class="drip-inner"></div></div>
+        </div>
         <div class="cake-mid"></div>
         <div class="cake-base">
             <div class="arm arm-left" id="armL"><div class="hand"></div></div>
@@ -245,17 +254,16 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
             <div class="face">
                 <div class="brow brow-left" id="browL"></div>
                 <div class="brow brow-right" id="browR"></div>
-                <div class="eye eye-left" id="eyeL"><div class="pupil" id="pupilL"></div></div>
-                <div class="eye eye-right" id="eyeR"><div class="pupil" id="pupilR"></div></div>
+                <div class="eye eye-left" id="eyeL"><div class="lid"></div><div class="pupil" id="pupilL"></div></div>
+                <div class="eye eye-right" id="eyeR"><div class="lid"></div><div class="pupil" id="pupilR"></div></div>
                 <div class="cheek cheek-left" id="cheekL"></div>
                 <div class="cheek cheek-right" id="cheekR"></div>
-                <div class="mouth" id="mouth"></div>
+                <div class="mouth" id="mouth"><div class="teeth"></div></div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Humo -->
 <div class="smoke-wrap" id="smokeWrap">
     <div class="smoke-card">
         <div class="smoke-emoji" id="smokeEmoji"></div>
@@ -265,10 +273,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
     </div>
 </div>
 
-<!-- Burbuja -->
 <div class="speech-bubble" id="speechBubble"><p class="speech-text" id="speechText"></p></div>
 
-<!-- Productos -->
 <div class="products-panel">
     <div class="product-card" onclick="showProduct('cake')">
         <span class="emoji">🍰</span>
@@ -288,20 +294,17 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
     </div>
 </div>
 
-<!-- Info -->
 <div class="ctrl-panel">
     <button class="btn" onclick="showMenu()">📋 Menú</button>
     <button class="btn" onclick="showPrices()">💰 Precios</button>
     <button class="btn" onclick="greet()">👋 Saludar</button>
 </div>
 
-<!-- Barra inferior -->
 <div class="voice-bar">
-    <button class="v-btn active" id="voiceBtn" onclick="toggleVoice()">🔊 Voz</button>
+    <button class="v-btn active" id="voiceBtn" onclick="toggleVoice()">🔊 Voz IA</button>
     <button class="v-btn" id="speedBtn" onclick="changeSpeed()">⚡ Normal</button>
 </div>
 
-<!-- Modal -->
 <div class="recipe-modal" id="recipeModal">
     <button class="recipe-close" onclick="closeRecipe()">✕</button>
     <h2 id="rTitle"></h2>
@@ -310,10 +313,17 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 </div>
 
 <script>
-let voiceOn=true, rate=0.85, dragging=false, dragOff={x:0,y:0};
+let voiceOn=true, rate=1.0, dragging=false, dragOff={x:0,y:0};
 let cx=innerWidth/2-100, cy=innerHeight/3-40;
-const S=window.speechSynthesis, A=document.getElementById('avatar');
+const A=document.getElementById('avatar');
 let talkInterval=null, blinkTimer=null;
+
+// ===== ELEVENLABS CONFIG =====
+// Free tier: 10,000 caracteres/mes
+// Obtén tu API key gratis en: https://elevenlabs.io
+const ELEVENLABS_API_KEY=''; // Dejar vacío para usar voz del navegador
+const ELEVENLABS_VOICE_ID='21m00Tcm4TlvDq8ikWAM'; // Voz Rachel (natural)
+const ELEVENLABS_MODEL='eleven_multilingual_v2';
 
 // ===== INIT =====
 function init(){
@@ -332,9 +342,40 @@ function init(){
     });
 }
 
-// ===== VOZ NATURAL =====
-function speak(txt){
-    if(!voiceOn||!S){showBubble(txt);return}
+// ===== VOZ CON ELEVENLABS =====
+async function speakWithElevenLabs(txt){
+    const loading=document.getElementById('loadingVoice');
+    loading.classList.add('visible');
+    
+    try{
+        const response=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE_ID}`,{
+            method:'POST',
+            headers:{'Content-Type':'application/json','xi-api-key':ELEVENLABS_API_KEY},
+            body:{text:txt,model_id:ELEVENLABS_MODEL,voice_settings:{stability:.5,similarity_boost:.75}}
+        });
+        
+        if(!response.ok)throw new Error('API error');
+        
+        const audioBlob=await response.blob();
+        const audioUrl=URL.createObjectURL(audioBlob);
+        const audio=new Audio(audioUrl);
+        
+        loading.classList.remove('visible');
+        
+        audio.onplay=()=>{startMouth();A.classList.remove('idle');A.classList.add('talking');showBubble(txt)};
+        audio.onended=()=>{stopMouth();A.classList.remove('talking');A.classList.add('idle');setExpr('happy');setTimeout(()=>setExpr(''),2000);URL.revokeObjectURL(audioUrl)};
+        audio.onerror=()=>{loading.classList.remove('visible');speakFallback(txt)};
+        
+        audio.play();
+    }catch(e){
+        loading.classList.remove('visible');
+        speakFallback(txt);
+    }
+}
+
+// ===== VOZ FALLBACK (NAVEGADOR) =====
+function speakFallback(txt){
+    if(!S){showBubble(txt);return}
     S.cancel();
     
     const u=new SpeechSynthesisUtterance(txt);
@@ -343,7 +384,6 @@ function speak(txt){
     u.pitch=1.0;
     u.volume=1;
     
-    // Buscar voz colombiana o latina
     const vs=S.getVoices();
     let v=vs.find(x=>x.lang==='es-CO');
     if(!v)v=vs.find(x=>x.lang==='es-MX');
@@ -358,6 +398,13 @@ function speak(txt){
     S.speak(u);
 }
 
+// ===== VOZ PRINCIPAL =====
+function speak(txt){
+    if(!voiceOn){showBubble(txt);return}
+    if(ELEVENLABS_API_KEY){speakWithElevenLabs(txt)}
+    else{speakFallback(txt)}
+}
+
 // ===== BOCA SINCRONIZADA =====
 function startMouth(){
     stopMouth();
@@ -367,24 +414,38 @@ function startMouth(){
     talkInterval=setInterval(()=>{
         m.className='mouth';
         m.classList.add(states[i%states.length]);
+        const teeth=m.querySelector('.teeth');
+        if(teeth)teeth.style.display=i%3===0?'none':'block';
         i++;
-    },70+Math.random()*30);
+    },75+Math.random()*25);
 }
 
 function stopMouth(){
     if(talkInterval){clearInterval(talkInterval);talkInterval=null}
-    document.getElementById('mouth').className='mouth';
+    const m=document.getElementById('mouth');
+    m.className='mouth';
+    const teeth=m.querySelector('.teeth');
+    if(teeth)teeth.style.display='block';
 }
 
-// ===== PARPADEO =====
+// ===== PARPADEO NATURAL =====
 function startBlinking(){
     function blink(){
         const el=document.getElementById('eyeL'),er=document.getElementById('eyeR');
         el.classList.add('blink');er.classList.add('blink');
-        setTimeout(()=>{el.classList.remove('blink');er.classList.remove('blink')},150);
-        blinkTimer=setTimeout(blink,2500+Math.random()*3000);
+        setTimeout(()=>{el.classList.remove('blink');er.classList.remove('blink')},180);
+        
+        // Parpadeo doble ocacional
+        if(Math.random()>.7){
+            setTimeout(()=>{
+                el.classList.add('blink');er.classList.add('blink');
+                setTimeout(()=>{el.classList.remove('blink');er.classList.remove('blink')},120);
+            },300);
+        }
+        
+        blinkTimer=setTimeout(blink,2000+Math.random()*4000);
     }
-    blinkTimer=setTimeout(blink,1500);
+    blinkTimer=setTimeout(blink,1000);
 }
 
 // ===== EXPRESIONES =====
@@ -398,9 +459,20 @@ function setExpr(t){
     cl.classList.remove('visible');cr.classList.remove('visible');
     bl.classList.remove('raised');br.classList.remove('raised');
     
+    // Reagregar dientes
+    const teeth=m.querySelector('.teeth');
+    
     switch(t){
-        case'happy':el.classList.add('happy');er.classList.add('happy');m.classList.add('smile');cl.classList.add('visible');cr.classList.add('visible');break;
-        case'surprised':el.classList.add('surprised');er.classList.add('surprised');m.classList.add('surprised');bl.classList.add('raised');br.classList.add('raised');break;
+        case'happy':
+            el.classList.add('happy');er.classList.add('happy');
+            m.classList.add('smile');
+            cl.classList.add('visible');cr.classList.add('visible');
+            break;
+        case'surprised':
+            el.classList.add('surprised');er.classList.add('surprised');
+            m.classList.add('surprised');
+            bl.classList.add('raised');br.classList.add('raised');
+            break;
     }
 }
 
@@ -411,13 +483,13 @@ function toggleVoice(){
     voiceOn=!voiceOn;
     const b=document.getElementById('voiceBtn');
     b.className=voiceOn?'v-btn active':'v-btn';
-    b.textContent=voiceOn?'🔊 Voz':'🔇 Mute';
-    if(!voiceOn){S.cancel();stopMouth();setExpr('');hideBubble()}
+    b.textContent=voiceOn?'🔊 Voz IA':'🔇 Mute';
+    if(!voiceOn){S&&S.cancel();stopMouth();setExpr('');hideBubble()}
 }
 
 function changeSpeed(){
-    const sp=[.7,.85,1,1.15,1.3];
-    const lb=['Lenta','Normal','Media','Rápida','Muy rápida'];
+    const sp=[.8,1,1.15,1.3];
+    const lb=['Normal','Media','Rápida','Muy rápida'];
     const i=sp.indexOf(rate);
     rate=sp[(i+1)%sp.length];
     document.getElementById('speedBtn').textContent='⚡ '+lb[(i+1)%sp.length];
@@ -461,7 +533,7 @@ function showProduct(type){
     document.getElementById('rSteps').innerHTML=d.prep.map(x=>'<li>'+x+'</li>').join('');
     
     walkTo(innerWidth/2-100,innerHeight/4-20,()=>{
-        speak(d.name+'. '+d.desc+'. Precio: '+d.price);
+        speak(d.name+'. '+d.desc+'. Precio: '+d.price+' pesos colombianos.');
         document.getElementById('recipeModal').classList.add('open');
         document.getElementById('armR').classList.add('point');
         setTimeout(()=>document.getElementById('armR').classList.remove('point'),3500);
@@ -472,7 +544,6 @@ function showProduct(type){
 
 function closeRecipe(){document.getElementById('recipeModal').classList.remove('open')}
 
-// ===== MENU =====
 const menuData={
     ent:['Bruschetta $18.000','Calamares $32.000','Sopa del día $15.000','Ensalada César $25.000'],
     pas:['Espagueti Boloñesa $42.000','Fettuccine Alfredo $45.000','Penne Arrabiata $38.000','Lasagna $52.000'],
