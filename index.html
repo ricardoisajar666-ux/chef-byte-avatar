@@ -217,12 +217,48 @@ function createEnvironment(){
     sideWallR.rotation.y=-Math.PI/2;
     scene.add(sideWallR);
     
+    // Wallpaper pattern (subtle vertical stripes)
+    const stripeMat=new THREE.MeshStandardMaterial({color:0x322a3e,roughness:0.85});
+    for(let i=-9;i<10;i+=2){
+        const stripe=new THREE.Mesh(new THREE.PlaneGeometry(0.08,8),stripeMat);
+        stripe.position.set(i,3.5,-5.98);
+        scene.add(stripe);
+    }
+    
     // Decorative shelf on back wall
     const shelfGeo=new THREE.BoxGeometry(6,0.1,0.4);
     const shelfMat=new THREE.MeshStandardMaterial({color:0x5a4a3a,roughness:0.6});
     const shelf=new THREE.Mesh(shelfGeo,shelfMat);
     shelf.position.set(0,3,-5.7);
     scene.add(shelf);
+    
+    // Vases on shelf
+    const vaseMat=new THREE.MeshStandardMaterial({color:0xd4a574,roughness:0.4,metalness:0.15});
+    const vasePositions=[-2.2,-1.1,0,1.1,2.2];
+    vasePositions.forEach(x=>{
+        const vase=new THREE.Group();
+        const body=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.12,0.25,12),vaseMat);
+        body.position.y=0.125;vase.add(body);
+        const neck=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.06,0.1,12),vaseMat);
+        neck.position.y=0.3;vase.add(neck);
+        const lip=new THREE.Mesh(new THREE.TorusGeometry(0.05,0.012,8,16),vaseMat);
+        lip.position.y=0.35;lip.rotation.x=Math.PI/2;vase.add(lip);
+        vase.position.set(x,3.05,-5.5);
+        scene.add(vase);
+    });
+    
+    // Small potted plant on shelf
+    const potMat=new THREE.MeshStandardMaterial({color:0x8b6f47,roughness:0.6});
+    const pot=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.08,0.12,12),potMat);
+    pot.position.set(0,3.1,-5.5);scene.add(pot);
+    const leafMat=new THREE.MeshStandardMaterial({color:0x4a7a3a,roughness:0.5});
+    for(let i=0;i<5;i++){
+        const leaf=new THREE.Mesh(new THREE.SphereGeometry(0.06,8,8),leafMat);
+        leaf.scale.set(0.5,1.5,0.5);
+        const a=(i/5)*Math.PI*2;
+        leaf.position.set(Math.cos(a)*0.08,3.22,Math.sin(a)*0.08-5.5);
+        scene.add(leaf);
+    }
     
     // Display cases
     createDisplayCases();
@@ -649,7 +685,7 @@ function showNextPromo(){
     selectProduct(products[promoIndex]);
     speak(data.name+'. '+data.price+' pesos colombianos.');
     promoIndex=(promoIndex+1)%productData.length;
-    promoTimer=setTimeout(showNextPromo,6000);
+    promoTimer=setTimeout(showNextPromo,10000);
 }
 
 // ===== CONTROLS =====
