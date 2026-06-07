@@ -4,453 +4,82 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<title>Chef Byte - Avatar Premium</title>
+<title>Chef Byte - 3D Avatar</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍰</text></svg>">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:#080810;min-height:100vh;overflow:hidden;color:#fff}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#080810;overflow:hidden;color:#fff}
+canvas{display:block;position:fixed;inset:0;z-index:1}
 
-/* ===== CINEMATIC BACKGROUND ===== */
-.bg{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 40%,#1a1a3a 0%,#0a0a18 50%,#050510 100%);z-index:0}
-.bg::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 70%,rgba(255,107,107,.04) 0%,transparent 50%),radial-gradient(circle at 70% 30%,rgba(245,166,35,.03) 0%,transparent 50%)}
-.bg::after{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");opacity:.5}
+/* UI Overlay */
+.ui{position:fixed;z-index:100;pointer-events:none}
+.ui>*{pointer-events:auto}
 
-/* Volumetric light rays */
-.light-ray{position:fixed;width:300px;height:600px;background:linear-gradient(180deg,rgba(255,200,150,.06) 0%,transparent 100%);transform-origin:top center;filter:blur(40px);z-index:1;pointer-events:none;animation:rayMove 12s ease-in-out infinite}
-@keyframes rayMove{0%,100%{transform:rotate(-15deg) scaleX(1);opacity:.6}50%{transform:rotate(-10deg) scaleX(1.2);opacity:.8}}
-.ray-1{top:-100px;left:20%;animation-delay:0s}
-.ray-2{top:-80px;left:55%;animation-delay:3s;width:250px;opacity:.4}
-.ray-3{top:-120px;left:75%;animation-delay:6s;width:200px;opacity:.3}
+.brand{position:fixed;top:16px;right:18px;z-index:100;text-align:right}
+.brand h1{font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#ff6b6b,#f5a623,#ff6b6b);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:flow 4s ease-in-out infinite;letter-spacing:2px}
+@keyframes flow{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.brand p{font-size:.65rem;color:#444;letter-spacing:5px;text-transform:uppercase;margin-top:4px}
 
-/* Dust particles */
-.dust{position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden}
-.dust-p{position:absolute;width:2px;height:2px;background:rgba(255,220,180,.4);border-radius:50%;animation:dustFloat linear infinite}
-@keyframes dustFloat{0%{transform:translateY(100vh) translateX(0);opacity:0}10%{opacity:.6}90%{opacity:.6}100%{transform:translateY(-10vh) translateX(50px);opacity:0}}
+.panel{position:fixed;top:16px;left:16px;z-index:100;display:flex;flex-direction:column;gap:7px}
+.btn{padding:10px 18px;border:1px solid rgba(255,255,255,.07);border-radius:12px;font-size:.82rem;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);font-weight:600;background:rgba(10,10,25,.85);color:#bbb;backdrop-filter:blur(12px);letter-spacing:.4px}
+.btn:hover{background:rgba(255,107,107,.15);border-color:rgba(255,107,107,.3);color:#fff;transform:translateX(5px)}
 
-/* ===== AVATAR CONTAINER ===== */
-.avatar-wrap{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:100;cursor:grab;user-select:none;filter:drop-shadow(0 30px 60px rgba(0,0,0,.6)) drop-shadow(0 0 80px rgba(255,107,107,.08))}
-.avatar-wrap:active{cursor:grabbing}
+.products{position:fixed;top:50%;right:16px;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:8px}
+.card{background:rgba(10,10,25,.88);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:14px 18px;cursor:pointer;transition:all .35s cubic-bezier(.4,0,.2,1);backdrop-filter:blur(12px);display:flex;align-items:center;gap:12px;min-width:170px}
+.card:hover{border-color:rgba(255,107,107,.4);transform:translateX(-8px) scale(1.03);box-shadow:0 8px 30px rgba(255,107,107,.1)}
+.card .em{font-size:1.5rem;transition:transform .35s}
+.card:hover .em{transform:scale(1.25) rotate(-8deg)}
+.card .inf{text-align:left}
+.card .nm{font-size:.82rem;font-weight:600;color:#fff}
+.card .pr{font-size:.74rem;color:#00b894;margin-top:3px}
 
-.avatar{position:relative;width:220px;height:300px;animation:avIdle 5s cubic-bezier(.37,0,.63,1) infinite}
-@keyframes avIdle{
-    0%,100%{transform:translateY(0) rotate(0)}
-    15%{transform:translateY(-16px) rotate(1.8deg)}
-    30%{transform:translateY(-8px) rotate(.6deg)}
-    45%{transform:translateY(-12px) rotate(-.8deg)}
-    60%{transform:translateY(-4px) rotate(-1.2deg)}
-    75%{transform:translateY(-10px) rotate(.4deg)}
-    90%{transform:translateY(-2px) rotate(-.2deg)}
-}
+.bar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:100}
+.bar button{padding:9px 18px;border:1px solid rgba(255,255,255,.08);border-radius:12px;font-size:.82rem;cursor:pointer;font-weight:600;background:rgba(10,10,25,.85);color:#bbb;backdrop-filter:blur(12px);transition:all .3s}
+.bar button:hover{background:rgba(255,255,255,.08);color:#fff}
+.bar button.on{background:linear-gradient(135deg,#00b894,#00cec9);border-color:transparent;color:#fff}
 
-.avatar.talking{animation:avTalk .45s ease-in-out infinite}
-@keyframes avTalk{
-    0%,100%{transform:translateY(0) scale(1) rotate(0)}
-    25%{transform:translateY(-5px) scale(1.018) rotate(.8deg)}
-    50%{transform:translateY(-2px) scale(1.008) rotate(-.3deg)}
-    75%{transform:translateY(-3px) scale(1.012) rotate(.4deg)}
-}
+.bubble{position:fixed;bottom:70px;left:50%;transform:translateX(-50%) translateY(15px);background:rgba(10,10,25,.94);border:1px solid rgba(255,107,107,.3);border-radius:18px;padding:16px 26px;max-width:520px;min-width:280px;box-shadow:0 12px 40px rgba(0,0,0,.5);z-index:100;text-align:center;opacity:0;transition:all .4s cubic-bezier(.4,0,.2,1);pointer-events:none}
+.bubble.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.bubble::after{content:'';position:absolute;bottom:-13px;left:50%;transform:translateX(-50%);border-width:13px;border-style:solid;border-color:rgba(10,10,25,.94) transparent transparent}
+.bubble p{font-size:.9rem;color:#ddd;line-height:1.6}
 
-.avatar.walking{animation:avWalk .8s cubic-bezier(.37,0,.63,1) infinite}
-@keyframes avWalk{
-    0%,100%{transform:translateY(0) rotate(-1.5deg)}
-    15%{transform:translateY(-24px) rotate(3.5deg)}
-    30%{transform:translateY(-8px) rotate(-.8deg)}
-    45%{transform:translateY(-28px) rotate(2.8deg)}
-    60%{transform:translateY(-6px) rotate(-1.2deg)}
-    75%{transform:translateY(-20px) rotate(2deg)}
-    90%{transform:translateY(-3px) rotate(-.5deg)}
-}
-
-/* ===== Cuerpo del pastel ===== */
-.body{position:relative;width:200px;height:220px;margin:50px auto 0}
-
-/* Cake layers with realistic shading */
-.layer{position:absolute;left:50%;transform:translateX(-50%)}
-
-.layer-base{width:185px;height:95px;bottom:0;border-radius:22px;background:linear-gradient(180deg,#f7b731 0%,#f5a623 25%,#e8941a 55%,#d4840f 100%);box-shadow:0 16px 45px rgba(0,0,0,.55),0 4px 15px rgba(0,0,0,.3),inset 0 -12px 25px rgba(0,0,0,.25),inset 0 4px 10px rgba(255,255,255,.12),inset -4px 0 8px rgba(0,0,0,.1),inset 4px 0 8px rgba(0,0,0,.1)}
-
-.layer-mid{width:168px;height:58px;bottom:90px;border-radius:18px;background:linear-gradient(180deg,#fff8f0 0%,#ffe8d0 35%,#ffd4a4 100%);box-shadow:0 12px 30px rgba(0,0,0,.35),0 4px 12px rgba(0,0,0,.2),inset 0 8px 18px rgba(255,255,255,.85),inset 0 -4px 10px rgba(0,0,0,.08)}
-
-.layer-top{width:148px;height:52px;bottom:142px;border-radius:17px;background:linear-gradient(180deg,#ffc4d0 0%,#ff9ab0 35%,#ff7088 100%);box-shadow:0 10px 25px rgba(0,0,0,.35),0 4px 10px rgba(0,0,0,.2),inset 0 6px 14px rgba(255,255,255,.65),inset 0 -3px 8px rgba(0,0,0,.1)}
-
-/* ===== GLAZIADO CINEMATICO ===== */
-.glaze-wrap{position:absolute;width:165px;height:75px;bottom:140px;left:50%;transform:translateX(-50%);z-index:3}
-
-.glaze-surface{position:absolute;width:100%;height:12px;bottom:55px;background:linear-gradient(90deg,rgba(255,255,255,.15),rgba(255,255,255,.5),rgba(255,255,255,.7),rgba(255,255,255,.5),rgba(255,255,255,.15));border-radius:50%;animation:glazeShimmer 5s ease-in-out infinite}
-@keyframes glazeShimmer{0%,100%{opacity:.5;transform:scaleX(.95)}50%{opacity:.85;transform:scaleX(1.05)}}
-
-.glaze-glint{position:absolute;width:60px;height:8px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.95),rgba(255,255,255,.8),transparent);border-radius:4px;bottom:58px;filter:blur(1px);animation:glintSweep 4s ease-in-out infinite}
-@keyframes glintSweep{0%{left:0;opacity:0;transform:scaleX(.4) rotate(-3deg)}15%{opacity:1;transform:scaleX(1) rotate(0)}85%{opacity:1;transform:scaleX(1) rotate(0)}100%{left:calc(100% - 60px);opacity:0;transform:scaleX(.4) rotate(3deg)}}
-
-.glaze-glint2{position:absolute;width:35px;height:5px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);border-radius:3px;bottom:64px;filter:blur(.5px);animation:glintSweep2 5s ease-in-out infinite 1.5s}
-@keyframes glintSweep2{0%{left:calc(100% - 35px);opacity:0}20%{opacity:.7}80%{opacity:.7}100%{left:0;opacity:0}}
-
-/* Drips with physics */
-.drip{position:absolute;width:18px;bottom:0;border-radius:0 0 10px 10px;transform-origin:top center}
-.drip-body{width:100%;height:100%;border-radius:inherit;position:relative;overflow:hidden}
-.drip-body::after{content:'';position:absolute;top:0;left:3px;width:4px;height:55%;background:linear-gradient(180deg,rgba(255,255,255,.7),rgba(255,255,255,.1));border-radius:50%;animation:dripHighlight 3s ease-in-out infinite}
-@keyframes dripHighlight{0%,100%{opacity:.4;transform:translateX(0)}50%{opacity:.8;transform:translateX(2px)}}
-
-.drip-1{left:8px;height:28px}.drip-1 .drip-body{background:linear-gradient(180deg,#fff 0%,#fff0f0 40%,#ffe0e0 100%);animation:dripFlow 4s cubic-bezier(.4,0,.2,1) infinite}
-.drip-2{left:30px;height:40px}.drip-2 .drip-body{background:linear-gradient(180deg,#fff8f8 0%,#ffd8d8 40%,#ffc8c8 100%);animation:dripFlow 4.5s cubic-bezier(.4,0,.2,1) infinite .6s}
-.drip-3{left:52px;height:20px}.drip-3 .drip-body{background:linear-gradient(180deg,#fff 0%,#ffe8e8 40%,#ffd8d8 100%);animation:dripFlow 3.5s cubic-bezier(.4,0,.2,1) infinite 1.2s}
-.drip-4{right:52px;height:32px}.drip-4 .drip-body{background:linear-gradient(180deg,#fff5f5 0%,#ffd0d0 40%,#ffc0c0 100%);animation:dripFlow 4.2s cubic-bezier(.4,0,.2,1) infinite .3s}
-.drip-5{right:30px;height:44px}.drip-5 .drip-body{background:linear-gradient(180deg,#fff 0%,#ffe5e5 40%,#ffd5d5 100%);animation:dripFlow 4.8s cubic-bezier(.4,0,.2,1) infinite .9s}
-.drip-6{right:8px;height:24px}.drip-6 .drip-body{background:linear-gradient(180deg,#fff8f8 0%,#ffe0e0 40%,#ffd0d0 100%);animation:dripFlow 3.8s cubic-bezier(.4,0,.2,1) infinite 1.5s}
-
-@keyframes dripFlow{
-    0%,100%{transform:scaleY(1) scaleX(1);opacity:.85}
-    40%{transform:scaleY(1.12) scaleX(.96);opacity:1}
-    70%{transform:scaleY(1.06) scaleX(.98);opacity:.95}
-}
-
-/* ===== CHERRY PREMIUM ===== */
-.cherry-system{position:absolute;top:-8px;left:50%;transform:translateX(-50%);z-index:6}
-
-.stem{position:absolute;width:4px;height:18px;background:linear-gradient(180deg,#2d5016 0%,#4a7c23 50%,#5a9e2f 100%);border-radius:2px;left:50%;transform-origin:bottom center;animation:stemSway 3s ease-in-out infinite;top:-16px}
-@keyframes stemSway{0%,100%{transform:translateX(-50%) rotate(0)}30%{transform:translateX(-50%) rotate(14deg)}60%{transform:translateX(-50%) rotate(-8deg)}}
-
-.leaf{position:absolute;width:12px;height:8px;background:linear-gradient(135deg,#5a9e2f 0%,#3d7a1e 100%);border-radius:0 60% 0 60%;top:-12px;left:calc(50% + 3px);transform-origin:left center;animation:leafSway 3s ease-in-out infinite}
-@keyframes leafSway{0%,100%{transform:rotate(0) scale(1)}50%{transform:rotate(18deg) scale(1.12)}}
-
-.cherry{position:absolute;width:28px;height:28px;background:radial-gradient(circle at 32% 32%,#ff8080 0%,#e74c3c 35%,#c0392b 65%,#962d22 100%);border-radius:50%;left:50%;transform:translateX(-50%);box-shadow:0 6px 18px rgba(0,0,0,.45),0 0 30px rgba(255,100,100,.25),inset 0 -4px 8px rgba(0,0,0,.25),inset 0 2px 4px rgba(255,255,255,.15);animation:cherryBob 3s ease-in-out infinite}
-@keyframes cherryBob{0%,100%{transform:translateX(-50%) translateY(0) rotate(0) scale(1)}30%{transform:translateX(-50%) translateY(-6px) rotate(10deg) scale(1.06)}60%{transform:translateX(-50%) translateY(-2px) rotate(-5deg) scale(1.02)}}
-
-/* Cherry reflections */
-.cherry::before{content:'';position:absolute;top:5px;left:7px;width:10px;height:8px;background:rgba(255,255,255,.55);border-radius:50%;transform:rotate(-25deg);filter:blur(1px)}
-.cherry::after{content:'';position:absolute;top:10px;left:14px;width:5px;height:4px;background:rgba(255,255,255,.35);border-radius:50%}
-
-/* ===== ARMS WITH WEIGHT ===== */
-.arm{position:absolute;width:52px;height:22px;bottom:88px;z-index:12;transition:all .6s cubic-bezier(.37,0,.63,1)}
-
-.arm-l{left:-38px;transform-origin:right center;transform:rotate(18deg);border-radius:11px 18px 18px 11px;background:linear-gradient(90deg,#ff8fa0 0%,#ffb0c0 35%,#ffd0dc 70%,#ffe8f0 100%);box-shadow:inset 0 3px 6px rgba(255,255,255,.35),inset 0 -2px 5px rgba(0,0,0,.08),0 4px 10px rgba(0,0,0,.2)}
-
-.arm-r{right:-38px;transform-origin:left center;transform:rotate(-18deg);border-radius:18px 11px 11px 18px;background:linear-gradient(90deg,#ffe8f0 0%,#ffd0dc 30%,#ffb0c0 65%,#ff8fa0 100%);box-shadow:inset 0 3px 6px rgba(255,255,255,.35),inset 0 -2px 5px rgba(0,0,0,.08),0 4px 10px rgba(0,0,0,.2)}
-
-.hand{position:absolute;width:26px;height:26px;border-radius:50%;top:-3px;background:radial-gradient(circle at 38% 32%,#ffe8f0 0%,#ffd0dc 45%,#ffb0c0 100%);box-shadow:inset 0 2px 6px rgba(255,255,255,.45),inset 0 -2px 4px rgba(0,0,0,.08),0 3px 8px rgba(0,0,0,.18)}
-.arm-l .hand{left:-12px}
-.arm-r .hand{right:-12px}
-
-/* Fingers - simplified, elegant */
-.fingers{position:absolute;bottom:-4px;width:100%;display:flex;justify-content:center;gap:1px}
-.f{width:5px;height:9px;background:linear-gradient(180deg,#ffe8f0,#ffd0dc);border-radius:2px 2px 3px 3px;box-shadow:0 1px 2px rgba(0,0,0,.1)}
-
-/* Arm animations */
-.arm.wave{animation:armWave .55s ease-in-out infinite}
-@keyframes armWave{0%,100%{transform:rotate(18deg)}50%{transform:rotate(-42deg)}}
-
-.arm.point{animation:armPoint 1s cubic-bezier(.37,0,.63,1) forwards}
-@keyframes armPoint{0%{transform:rotate(-18deg)}100%{transform:rotate(-72deg) translateX(16px)}}
-
-.arm.gesture{animation:armGesture 3s ease-in-out infinite}
-@keyframes armGesture{
-    0%,100%{transform:rotate(18deg) translateY(0)}
-    20%{transform:rotate(8deg) translateY(-7px)}
-    40%{transform:rotate(22deg) translateY(0)}
-    60%{transform:rotate(12deg) translateY(-5px)}
-    80%{transform:rotate(20deg) translateY(-1px)}
-}
-
-.arm.excited{animation:armExcited .35s ease-in-out infinite}
-@keyframes armExcited{0%,100%{transform:rotate(18deg) scale(1)}50%{transform:rotate(-28deg) scale(1.04)}}
-
-/* ===== FACE - CINEMATIC ===== */
-.face{position:absolute;top:22px;left:50%;transform:translateX(-50%);width:125px;height:85px;z-index:15}
-
-/* Subtle nose */
-.nose{position:absolute;width:10px;height:7px;background:radial-gradient(ellipse,rgba(255,170,170,.35) 0%,transparent 70%);border-radius:50%;top:22px;left:50%;transform:translateX(-50%);filter:blur(.5px)}
-
-/* Cheekbones */
-.cheekbone{position:absolute;width:14px;height:10px;background:radial-gradient(ellipse,rgba(255,180,180,.25) 0%,transparent 70%);border-radius:50%;top:24px;filter:blur(1px)}
-.cheekbone-l{left:0}.cheekbone-r{right:0}
-
-/* Eyes - deep, alive */
-.eye{position:absolute;width:34px;height:38px;border-radius:50%;top:8px;overflow:visible}
-
-/* Eye white with depth */
-.eye-white{position:absolute;width:100%;height:100%;background:radial-gradient(circle at 40% 35%,#fff 0%,#fafafa 25%,#f5f5f5 50%,#eee 75%,#e0e0e0 100%);border-radius:50%;box-shadow:inset 0 3px 12px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.12),inset 0 -2px 6px rgba(0,0,0,.04)}
-
-/* Iris */
-.iris{position:absolute;width:20px;height:22px;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 40% 35%,#8a7a6a 0%,#6a5a4a 25%,#4a3a2a 50%,#3a2a1a 75%,#2a1a0a 100%);box-shadow:inset 0 2px 8px rgba(0,0,0,.4),0 1px 3px rgba(0,0,0,.2);z-index:1}
-
-/* Pupil */
-.pupil{position:absolute;width:10px;height:12px;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 40% 40%,#3a3a3a 0%,#1a1a1a 60%,#000 100%);z-index:2;transition:transform .1s cubic-bezier(.37,0,.63,1)}
-
-/* Pupil reflections - cinematic */
-.pupil-ref1{position:absolute;width:5px;height:5px;background:rgba(255,255,255,.95);border-radius:50%;top:2px;left:2px;z-index:3;box-shadow:0 0 6px rgba(255,255,255,.6)}
-.pupil-ref2{position:absolute;width:3px;height:3px;background:rgba(255,255,255,.5);border-radius:50%;bottom:3px;right:2px;z-index:3}
-.pupil-ref3{position:absolute;width:2px;height:2px;background:rgba(255,255,255,.3);border-radius:50%;top:6px;right:1px;z-index:3}
-
-/* Eye shine - animated */
-.eye-shine{position:absolute;width:10px;height:10px;background:rgba(255,255,255,.85);border-radius:50%;top:5px;left:5px;z-index:4;filter:blur(1px);animation:eyeShine 4s ease-in-out infinite}
-@keyframes eyeShine{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:.9;transform:scale(1.15)}}
-
-/* Eyelid */
-.lid{position:absolute;width:100%;height:0;background:linear-gradient(180deg,#ffb0c0 0%,#ff90a0 100%);border-radius:50% 50% 0 0;top:0;left:0;z-index:5;transition:height .18s cubic-bezier(.37,0,.63,1);transform-origin:top}
-.eye.blink .lid{height:100%}
-.eye.happy .lid{height:60%}
-.eye.surprised .lid{height:0}
-.eye.wink .lid{height:100%}
-
-.eye.happy{transform:scaleY(.88)}
-.eye.surprised{transform:scale(1.3)}
-
-/* Eye position */
-.eye-l{left:10px}.eye-r{right:10px}
-
-/* Eyebrows */
-.brow{position:absolute;width:24px;height:5px;border-radius:3px;top:0;transition:all .3s cubic-bezier(.37,0,.63,1);box-shadow:0 1px 4px rgba(0,0,0,.15)}
-.brow-l{left:10px;background:linear-gradient(90deg,#b09080 0%,#9a7a6a 50%,#b09080 100%);transform:rotate(-5deg)}
-.brow-r{right:10px;background:linear-gradient(90deg,#b09080 0%,#9a7a6a 50%,#b09080 100%);transform:rotate(5deg)}
-.brow.raised{transform:translateY(-6px) rotate(0) scaleX(1.12)}
-.brow.furrowed{transform:translateY(3px) rotate(0) scaleX(.92)}
-
-/* Cheeks */
-.cheek{position:absolute;width:26px;height:20px;border-radius:50%;top:32px;opacity:0;transition:opacity .45s ease;filter:blur(2px)}
-.cheek-l{left:-10px;background:radial-gradient(ellipse,rgba(255,130,130,.45) 0%,transparent 70%)}
-.cheek-r{right:-10px;background:radial-gradient(ellipse,rgba(255,130,130,.45) 0%,transparent 70%)}
-.cheek.visible{opacity:1}
-
-/* Mouth - expressive */
-.mouth-area{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:50px;height:24px}
-
-.mouth{width:100%;height:100%;border-radius:0 0 25px 25px;overflow:hidden;position:relative;transition:all .15s ease-out;background:linear-gradient(180deg,#d44 0%,#e55 35%,#f77 100%);box-shadow:inset 0 -6px 12px rgba(0,0,0,.3),0 2px 6px rgba(0,0,0,.12)}
-
-/* Teeth */
-.teeth{position:absolute;top:0;left:50%;transform:translateX(-50%);width:26px;height:8px;background:linear-gradient(180deg,#fff 0%,#f8f8f8 100%);border-radius:0 0 7px 7px;z-index:1;box-shadow:0 1px 3px rgba(0,0,0,.1)}
-
-/* Tongue */
-.tongue{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:18px;height:12px;background:radial-gradient(ellipse,#ff9090,#ff6666);border-radius:50%;opacity:0;transition:opacity .25s}
-
-/* Mouth states */
-.mouth.m1{height:5px;width:34px;border-radius:0 0 17px 17px}
-.mouth.m2{height:28px;width:44px;border-radius:0 0 22px 22px}
-.mouth.m3{height:14px;width:50px;border-radius:0 0 25px 25px}
-.mouth.m4{height:34px;width:30px;border-radius:0 0 15px 15px}
-.mouth.m4 .tongue{opacity:1}
-.mouth.m5{height:8px;width:46px;border-radius:0 0 23px 23px}
-.mouth.m6{height:38px;width:26px;border-radius:0 0 13px 13px}
-.mouth.m6 .tongue{opacity:1}
-
-.mouth.smile{height:32px;border-radius:22px 22px 25px 25px;background:linear-gradient(180deg,#f77 0%,#faa 100%)}
-.mouth.smile .teeth{height:9px}
-.mouth.surprised{width:30px;height:30px;border-radius:50%;background:radial-gradient(circle,#d44,#a22)}
-.mouth.sad{border-radius:25px 25px 0 0;bottom:2px;background:linear-gradient(0deg,#d44,#c33)}
-
-/* ===== SHADOW ===== */
-.floor-shadow{position:absolute;width:160px;height:25px;background:radial-gradient(ellipse,rgba(0,0,0,.3) 0%,transparent 70%);border-radius:50%;bottom:-20px;left:50%;transform:translateX(-50%);filter:blur(8px);animation:shadowPulse 5s ease-in-out infinite}
-@keyframes shadowPulse{0%,100%{transform:translateX(-50%) scaleX(1);opacity:.7}50%{transform:translateX(-50%) scaleX(1.08);opacity:.85}}
-
-/* ===== EFFECTS ===== */
-.stars{position:fixed;inset:0;pointer-events:none;z-index:0}
-.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:twinkle 3.5s ease-in-out infinite}
-@keyframes twinkle{0%,100%{opacity:.06;transform:scale(1)}50%{opacity:.5;transform:scale(1.5)}}
-
-.particles{position:fixed;inset:0;pointer-events:none;z-index:200}
-.particle{position:absolute;font-size:1.3rem;animation:particleRise 1.6s cubic-bezier(.37,0,.63,1) forwards}
-@keyframes particleRise{0%{opacity:1;transform:translate(0,0) scale(1) rotate(0)}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(.15) rotate(360deg)}}
-
-/* Speech bubble */
-.bubble{position:fixed;bottom:75px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(10,10,25,.97);border:1px solid rgba(255,107,107,.3);border-radius:22px;padding:20px 30px;max-width:560px;min-width:320px;box-shadow:0 14px 50px rgba(0,0,0,.55),0 0 40px rgba(255,107,107,.05);z-index:150;text-align:center;opacity:0;transition:all .5s cubic-bezier(.37,0,.63,1);pointer-events:none}
-.bubble.visible{opacity:1;transform:translateX(-50%) translateY(0)}
-.bubble::after{content:'';position:absolute;bottom:-15px;left:50%;transform:translateX(-50%);border-width:15px;border-style:solid;border-color:rgba(10,10,25,.97) transparent transparent}
-.bubble-text{font-size:.98rem;color:#eee;line-height:1.7;letter-spacing:.2px}
-
-/* Smoke card */
-.smoke{position:fixed;z-index:250;pointer-events:none;opacity:0;transition:all .6s cubic-bezier(.68,-.55,.27,1.55)}
-.smoke.visible{opacity:1}
-.smoke-card{background:rgba(8,8,20,.98);border:1px solid rgba(255,107,107,.18);border-radius:22px;padding:26px;box-shadow:0 16px 55px rgba(0,0,0,.65),0 0 50px rgba(255,107,107,.05)}
-.smoke-emoji{font-size:3.6rem;margin-bottom:12px;animation:smokeFloat 2.5s ease-in-out infinite}
-@keyframes smokeFloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-10px) rotate(6deg)}}
-.smoke-name{font-size:1.25rem;font-weight:700;color:#ff6b6b;letter-spacing:.8px}
-.smoke-desc{font-size:.9rem;color:#aaa;margin-top:10px;line-height:1.65}
-.smoke-price{font-size:1.2rem;color:#00b894;margin-top:14px;font-weight:700;letter-spacing:.5px}
-
-/* Controls */
-.panel{position:fixed;top:14px;left:14px;z-index:200;display:flex;flex-direction:column;gap:8px}
-.btn{padding:12px 22px;border:1px solid rgba(255,255,255,.06);border-radius:15px;font-size:.86rem;cursor:pointer;transition:all .35s cubic-bezier(.37,0,.63,1);font-weight:600;background:rgba(255,255,255,.04);color:#ccc;backdrop-filter:blur(16px);letter-spacing:.5px;display:flex;align-items:center;gap:10px}
-.btn:hover{background:rgba(255,255,255,.09);border-color:rgba(255,107,107,.3);transform:translateX(7px);color:#fff;box-shadow:0 5px 18px rgba(255,107,107,.08)}
-.btn:active{transform:scale(.96) translateX(7px)}
-
-.products{position:fixed;top:50%;right:14px;transform:translateY(-50%);z-index:200;display:flex;flex-direction:column;gap:10px}
-.card{background:rgba(8,8,20,.93);border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:16px 22px;cursor:pointer;transition:all .4s cubic-bezier(.37,0,.63,1);backdrop-filter:blur(16px);display:flex;align-items:center;gap:16px;min-width:190px}
-.card:hover{border-color:rgba(255,107,107,.4);transform:translateX(-12px) scale(1.04);box-shadow:0 10px 35px rgba(255,107,107,.1)}
-.card .emoji{font-size:1.8rem;transition:transform .4s cubic-bezier(.37,0,.63,1)}
-.card:hover .emoji{transform:scale(1.3) rotate(-10deg)}
-.card .info{text-align:left}
-.card .name{font-size:.88rem;font-weight:600;color:#fff}
-.card .price{font-size:.8rem;color:#00b894;margin-top:4px}
-
-.bar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:200}
-.bar-btn{padding:11px 22px;border:1px solid rgba(255,255,255,.08);border-radius:15px;font-size:.86rem;cursor:pointer;font-weight:600;transition:all .35s cubic-bezier(.37,0,.63,1);background:rgba(255,255,255,.04);color:#ccc;backdrop-filter:blur(16px)}
-.bar-btn:hover{background:rgba(255,255,255,.09);color:#fff}
-.bar-btn.active{background:linear-gradient(135deg,#00b894,#00cec9);border-color:transparent;color:#fff}
-
-.brand{position:fixed;top:14px;right:14px;z-index:200;text-align:right}
-.brand-name{font-size:1.7rem;font-weight:800;background:linear-gradient(135deg,#ff6b6b 0%,#f5a623 50%,#ff6b6b 100%);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2.5px;animation:brandFlow 5s ease-in-out infinite}
-@keyframes brandFlow{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-.brand-tag{font-size:.72rem;color:#444;letter-spacing:5px;text-transform:uppercase;margin-top:5px}
-
-.modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);z-index:400;max-width:480px;width:92%;max-height:85vh;overflow-y:auto;background:rgba(8,8,20,.99);border:1px solid rgba(255,107,107,.18);border-radius:24px;padding:34px;box-shadow:0 30px 90px rgba(0,0,0,.75),0 0 60px rgba(255,107,107,.05);transition:transform .5s cubic-bezier(.68,-.55,.27,1.55);opacity:0}
+.modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);z-index:200;max-width:440px;width:90%;max-height:80vh;overflow-y:auto;background:rgba(10,10,25,.98);border:1px solid rgba(255,107,107,.2);border-radius:20px;padding:28px;box-shadow:0 24px 70px rgba(0,0,0,.7);transition:transform .4s cubic-bezier(.68,-.55,.27,1.55);opacity:0}
 .modal.open{transform:translate(-50%,-50%) scale(1);opacity:1}
-.modal h2{font-size:1.35rem;color:#ff6b6b;margin-bottom:18px;letter-spacing:.6px}
-.modal h3{color:#00b894;margin:18px 0 12px;font-size:.92rem;letter-spacing:.7px}
-.modal ul,.modal ol{padding-left:24px}
-.modal li{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.9rem;color:#aaa;line-height:1.6}
-.modal-close{position:absolute;top:18px;right:22px;background:none;border:none;font-size:1.7rem;cursor:pointer;color:#444;transition:all .3s}
-.modal-close:hover{color:#ff6b6b;transform:rotate(90deg) scale(1.15)}
+.modal h2{font-size:1.2rem;color:#ff6b6b;margin-bottom:14px}
+.modal h3{color:#00b894;margin:14px 0 8px;font-size:.88rem}
+.modal ul,.modal ol{padding-left:20px}
+.modal li{padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.84rem;color:#aaa}
+.modal-x{position:absolute;top:14px;right:18px;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#555;transition:all .2s}
+.modal-x:hover{color:#ff6b6b;transform:rotate(90deg)}
 
-/* Splash */
-.splash{position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#1a1a3a 0%,#0a0a18 50%,#050510 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:opacity .7s ease}
+.splash{position:fixed;inset:0;z-index:999;background:radial-gradient(ellipse at 50% 40%,#1a1a3a,#0a0a18,#050510);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:opacity .6s}
 .splash.hide{opacity:0;pointer-events:none}
-.splash-icon{font-size:7rem;animation:iconFloat 4s ease-in-out infinite;filter:drop-shadow(0 25px 50px rgba(255,107,107,.25))}
-@keyframes iconFloat{0%,100%{transform:translateY(0) rotate(-5deg) scale(1)}50%{transform:translateY(-30px) rotate(5deg) scale(1.08)}}
-.splash-title{font-size:2.8rem;font-weight:800;background:linear-gradient(135deg,#ff6b6b,#f5a623,#ff6b6b);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:30px 0 12px;letter-spacing:4px;animation:brandFlow 4s ease-in-out infinite}
-.splash-sub{color:#444;font-size:.9rem;letter-spacing:6px;text-transform:uppercase;margin-bottom:45px}
-.splash-btn{padding:20px 60px;background:linear-gradient(135deg,#ff6b6b,#ee5a24);border:none;border-radius:40px;color:#fff;font-weight:700;font-size:1.1rem;cursor:pointer;transition:all .4s;box-shadow:0 10px 35px rgba(255,107,107,.4);letter-spacing:2px}
-.splash-btn:hover{transform:scale(1.08);box-shadow:0 14px 45px rgba(255,107,107,.55)}
+.splash h1{font-size:2.5rem;font-weight:800;background:linear-gradient(135deg,#ff6b6b,#f5a623);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;letter-spacing:3px}
+.splash p{color:#444;font-size:.8rem;letter-spacing:5px;text-transform:uppercase;margin-bottom:35px}
+.splash button{padding:16px 50px;background:linear-gradient(135deg,#ff6b6b,#ee5a24);border:none;border-radius:30px;color:#fff;font-weight:700;font-size:1rem;cursor:pointer;transition:all .3s;box-shadow:0 8px 30px rgba(255,107,107,.35);letter-spacing:1.5px}
+.splash button:hover{transform:scale(1.06);box-shadow:0 10px 40px rgba(255,107,107,.5)}
 
-.loading{position:fixed;bottom:50px;left:50%;transform:translateX(-50%);background:rgba(0,184,148,.94);color:#fff;padding:10px 24px;border-radius:24px;font-size:.84rem;font-weight:600;z-index:300;display:none;align-items:center;gap:10px;box-shadow:0 5px 18px rgba(0,184,148,.45)}
-.loading.visible{display:flex}
-.loading::before{content:'';width:15px;height:15px;border:2.5px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .55s linear infinite}
+.loading{position:fixed;bottom:50px;left:50%;transform:translateX(-50%);background:rgba(0,184,148,.92);color:#fff;padding:8px 20px;border-radius:20px;font-size:.8rem;font-weight:600;z-index:300;display:none;align-items:center;gap:8px}
+.loading.on{display:flex}
+.loading::before{content:'';width:12px;height:12px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .5s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 @media(max-width:700px){
-.avatar-wrap{transform:translate(-50%,-50%) scale(.75)}
-.panel{top:auto;bottom:70px;left:8px}
-.products{top:auto;bottom:120px;right:8px}
-.brand{top:8px;right:8px}
-.brand-name{font-size:1.4rem}
+.products{top:auto;bottom:60px;right:8px;flex-direction:row;flex-wrap:wrap;justify-content:flex-end}
+.card{min-width:140px;padding:10px 14px}
+.panel{top:auto;bottom:60px;left:8px}
 }
 </style>
 </head>
 <body>
 
-<div class="bg"></div>
-<div class="light-ray ray-1"></div>
-<div class="light-ray ray-2"></div>
-<div class="light-ray ray-3"></div>
-<div class="dust" id="dust"></div>
-
 <div class="splash" id="splash">
-    <div class="splash-icon">🍰</div>
-    <div class="splash-title">CHEF BYTE</div>
-    <div class="splash-sub">Tu Asistente Gastronómico</div>
-    <button class="splash-btn" id="startBtn">INICIAR</button>
+    <h1>CHEF BYTE</h1>
+    <p>Avatar 3D Interactivo</p>
+    <button id="startBtn">INICIAR</button>
 </div>
 
-<div class="stars" id="stars"></div>
-<div class="particles" id="particles"></div>
-
-<div class="brand">
-    <div class="brand-name">CHEF BYTE</div>
-    <div class="brand-tag">Cocina Digital</div>
-</div>
-
-<div class="loading" id="loading">Generando voz...</div>
-
-<div class="avatar-wrap" id="avatarWrap">
-    <div class="avatar" id="avatar">
-        <div class="body">
-            <div class="cherry-system">
-                <div class="stem"></div>
-                <div class="leaf"></div>
-                <div class="cherry"></div>
-            </div>
-            <div class="layer layer-top"></div>
-            <div class="glaze-wrap">
-                <div class="glaze-surface"></div>
-                <div class="glaze-glint"></div>
-                <div class="glaze-glint2"></div>
-                <div class="drip drip-1"><div class="drip-body"></div></div>
-                <div class="drip drip-2"><div class="drip-body"></div></div>
-                <div class="drip drip-3"><div class="drip-body"></div></div>
-                <div class="drip drip-4"><div class="drip-body"></div></div>
-                <div class="drip drip-5"><div class="drip-body"></div></div>
-                <div class="drip drip-6"><div class="drip-body"></div></div>
-            </div>
-            <div class="layer layer-mid"></div>
-            <div class="layer layer-base">
-                <div class="arm arm-l" id="armL">
-                    <div class="hand"><div class="fingers"><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div></div></div>
-                </div>
-                <div class="arm arm-r" id="armR">
-                    <div class="hand"><div class="fingers"><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div></div></div>
-                </div>
-                <div class="face">
-                    <div class="brow brow-l" id="browL"></div>
-                    <div class="brow brow-r" id="browR"></div>
-                    <div class="eye eye-l" id="eyeL">
-                        <div class="eye-white"></div>
-                        <div class="iris" id="irisL">
-                            <div class="pupil" id="pupilL">
-                                <div class="pupil-ref1"></div>
-                                <div class="pupil-ref2"></div>
-                                <div class="pupil-ref3"></div>
-                            </div>
-                        </div>
-                        <div class="lid"></div>
-                        <div class="eye-shine"></div>
-                    </div>
-                    <div class="eye eye-r" id="eyeR">
-                        <div class="eye-white"></div>
-                        <div class="iris" id="irisR">
-                            <div class="pupil" id="pupilR">
-                                <div class="pupil-ref1"></div>
-                                <div class="pupil-ref2"></div>
-                                <div class="pupil-ref3"></div>
-                            </div>
-                        </div>
-                        <div class="lid"></div>
-                        <div class="eye-shine"></div>
-                    </div>
-                    <div class="nose"></div>
-                    <div class="cheekbone cheekbone-l"></div>
-                    <div class="cheekbone cheekbone-r"></div>
-                    <div class="cheek cheek-l" id="cheekL"></div>
-                    <div class="cheek cheek-r" id="cheekR"></div>
-                    <div class="mouth-area">
-                        <div class="mouth" id="mouth">
-                            <div class="teeth"></div>
-                            <div class="tongue"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="floor-shadow"></div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="smoke" id="smoke">
-    <div class="smoke-card">
-        <div class="smoke-emoji" id="smokeEmoji"></div>
-        <div class="smoke-name" id="smokeName"></div>
-        <div class="smoke-desc" id="smokeDesc"></div>
-        <div class="smoke-price" id="smokePrice"></div>
-    </div>
-</div>
-
-<div class="bubble" id="bubble"><p class="bubble-text" id="bubbleText"></p></div>
-
-<div class="products">
-    <div class="card" onclick="showProduct('cake')">
-        <span class="emoji">🍰</span>
-        <div class="info"><div class="name">Pastel Chocolate</div><div class="price">$35.000</div></div>
-    </div>
-    <div class="card" onclick="showProduct('pasta')">
-        <span class="emoji">🍝</span>
-        <div class="info"><div class="name">Pasta Italiana</div><div class="price">$42.000</div></div>
-    </div>
-    <div class="card" onclick="showProduct('tacos')">
-        <span class="emoji">🌮</span>
-        <div class="info"><div class="name">Tacos Gourmet</div><div class="price">$28.000</div></div>
-    </div>
-    <div class="card" onclick="showProduct('sushi')">
-        <span class="emoji">🍣</span>
-        <div class="info"><div class="name">Sushi Premium</div><div class="price">$65.000</div></div>
-    </div>
-</div>
+<div class="brand"><h1>CHEF BYTE</h1><p>Cocina Digital</p></div>
 
 <div class="panel">
     <button class="btn" onclick="showMenu()">📋 Menú</button>
@@ -458,62 +87,489 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#080810;min-height:1
     <button class="btn" onclick="greet()">👋 Saludar</button>
 </div>
 
-<div class="bar">
-    <button class="bar-btn active" id="voiceBtn" onclick="toggleVoice()">🔊 Voz</button>
-    <button class="bar-btn" id="speedBtn" onclick="changeSpeed()">⚡ Normal</button>
+<div class="products">
+    <div class="card" onclick="showProduct('cake')"><span class="em">🍰</span><div class="inf"><div class="nm">Pastel Chocolate</div><div class="pr">$35.000</div></div></div>
+    <div class="card" onclick="showProduct('pasta')"><span class="em">🍝</span><div class="inf"><div class="nm">Pasta Italiana</div><div class="pr">$42.000</div></div></div>
+    <div class="card" onclick="showProduct('tacos')"><span class="em">🌮</span><div class="inf"><div class="nm">Tacos Gourmet</div><div class="pr">$28.000</div></div></div>
+    <div class="card" onclick="showProduct('sushi')"><span class="em">🍣</span><div class="inf"><div class="nm">Sushi Premium</div><div class="pr">$65.000</div></div></div>
 </div>
+
+<div class="bar">
+    <button class="on" id="voiceBtn" onclick="toggleVoice()">🔊 Voz</button>
+    <button id="speedBtn" onclick="changeSpeed()">⚡ Normal</button>
+</div>
+
+<div class="bubble" id="bubble"><p id="bubbleText"></p></div>
 
 <div class="modal" id="modal">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <h2 id="rTitle"></h2>
-    <h3>Ingredientes:</h3><ul id="rIng"></ul>
-    <h3>Preparación:</h3><ol id="rSteps"></ol>
+    <button class="modal-x" onclick="closeModal()">✕</button>
+    <h2 id="mTitle"></h2>
+    <h3>Ingredientes:</h3><ul id="mIng"></ul>
+    <h3>Preparación:</h3><ol id="mSteps"></ol>
 </div>
 
-<script>
-let voiceOn=true, rate=0.9, dragging=false, dragOff={x:0,y:0};
-const A=document.getElementById('avatar');
-const W=document.getElementById('avatarWrap');
-const S=window.speechSynthesis;
-let talkInt=null, blinkT=null;
+<div class="loading" id="loading">Generando voz...</div>
 
+<script type="importmap">
+{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+
+// ===== GLOBALS =====
+let scene,camera,renderer,controls,clock;
+let avatar,faceGroup,eyeL,eyeR,pupilL,pupilR,mouthObj,cherryObj;
+let voiceOn=true,rate=0.9,isTalking=false,isWalking=false;
+const S=window.speechSynthesis;
 const EL_KEY='sk_112617f23620344b47cad6da36eaab66088582e8c18b7016';
 const EL_VOICE='s91wgzodwL1wfwitqbIm';
 const EL_MODEL='eleven_multilingual_v2';
 
-function init(){
-    mkStars();mkDust();setupDrag();trackMouse();startBlink();startBreath();
+// ===== INIT THREE.JS =====
+function initThree(){
+    scene=new THREE.Scene();
+    scene.background=new THREE.Color(0x080810);
+    scene.fog=new THREE.FogExp2(0x080810,0.015);
     
-    document.getElementById('startBtn').onclick=()=>{
-        document.getElementById('splash').classList.add('hide');
-        setTimeout(()=>{
-            document.getElementById('splash').remove();
-            speak('¡Hola! Soy Chef Byte, tu asistente gastronómico. Selecciona un platillo del menú para conocer nuestra propuesta.');
-            document.getElementById('armL').classList.add('wave');
-            setTimeout(()=>document.getElementById('armL').classList.remove('wave'),2400);
-        },700);
-    };
+    camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,0.1,100);
+    camera.position.set(0,2,8);
+    camera.lookAt(0,1,0);
+    
+    renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
+    renderer.setSize(innerWidth,innerHeight);
+    renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+    renderer.shadowMap.enabled=true;
+    renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+    renderer.toneMapping=THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure=1.2;
+    document.body.prepend(renderer.domElement);
+    
+    controls=new OrbitControls(camera,renderer.domElement);
+    controls.enableDamping=true;
+    controls.dampingFactor=0.08;
+    controls.enablePan=false;
+    controls.minDistance=4;
+    controls.maxDistance=15;
+    controls.maxPolarAngle=Math.PI/1.8;
+    controls.target.set(0,1.5,0);
+    
+    clock=new THREE.Clock();
+    
+    // Lighting
+    const ambLight=new THREE.AmbientLight(0x404060,0.4);
+    scene.add(ambLight);
+    
+    const mainLight=new THREE.DirectionalLight(0xfff0e0,1.8);
+    mainLight.position.set(5,8,5);
+    mainLight.castShadow=true;
+    mainLight.shadow.mapSize.set(2048,2048);
+    mainLight.shadow.camera.near=0.5;
+    mainLight.shadow.camera.far=30;
+    mainLight.shadow.camera.left=-5;
+    mainLight.shadow.camera.right=5;
+    mainLight.shadow.camera.top=5;
+    mainLight.shadow.camera.bottom=-5;
+    mainLight.shadow.bias=-0.001;
+    scene.add(mainLight);
+    
+    const rimLight=new THREE.DirectionalLight(0xff6b6b,0.6);
+    rimLight.position.set(-3,4,-3);
+    scene.add(rimLight);
+    
+    const fillLight=new THREE.DirectionalLight(0x6b8cff,0.3);
+    fillLight.position.set(-4,2,4);
+    scene.add(fillLight);
+    
+    const pointLight=new THREE.PointLight(0xff9966,0.5,10);
+    pointLight.position.set(2,3,2);
+    scene.add(pointLight);
+    
+    // Ground
+    const groundGeo=new THREE.CircleGeometry(15,64);
+    const groundMat=new THREE.MeshStandardMaterial({color:0x0a0a18,roughness:0.9,metalness:0.1});
+    const ground=new THREE.Mesh(groundGeo,groundMat);
+    ground.rotation.x=-Math.PI/2;
+    ground.position.y=-0.5;
+    ground.receiveShadow=true;
+    scene.add(ground);
+    
+    // Shadow blob
+    const shadowGeo=new THREE.CircleGeometry(1.2,32);
+    const shadowMat=new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:0.25});
+    const shadowBlob=new THREE.Mesh(shadowGeo,shadowMat);
+    shadowBlob.rotation.x=-Math.PI/2;
+    shadowBlob.position.y=-0.49;
+    shadowBlob.name='shadowBlob';
+    scene.add(shadowBlob);
+    
+    // Particles
+    createParticles();
 }
 
-// ===== ELEVENLABS =====
+// ===== AVATAR MODEL =====
+function createAvatar(){
+    avatar=new THREE.Group();
+    
+    // Materials
+    const matBase=new THREE.MeshStandardMaterial({color:0xf5a623,roughness:0.4,metalness:0.05});
+    const matMid=new THREE.MeshStandardMaterial({color:0xffe8d0,roughness:0.35,metalness:0.02});
+    const matTop=new THREE.MeshStandardMaterial({color:0xff9ab0,roughness:0.3,metalness:0.02});
+    const matGlaze=new THREE.MeshStandardMaterial({color:0xffffff,roughness:0.1,metalness:0.1,transparent:true,opacity:0.7});
+    const matCherry=new THREE.MeshStandardMaterial({color:0xe74c3c,roughness:0.2,metalness:0.15});
+    const matStem=new THREE.MeshStandardMaterial({color:0x4a7c23,roughness:0.6});
+    const matDrip=new THREE.MeshStandardMaterial({color:0xfff0f0,roughness:0.15,metalness:0.05,transparent:true,opacity:0.85});
+    const matEye=new THREE.MeshStandardMaterial({color:0xffffff,roughness:0.1,metalness:0.05});
+    const matIris=new THREE.MeshStandardMaterial({color:0x4a3a2a,roughness:0.15,metalness:0.1});
+    const matPupil=new THREE.MeshStandardMaterial({color:0x111111,roughness:0.05,metalness:0.2});
+    const matMouth=new THREE.MeshStandardMaterial({color:0xe74c3c,roughness:0.3,metalness:0.05});
+    const matTeeth=new THREE.MeshStandardMaterial({color:0xffffff,roughness:0.2});
+    const matArm=new THREE.MeshStandardMaterial({color:0xffb0c0,roughness:0.4,metalness:0.02});
+    
+    // Base layer
+    const baseGeo=new THREE.CylinderGeometry(1.1,1.15,0.8,48);
+    const base=new THREE.Mesh(baseGeo,matBase);
+    base.position.y=0.4;
+    base.castShadow=true;
+    base.receiveShadow=true;
+    avatar.add(base);
+    
+    // Mid layer
+    const midGeo=new THREE.CylinderGeometry(1.0,1.05,0.5,48);
+    const mid=new THREE.Mesh(midGeo,matMid);
+    mid.position.y=1.05;
+    mid.castShadow=true;
+    avatar.add(mid);
+    
+    // Top layer
+    const topGeo=new THREE.CylinderGeometry(0.88,0.92,0.45,48);
+    const top=new THREE.Mesh(topGeo,matTop);
+    top.position.y=1.52;
+    top.castShadow=true;
+    avatar.add(top);
+    
+    // Glaze
+    const glazeGeo=new THREE.TorusGeometry(0.88,0.06,16,48);
+    const glaze=new THREE.Mesh(glazeGeo,matGlaze);
+    glaze.position.y=1.75;
+    glaze.rotation.x=Math.PI/2;
+    avatar.add(glaze);
+    
+    // Drips
+    for(let i=0;i<8;i++){
+        const angle=(i/8)*Math.PI*2;
+        const h=0.15+Math.random()*0.25;
+        const dripGeo=new THREE.CylinderGeometry(0.04,0.06,h,8);
+        const drip=new THREE.Mesh(dripGeo,matDrip);
+        drip.position.set(Math.cos(angle)*0.88,1.75-h/2,Math.sin(angle)*0.88);
+        drip.castShadow=true;
+        avatar.add(drip);
+    }
+    
+    // Cherry
+    const cherryGroup=new THREE.Group();
+    const cherryGeo=new THREE.SphereGeometry(0.15,32,32);
+    cherryObj=new THREE.Mesh(cherryGeo,matCherry);
+    cherryObj.position.y=0.2;
+    cherryObj.castShadow=true;
+    cherryGroup.add(cherryObj);
+    
+    const stemGeo=new THREE.CylinderGeometry(0.015,0.02,0.18,8);
+    const stem=new THREE.Mesh(stemGeo,matStem);
+    stem.position.y=0.35;
+    cherryGroup.add(stem);
+    
+    // Leaf
+    const leafShape=new THREE.Shape();
+    leafShape.moveTo(0,0);
+    leafShape.quadraticCurveTo(0.06,0.04,0.12,0);
+    leafShape.quadraticCurveTo(0.06,-0.02,0,0);
+    const leafGeo=new THREE.ShapeGeometry(leafShape);
+    const leafMat=new THREE.MeshStandardMaterial({color:0x5a9e2f,roughness:0.5,side:THREE.DoubleSide});
+    const leaf=new THREE.Mesh(leafGeo,leafMat);
+    leaf.position.set(0.02,0.32,0);
+    leaf.rotation.z=-0.3;
+    cherryGroup.add(leaf);
+    
+    cherryGroup.position.y=1.75;
+    avatar.add(cherryGroup);
+    
+    // Face
+    faceGroup=new THREE.Group();
+    faceGroup.position.set(0,1.15,0.95);
+    
+    // Eyes
+    eyeL=createEye(matEye,matIris,matPupil);
+    eyeL.position.set(-0.28,0.12,0);
+    faceGroup.add(eyeL);
+    
+    eyeR=createEye(matEye,matIris,matPupil);
+    eyeR.position.set(0.28,0.12,0);
+    faceGroup.add(eyeR);
+    
+    pupilL=eyeL.getObjectByName('pupil');
+    pupilR=eyeR.getObjectByName('pupil');
+    
+    // Eyebrows
+    const browGeo=new THREE.BoxGeometry(0.18,0.025,0.03);
+    const browMat=new THREE.MeshStandardMaterial({color:0x8b7060,roughness:0.6});
+    const browL=new THREE.Mesh(browGeo,browMat);
+    browL.position.set(-0.28,0.32,0.02);
+    browL.rotation.z=0.1;
+    browL.name='browL';
+    faceGroup.add(browL);
+    
+    const browR=new THREE.Mesh(browGeo,browMat);
+    browR.position.set(0.28,0.32,0.02);
+    browR.rotation.z=-0.1;
+    browR.name='browR';
+    faceGroup.add(browR);
+    
+    // Cheeks
+    const cheekGeo=new THREE.SphereGeometry(0.08,16,16);
+    const cheekMat=new THREE.MeshStandardMaterial({color:0xffaaaa,roughness:0.5,transparent:true,opacity:0.4});
+    const cheekL=new THREE.Mesh(cheekGeo,cheekMat);
+    cheekL.position.set(-0.38,-0.02,0.02);
+    cheekL.scale.set(1,0.6,0.5);
+    cheekL.name='cheekL';
+    faceGroup.add(cheekL);
+    
+    const cheekR=new THREE.Mesh(cheekGeo,cheekMat);
+    cheekR.position.set(0.38,-0.02,0.02);
+    cheekR.scale.set(1,0.6,0.5);
+    cheekR.name='cheekR';
+    faceGroup.add(cheekR);
+    
+    // Mouth
+    mouthObj=createMouth(matMouth,matTeeth);
+    mouthObj.position.set(0,-0.18,0.02);
+    faceGroup.add(mouthObj);
+    
+    avatar.add(faceGroup);
+    
+    // Arms
+    const armGeo=new THREE.CapsuleGeometry(0.06,0.35,8,16);
+    
+    const armL=new THREE.Mesh(armGeo,matArm);
+    armL.position.set(-1.15,1.0,0.3);
+    armL.rotation.z=0.4;
+    armL.name='armL';
+    armL.castShadow=true;
+    avatar.add(armL);
+    
+    const armR=new THREE.Mesh(armGeo,matArm);
+    armR.position.set(1.15,1.0,0.3);
+    armR.rotation.z=-0.4;
+    armR.name='armR';
+    armR.castShadow=true;
+    avatar.add(armR);
+    
+    // Hands
+    const handGeo=new THREE.SphereGeometry(0.08,16,16);
+    const handMat=new THREE.MeshStandardMaterial({color:0xffd0dc,roughness:0.4});
+    
+    const handL=new THREE.Mesh(handGeo,handMat);
+    handL.position.set(-1.35,0.85,0.3);
+    handL.name='handL';
+    avatar.add(handL);
+    
+    const handR=new THREE.Mesh(handGeo,handMat);
+    handR.position.set(1.35,0.85,0.3);
+    handR.name='handR';
+    avatar.add(handR);
+    
+    avatar.position.y=0;
+    scene.add(avatar);
+}
+
+function createEye(matWhite,matIris,matPupil){
+    const group=new THREE.Group();
+    
+    const whiteGeo=new THREE.SphereGeometry(0.14,32,32);
+    const white=new THREE.Mesh(whiteGeo,matWhite);
+    white.scale.set(1,1.1,0.7);
+    group.add(white);
+    
+    const irisGeo=new THREE.CircleGeometry(0.07,32);
+    const iris=new THREE.Mesh(irisGeo,matIris);
+    iris.position.z=0.09;
+    group.add(iris);
+    
+    const pupilGeo=new THREE.CircleGeometry(0.035,32);
+    const pupil=new THREE.Mesh(pupilGeo,matPupil);
+    pupil.position.z=0.1;
+    pupil.name='pupil';
+    group.add(pupil);
+    
+    // Reflections
+    const refGeo=new THREE.CircleGeometry(0.015,16);
+    const refMat=new THREE.MeshBasicMaterial({color:0xffffff});
+    const ref1=new THREE.Mesh(refGeo,refMat);
+    ref1.position.set(-0.02,0.02,0.11);
+    group.add(ref1);
+    
+    const ref2=new THREE.Mesh(new THREE.CircleGeometry(0.008,16),refMat);
+    ref2.position.set(0.02,-0.02,0.11);
+    group.add(ref2);
+    
+    return group;
+}
+
+function createMouth(matMouth,matTeeth){
+    const group=new THREE.Group();
+    
+    const mouthGeo=new THREE.SphereGeometry(0.1,32,16,0,Math.PI*2,0,Math.PI/2);
+    const mouth=new THREE.Mesh(mouthGeo,matMouth);
+    mouth.rotation.x=Math.PI;
+    mouth.name='mouthMain';
+    group.add(mouth);
+    
+    const teethGeo=new THREE.BoxGeometry(0.12,0.02,0.03);
+    const teeth=new THREE.Mesh(teethGeo,matTeeth);
+    teeth.position.set(0,0,0.02);
+    teeth.name='teeth';
+    group.add(teeth);
+    
+    return group;
+}
+
+// ===== PARTICLES =====
+function createParticles(){
+    const count=80;
+    const geo=new THREE.BufferGeometry();
+    const positions=new Float32Array(count*3);
+    for(let i=0;i<count;i++){
+        positions[i*3]=(Math.random()-0.5)*20;
+        positions[i*3+1]=Math.random()*10;
+        positions[i*3+2]=(Math.random()-0.5)*20;
+    }
+    geo.setAttribute('position',new THREE.BufferAttribute(positions,3));
+    const mat=new THREE.PointsMaterial({color:0xffddbb,size:0.03,transparent:true,opacity:0.4});
+    const particles=new THREE.Points(geo,mat);
+    particles.name='particles';
+    scene.add(particles);
+}
+
+// ===== ANIMATION =====
+let idleTime=0,blinkTimer=0,nextBlink=2+Math.random()*4;
+let breathPhase=0,mouthPhase=0;
+
+function animate(){
+    requestAnimationFrame(animate);
+    const dt=clock.getDelta();
+    const t=clock.getElapsedTime();
+    
+    idleTime+=dt;
+    blinkTimer+=dt;
+    breathPhase+=dt*1.5;
+    
+    if(avatar){
+        // Idle breathing
+        if(!isWalking&&!isTalking){
+            avatar.position.y=Math.sin(breathPhase)*0.03;
+            avatar.rotation.z=Math.sin(breathPhase*0.7)*0.02;
+        }
+        
+        // Blink
+        if(blinkTimer>nextBlink){
+            blinkTimer=0;
+            nextBlink=2+Math.random()*4;
+            blink();
+        }
+        
+        // Mouth animation when talking
+        if(isTalking){
+            mouthPhase+=dt*12;
+            const mouthMain=mouthObj.getObjectByName('mouthMain');
+            const teeth=mouthObj.getObjectByName('teeth');
+            if(mouthMain){
+                const s=0.8+Math.sin(mouthPhase)*0.4;
+                mouthMain.scale.set(s,1+Math.sin(mouthPhase*1.3)*0.3,1);
+            }
+            if(teeth)teeth.visible=Math.sin(mouthPhase*0.8)>0;
+        }
+        
+        // Cherry bob
+        if(cherryObj){
+            cherryObj.parent.rotation.z=Math.sin(t*2)*0.15;
+            cherryObj.parent.position.y=1.75+Math.sin(t*1.5)*0.02;
+        }
+        
+        // Arm wave when idle
+        const armL=avatar.getObjectByName('armL');
+        const armR=avatar.getObjectByName('armR');
+        const handL=avatar.getObjectByName('handL');
+        const handR=avatar.getObjectByName('handR');
+        
+        if(armL&&!isWalking){
+            armL.rotation.z=0.4+Math.sin(t*0.8)*0.05;
+            if(handL)handL.position.y=0.85+Math.sin(t*0.8)*0.02;
+        }
+        if(armR&&!isWalking){
+            armR.rotation.z=-0.4+Math.sin(t*0.8+1)*0.05;
+            if(handR)handR.position.y=0.85+Math.sin(t*0.8+1)*0.02;
+        }
+        
+        // Particles drift
+        const particles=scene.getObjectByName('particles');
+        if(particles){
+            const pos=particles.geometry.attributes.position;
+            for(let i=0;i<pos.count;i++){
+                pos.array[i*3+1]+=dt*0.1;
+                if(pos.array[i*3+1]>10)pos.array[i*3+1]=0;
+            }
+            pos.needsUpdate=true;
+        }
+        
+        // Shadow blob follows
+        const shadow=scene.getObjectByName('shadowBlob');
+        if(shadow){
+            shadow.position.x=avatar.position.x;
+            shadow.position.z=avatar.position.z;
+            shadow.scale.setScalar(1+avatar.position.y*0.5);
+        }
+    }
+    
+    controls.update();
+    renderer.render(scene,camera);
+}
+
+function blink(){
+    if(!eyeL||!eyeR)return;
+    const blinkAnim=()=>{
+        let frame=0;
+        const anim=()=>{
+            frame++;
+            const s=frame<=5?1-frame/5:frame<=10?(frame-5)/5:1;
+            eyeL.scale.y=Math.max(0.1,s);
+            eyeR.scale.y=Math.max(0.1,s);
+            if(frame<10)requestAnimationFrame(anim);
+        };
+        anim();
+    };
+    blinkAnim();
+}
+
+// ===== VOICE =====
 async function speakEL(txt){
-    document.getElementById('loading').classList.add('visible');
+    document.getElementById('loading').classList.add('on');
     try{
         const r=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${EL_VOICE}`,{
             method:'POST',
             headers:{'Content-Type':'application/json','xi-api-key':EL_KEY},
-            body:JSON.stringify({text:txt,model_id:EL_MODEL,voice_settings:{stability:.5,similarity_boost:.75}})
+            body:JSON.stringify({text:txt,model_id:EL_MODEL,voice_settings:{stability:0.5,similarity_boost:0.75}})
         });
         if(!r.ok)throw new Error(r.status);
         const blob=await r.blob();
         const url=URL.createObjectURL(blob);
         const audio=new Audio(url);
-        document.getElementById('loading').classList.remove('visible');
-        audio.onplay=()=>{startMouth();A.classList.remove('idle');A.classList.add('talking');showBubble(txt)};
-        audio.onended=()=>{stopMouth();A.classList.remove('talking');A.classList.add('idle');setExpr('happy');setTimeout(()=>setExpr(''),3000);URL.revokeObjectURL(url)};
-        audio.onerror=()=>{document.getElementById('loading').classList.remove('visible');speakFB(txt)};
+        document.getElementById('loading').classList.remove('on');
+        audio.onplay=()=>{isTalking=true;showBubble(txt)};
+        audio.onended=()=>{isTalking=false;hideBubble();URL.revokeObjectURL(url)};
+        audio.onerror=()=>{document.getElementById('loading').classList.remove('on');speakFB(txt)};
         await audio.play();
-    }catch(e){document.getElementById('loading').classList.remove('visible');speakFB(txt)}
+    }catch(e){document.getElementById('loading').classList.remove('on');speakFB(txt)}
 }
 
 function speakFB(txt){
@@ -522,78 +578,34 @@ function speakFB(txt){
     const u=new SpeechSynthesisUtterance(txt);
     u.lang='es-ES';u.rate=rate;u.pitch=1.05;u.volume=1;
     const vs=S.getVoices();
-    const p=['Microsoft Sabina','Microsoft Helena','Google español','Paulina','Esperanza','Helena','es-ES','es-MX'];
+    const p=['Microsoft Sabina','Microsoft Helena','Google español','Paulina','es-ES'];
     let v=null;for(const n of p){v=vs.find(x=>x.name.includes(n));if(v)break}
     if(!v)v=vs.find(x=>x.lang.startsWith('es'));
     if(v)u.voice=v;
-    u.onstart=()=>{startMouth();A.classList.remove('idle');A.classList.add('talking');showBubble(txt)};
-    u.onend=()=>{stopMouth();A.classList.remove('talking');A.classList.add('idle');setExpr('happy');setTimeout(()=>setExpr(''),3000)};
+    u.onstart=()=>{isTalking=true;showBubble(txt)};
+    u.onend=()=>{isTalking=false;hideBubble()};
     S.speak(u);
 }
 
 function speak(txt){if(!voiceOn){showBubble(txt);return}if(EL_KEY&&EL_VOICE){speakEL(txt);return}speakFB(txt)}
 
-// ===== MOUTH SYNC =====
-function startMouth(){
-    stopMouth();
-    const m=document.getElementById('mouth');
-    const s=['m1','m2','m3','m4','m5','m6'];
-    let i=0;
-    talkInt=setInterval(()=>{m.className='mouth';m.classList.add(s[i%s.length]);i++},85+Math.random()*35);
-}
-function stopMouth(){if(talkInt){clearInterval(talkInt);talkInt=null}document.getElementById('mouth').className='mouth'}
+// ===== UI =====
+function showBubble(t){document.getElementById('bubbleText').textContent=t;document.getElementById('bubble').classList.add('show')}
+function hideBubble(){document.getElementById('bubble').classList.remove('show')}
 
-// ===== BLINK =====
-function startBlink(){
-    function b(){
-        const l=document.getElementById('eyeL'),r=document.getElementById('eyeR');
-        l.classList.add('blink');r.classList.add('blink');
-        setTimeout(()=>{l.classList.remove('blink');r.classList.remove('blink')},220);
-        if(Math.random()>.6)setTimeout(()=>{l.classList.add('blink');r.classList.add('blink');setTimeout(()=>{l.classList.remove('blink');r.classList.remove('blink')},160)},380);
-        blinkT=setTimeout(b,2400+Math.random()*5000);
-    }
-    blinkT=setTimeout(b,1400);
-}
-
-// ===== BREATH =====
-function startBreath(){
-    let ph=0;
-    const b=()=>{ph+=.018;if(A.classList.contains('idle')||A.classList.contains('talking')){
-        const y=Math.sin(ph)*3;const s=1+Math.sin(ph)*.004;
-        A.style.transform=`translateY(${y}px) scale(${s})`;
-    }requestAnimationFrame(b)};b();
-}
-
-// ===== EXPRESSIONS =====
-function setExpr(t){
-    const l=document.getElementById('eyeL'),r=document.getElementById('eyeR');
-    const m=document.getElementById('mouth');
-    const cl=document.getElementById('cheekL'),cr=document.getElementById('cheekR');
-    const bl=document.getElementById('browL'),br=document.getElementById('browR');
-    l.className='eye eye-l';r.className='eye eye-r';m.className='mouth';
-    cl.classList.remove('visible');cr.classList.remove('visible');
-    bl.classList.remove('raised','furrowed');br.classList.remove('raised','furrowed');
-    switch(t){
-        case'happy':l.classList.add('happy');r.classList.add('happy');m.classList.add('smile');cl.classList.add('visible');cr.classList.add('visible');break;
-        case'surprised':l.classList.add('surprised');r.classList.add('surprised');m.classList.add('surprised');bl.classList.add('raised');br.classList.add('raised');break;
-        case'wink':l.classList.add('happy');r.classList.add('wink');m.classList.add('smile');cl.classList.add('visible');cr.classList.add('visible');break;
-    }
-}
-
-function showBubble(t){document.getElementById('bubbleText').textContent=t;document.getElementById('bubble').classList.add('visible')}
-function hideBubble(){document.getElementById('bubble').classList.remove('visible')}
-
-function toggleVoice(){
-    voiceOn=!voiceOn;const b=document.getElementById('voiceBtn');
-    b.className=voiceOn?'bar-btn active':'bar-btn';
+window.toggleVoice=function(){
+    voiceOn=!voiceOn;
+    const b=document.getElementById('voiceBtn');
+    b.className=voiceOn?'on':'';
     b.textContent=voiceOn?'🔊 Voz':'🔇 Mute';
-    if(!voiceOn){S&&S.cancel();stopMouth();setExpr('');hideBubble()}
-}
-function changeSpeed(){
+    if(!voiceOn){S&&S.cancel();isTalking=false;hideBubble()}
+};
+
+window.changeSpeed=function(){
     const sp=[.75,.9,1.1,1.25];const lb=['Lenta','Normal','Rápida','Muy rápida'];
     const i=sp.indexOf(rate);rate=sp[(i+1)%sp.length];
     document.getElementById('speedBtn').textContent='⚡ '+lb[(i+1)%sp.length];
-}
+};
 
 // ===== PRODUCTS =====
 const DB={
@@ -602,38 +614,25 @@ const DB={
         prep:['Temperar chocolate baño maría','Mezclar con mantequilla y huevos','Hornear a 175° por 28 minutos','Enfriar y cubrir con ganache','Decorar con fresas frescas']},
     pasta:{emoji:'🍝',name:'Pasta Italiana Artesanal',desc:'Harina 00 importada de Nápoles, elaborada artesanalmente. Salsa San Marzano y parmesano de 24 meses.',price:'$42.000',
         ing:['Harina 00 italiana','Huevos frescos','Aceite de oliva extra virgen','Tomate San Marzano','Parmesano 24 meses','Albahaca fresca'],
-        prep:['Amasar a mano con técnica tradicional','Reposar 30 minutos','Cortar al gusto','Cocinar al dente','Servir con salsa y queso recién rallado']},
-    tacos:{emoji:'🌮',name:'Tacos Mexicanos Gourmet',desc:'Tortilla de maíz nixtamalizado fresca cada mañana. Carne Angus madurada 45 días a la parrilla.',price:'$28.000',
-        ing:['Maíz nixtamalizado artesanal','Carne Angus madurada','Aguacate Hass fresco','Tomate verde','Cilantro orgánico','Limón tahití'],
-        prep:['Nixtamalizar maíz tradicionalmente','Moler y formar tortilla a mano','Asar carne a la parrilla','Preparar guacamole fresco','Servir con tortilla recién hecha']},
-    sushi:{emoji:'🍣',name:'Sushi Premium Japonés',desc:'Pescado fresco del día directo del mercado. Arroz sazonado con vinagre especial, nori premium.',price:'$65.000',
-        ing:['Arroz japonés Koshihikari','Vinagre de arroz especial','Nori premium primer corte','Salmón fresco del día','Aguacate japonés','Wasabi auténtico'],
-        prep:['Cocinar arroz al vapor','Sazonar con vinagre y enfriar','Enrollar con técnica japonesa','Cortar con cuchillo cerámico','Servir con jengibre y wasabi']}
+        prep:['Amasar a mano','Reposar 30 minutos','Cortar al gusto','Cocinar al dente','Servir con salsa y queso']},
+    tacos:{emoji:'🌮',name:'Tacos Mexicanos Gourmet',desc:'Tortilla de maíz nixtamalizado fresca cada mañana. Carne Angus madurada 45 días.',price:'$28.000',
+        ing:['Maíz nixtamalizado','Carne Angus madurada','Aguacate Hass','Tomate verde','Cilantro orgánico','Limón tahití'],
+        prep:['Nixtamalizar maíz','Formar tortilla a mano','Asar carne a la parrilla','Preparar guacamole','Servir con tortilla fresca']},
+    sushi:{emoji:'🍣',name:'Sushi Premium Japonés',desc:'Pescado fresco del día. Arroz sazonado con vinagre especial, nori premium.',price:'$65.000',
+        ing:['Arroz Koshihikari','Vinagre de arroz','Nori premium','Salmón fresco','Aguacate japonés','Wasabi auténtico'],
+        prep:['Cocinar arroz al vapor','Sazonar con vinagre','Enrollar con nori','Cortar cerámico','Servir con wasabi']}
 };
 
-function showProduct(t){
-    const d=DB[t];const sw=document.getElementById('smoke');
-    document.getElementById('smokeEmoji').textContent=d.emoji;
-    document.getElementById('smokeName').textContent=d.name;
-    document.getElementById('smokeDesc').textContent=d.desc;
-    document.getElementById('smokePrice').textContent=d.price;
-    const r=W.getBoundingClientRect();
-    sw.style.left=Math.min(r.right+28,innerWidth-300)+'px';
-    sw.style.top=Math.max(r.top+30,30)+'px';
-    sw.classList.add('visible');
-    setExpr('surprised');setTimeout(()=>setExpr('happy'),450);spawnP(12);
-    document.getElementById('rTitle').textContent=d.emoji+' '+d.name;
-    document.getElementById('rIng').innerHTML=d.ing.map(x=>'<li>'+x+'</li>').join('');
-    document.getElementById('rSteps').innerHTML=d.prep.map(x=>'<li>'+x+'</li>').join('');
-    walkTo(innerWidth/2-110,innerHeight/4-40,()=>{
-        speak(d.name+'. '+d.desc+'. Precio: '+d.price+' pesos colombianos.');
-        document.getElementById('modal').classList.add('open');
-        document.getElementById('armR').classList.add('point');
-        setTimeout(()=>document.getElementById('armR').classList.remove('point'),4500);
-    });
-    setTimeout(()=>sw.classList.remove('visible'),9000);
-}
-function closeModal(){document.getElementById('modal').classList.remove('open')}
+window.showProduct=function(t){
+    const d=DB[t];
+    speak(d.name+'. '+d.desc+'. Precio: '+d.price+' pesos colombianos.');
+    document.getElementById('mTitle').textContent=d.emoji+' '+d.name;
+    document.getElementById('mIng').innerHTML=d.ing.map(x=>'<li>'+x+'</li>').join('');
+    document.getElementById('mSteps').innerHTML=d.prep.map(x=>'<li>'+x+'</li>').join('');
+    setTimeout(()=>document.getElementById('modal').classList.add('open'),500);
+};
+
+window.closeModal=function(){document.getElementById('modal').classList.remove('open')};
 
 const menu={
     ent:['Bruschetta $18.000','Calamares $32.000','Sopa del día $15.000','Ensalada César $25.000'],
@@ -643,67 +642,26 @@ const menu={
     pos:['Tiramisú $28.000','Churros $15.000','Cheesecake $25.000','Pastel de Chocolate $35.000'],
     beb:['Agua Fresca $8.000','Limonada $10.000','Café $5.000','Té $5.000','Jugo Natural $12.000']
 };
-function showMenu(){moveSay('Menú completo. Entradas: '+menu.ent.join(', ')+'. Pastas: '+menu.pas.join(', ')+'. Tacos: '+menu.tac.join(', ')+'. Sushi: '+menu.sus.join(', ')+'. Postres: '+menu.pos.join(', ')+'. Bebidas: '+menu.beb.join('. '))}
-function showPrices(){moveSay('Pastas desde 38.000 pesos, tacos desde 22.000, sushi desde 55.000, postres desde 15.000. Precios en pesos colombianos, IVA incluido.')}
-function greet(){
-    const g=['¡Hola! Bienvenido a Chef Byte. ¿Qué te gustaría conocer?','¡Bienvenido! Explora nuestros platillos en el menú.','¡Qué tal! Soy tu asistente gastronómico.'];
-    document.getElementById('armL').classList.add('wave');
-    setTimeout(()=>document.getElementById('armL').classList.remove('wave'),2200);
-    spawnP(10);setExpr('happy');moveSay(g[~~(Math.random()*g.length)]);
-}
-function moveSay(t){walkTo(innerWidth/2-110,innerHeight/4-40,()=>{speak(t);spawnP(10)})}
 
-// ===== UTILS =====
-function mkStars(){const c=document.getElementById('stars');for(let i=0;i<55;i++){const s=document.createElement('div');s.className='star';s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*3.5}s;animation-duration:${2.5+Math.random()*3}s`;c.appendChild(s)}}
+window.showMenu=function(){speak('Menú completo. Entradas: '+menu.ent.join(', ')+'. Pastas: '+menu.pas.join(', ')+'. Tacos: '+menu.tac.join(', ')+'. Sushi: '+menu.sus.join(', ')+'. Postres: '+menu.pos.join(', ')+'. Bebidas: '+menu.beb.join('. '))};
+window.showPrices=function(){speak('Pastas desde 38.000 pesos, tacos desde 22.000, sushi desde 55.000, postres desde 15.000. Precios en pesos colombianos.')};
+window.greet=function(){speak('¡Hola! Bienvenido a Chef Byte. Selecciona un platillo del menú.')};
 
-function mkDust(){const c=document.getElementById('dust');for(let i=0;i<25;i++){const p=document.createElement('div');p.className='dust-p';p.style.cssText=`left:${Math.random()*100}%;animation-delay:${Math.random()*15}s;animation-duration:${12+Math.random()*10}s;width:${1+Math.random()*2}px;height:${1+Math.random()*2}px`;c.appendChild(p)}}
+// ===== START =====
+document.getElementById('startBtn').onclick=()=>{
+    document.getElementById('splash').classList.add('hide');
+    setTimeout(()=>{document.getElementById('splash').remove();speak('¡Bienvenido a Chef Byte! Soy tu asistente gastronómico 3D.')},700);
+};
 
-function setupDrag(){
-    W.addEventListener('mousedown',dS);W.addEventListener('touchstart',dS,{passive:false});
-    document.addEventListener('mousemove',dM);document.addEventListener('touchmove',dM,{passive:false});
-    document.addEventListener('mouseup',dE);document.addEventListener('touchend',dE);
-}
-let cx=innerWidth/2-110,cy=innerHeight/3-50;
-function dS(e){e.preventDefault();dragging=true;A.classList.remove('idle');W.style.cursor='grabbing';const p=e.touches?e.touches[0]:e;dragOff.x=p.clientX-W.offsetLeft;dragOff.y=p.clientY-W.offsetTop}
-function dM(e){if(!dragging)return;e.preventDefault();const p=e.touches?e.touches[0]:e;cx=p.clientX-dragOff.x-W.offsetWidth/2;cy=p.clientY-dragOff.y-W.offsetHeight/2;W.style.transform=`translate(calc(-50% + ${cx}px),calc(-50% + ${cy}px))`}
-function dE(){if(!dragging)return;dragging=false;W.style.cursor='grab';A.classList.add('idle');spawnP(6)}
+initThree();
+createAvatar();
+animate();
 
-function trackMouse(){document.addEventListener('mousemove',e=>{
-    if(dragging)return;const r=W.getBoundingClientRect();
-    const dx=(e.clientX-r.left-r.width/2)/120,dy=(e.clientY-r.top-r.height/2)/120;
-    ['pupilL','pupilR'].forEach(id=>{const p=document.getElementById(id);if(p)p.style.transform=`translate(${dx}px,${dy}px)`});
-})}
-
-function walkTo(tx,ty,cb){
-    A.classList.remove('idle','talking');A.classList.add('walking');
-    document.getElementById('armL').classList.add('gesture');
-    document.getElementById('armR').classList.add('gesture');
-    const sr=W.getBoundingClientRect();
-    const sx=sr.left+sr.width/2-110,sy=sr.top+sr.height/2-150;
-    const d=Math.sqrt((tx-sx)**2+(ty-sy)**2);
-    const dur=Math.min(d*2.5,2800);const st=Date.now();
-    (function anim(){
-        const t=Math.min((Date.now()-st)/dur,1);
-        const ease=1-Math.pow(1-t,5);
-        const x=sx+(tx-sx)*ease,y=sy+(ty-sy)*ease;
-        W.style.transform=`translate(calc(-50% + ${x+110-innerWidth/2}px),calc(-50% + ${y+150-innerHeight/2}px))`;
-        A.style.transform=tx>sx?'scaleX(1)':'scaleX(-1)';
-        if(t<1)requestAnimationFrame(anim);
-        else{A.classList.remove('walking');document.getElementById('armL').classList.remove('gesture');document.getElementById('armR').classList.remove('gesture');A.style.transform='';A.classList.add('idle');if(cb)cb()}
-    })();
-}
-
-function spawnP(n){
-    const c=document.getElementById('particles'),e=['✨','⭐','💫','🌟','🍰','🧁','💖','🎂'];
-    for(let i=0;i<n;i++){const p=document.createElement('div');p.className='particle';p.textContent=e[~~(Math.random()*e.length)];
-    const r=W.getBoundingClientRect();p.style.left=(r.left+r.width/2)+'px';p.style.top=(r.top+r.height/2)+'px';
-    p.style.setProperty('--tx',(Math.random()-.5)*280+'px');p.style.setProperty('--ty',(Math.random()-.5)*280-80+'px');
-    c.appendChild(p);setTimeout(()=>p.remove(),1600)}
-}
-
-if(S)S.onvoiceschanged=()=>S.getVoices();
-W.addEventListener('click',()=>{if(!dragging)greet()});
-init();
+window.addEventListener('resize',()=>{
+    camera.aspect=innerWidth/innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth,innerHeight);
+});
 </script>
 </body>
 </html>
