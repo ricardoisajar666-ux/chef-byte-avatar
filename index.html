@@ -265,55 +265,40 @@ function init(){
     },600);
 }
 
-// ========== VOZ MEJORADA ==========
+// ========== VOZ ==========
 function speak(txt){
-    if(!voiceOn||!S){showBubble(txt);return}
+    if(!voiceOn){showBubble(txt);return}
+    if(!S){showBubble(txt);return}
     S.cancel();
     
-    // Dividir en oraciones para pausas naturales
-    const sentences=txt.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[txt];
+    const u=new SpeechSynthesisUtterance(txt);
+    u.lang='es-MX';
+    u.rate=rate;
+    u.pitch=1.0;
+    u.volume=1;
     
-    let delay=0;
-    sentences.forEach((sentence,i)=>{
-        setTimeout(()=>{
-            const u=new SpeechSynthesisUtterance(sentence.trim());
-            u.lang='es-MX';
-            u.rate=rate;
-            u.pitch=1.05;
-            u.volume=1;
-            
-            // Buscar mejor voz disponible
-            const vs=S.getVoices();
-            const pref=[
-                'Google español','Google Spanish (Mexico)',
-                'Microsoft Sabina','Microsoft Helena',
-                'Paulina','Esperanza','Helena',
-                'es-MX','es-ES'
-            ];
-            let v=null;
-            for(const n of pref){
-                v=vs.find(x=>x.name.includes(n)||x.lang===n);
-                if(v)break;
-            }
-            if(!v)v=vs.find(x=>x.lang.startsWith('es'));
-            if(v)u.voice=v;
-            
-            u.onstart=()=>{
-                startMouthSync();
-                M.classList.remove('idle');
-                M.classList.add('excited');
-                showBubble(txt);
-            };
-            u.onend=()=>{
-                stopMouthSync();
-                M.classList.remove('excited');
-                setExpr('happy');
-                setTimeout(()=>setExpr(''),2000);
-            };
-            S.speak(u);
-        },delay);
-        delay+=sentence.trim().length*55+400;
-    });
+    // Seleccionar voz española disponible
+    const vs=S.getVoices();
+    let v=vs.find(x=>x.lang==='es-MX')||vs.find(x=>x.lang==='es-ES')||vs.find(x=>x.lang.startsWith('es'));
+    if(v)u.voice=v;
+    
+    u.onstart=()=>{
+        startMouthSync();
+        M.classList.remove('idle');
+        M.classList.add('excited');
+        showBubble(txt);
+    };
+    u.onend=()=>{
+        stopMouthSync();
+        M.classList.remove('excited');
+        setExpr('happy');
+        setTimeout(()=>setExpr(''),2000);
+    };
+    u.onerror=()=>{
+        stopMouthSync();
+        showBubble(txt);
+    };
+    S.speak(u);
 }
 
 // ========== BOCA SINCRONIZADA ==========
@@ -539,7 +524,12 @@ function spawnP(n){
     }
 }
 
-if(S)S.onvoiceschanged=()=>S.getVoices();
+// Cargar voces
+if(S){
+    S.onvoiceschanged=()=>S.getVoices();
+    S.getVoices();
+}
+
 M.addEventListener('click',()=>{if(!dragging)greet()});
 
 init();
