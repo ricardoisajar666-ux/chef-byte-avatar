@@ -316,6 +316,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 let voiceOn=true, rate=1.0, dragging=false, dragOff={x:0,y:0};
 let cx=innerWidth/2-100, cy=innerHeight/3-40;
 const A=document.getElementById('avatar');
+const S=window.speechSynthesis;
 let talkInterval=null, blinkTimer=null;
 
 // ===== ELEVENLABS CONFIG =====
