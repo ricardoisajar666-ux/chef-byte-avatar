@@ -320,11 +320,8 @@ const S=window.speechSynthesis;
 let talkInterval=null, blinkTimer=null;
 
 // ===== ELEVENLABS CONFIG =====
-// Para usar ElevenLabs gratis necesitas crear tu propia voz clonada
-// Ve a https://elevenlabs.io → VoiceLab → Add Generative or Cloned Voice
-// Luego cambia el ID de abajo
-const ELEVENLABS_API_KEY=''; // Tu API key aquí
-const ELEVENLABS_VOICE_ID=''; // ID de tu voz clonada (no library voice)
+const ELEVENLABS_API_KEY='sk_112617f23620344b47cad6da36eaab66088582e8c18b7016';
+const ELEVENLABS_VOICE_ID='s91wgzodwL1wfwitqbIm';
 const ELEVENLABS_MODEL='eleven_multilingual_v2';
 
 // ===== INIT =====
@@ -428,9 +425,7 @@ function speakFallback(txt){
 // ===== VOZ PRINCIPAL =====
 function speak(txt){
     if(!voiceOn){showBubble(txt);return}
-    // ElevenLabs deshabilitado (requiere voz clonada para gratis)
-    // Si tienes API key y voice ID, descomenta la siguiente línea:
-    // if(ELEVENLABS_API_KEY && ELEVENLABS_VOICE_ID){speakWithElevenLabs(txt);return}
+    if(ELEVENLABS_API_KEY && ELEVENLABS_VOICE_ID){speakWithElevenLabs(txt);return}
     speakFallback(txt);
 }
 
