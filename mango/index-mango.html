@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mango - Fruti Enchilada</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif}
+canvas{display:block}
+.ui{position:fixed;top:20px;left:20px;z-index:100;display:flex;flex-direction:column;gap:8px}
+.btn{padding:10px 18px;border:1px solid rgba(255,255,255,.15);border-radius:8px;font-size:.75rem;cursor:pointer;background:rgba(0,0,0,.6);color:rgba(255,255,255,.7);backdrop-filter:blur(12px);transition:all .3s;font-weight:500}
+.btn:hover{background:rgba(240,160,48,.2);border-color:rgba(240,160,48,.4);color:#fff}
+.btn.on{background:linear-gradient(135deg,rgba(240,160,48,.8),rgba(224,128,32,.8));border-color:transparent;color:#fff}
+.brand{position:fixed;top:20px;right:20px;text-align:right;z-index:100}
+.brand h1{font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#f0a030,#e08020);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.brand p{font-size:.55rem;color:rgba(255,255,255,.4);letter-spacing:4px;text-transform:uppercase;margin-top:4px}
+.bubble{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);border:1px solid rgba(240,160,48,.25);border-radius:20px;padding:16px 28px;max-width:500px;min-width:250px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.5);z-index:100;opacity:0;transition:all .5s;pointer-events:none;backdrop-filter:blur(20px)}
+.bubble.show{opacity:1;transform:translateX(-50%) translateY(-5px)}
+.bubble p{font-size:.85rem;color:rgba(255,255,255,.9);line-height:1.6}
+.film-bar{position:fixed;left:0;right:0;height:50px;background:#000;z-index:50;pointer-events:none}
+.film-bar.top{top:0}
+.film-bar.bottom{bottom:0}
+.vignette{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:40;background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.5) 100%)}
+.fps-display{position:fixed;bottom:60px;right:20px;color:rgba(255,215,100,.5);font-family:monospace;font-size:11px;z-index:100}
+.loading{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:rgba(255,255,255,.6);font-size:.8rem;letter-spacing:3px;text-transform:uppercase;z-index:200;opacity:0;transition:opacity .3s}
+.loading.on{opacity:1}
+</style>
+</head>
+<body>
+<div class="film-bar top"></div>
+<div class="film-bar bottom"></div>
+<div class="vignette"></div>
+<div class="brand"><h1>MANGO</h1><p>Fruti Enchilada</p><p style="color:rgba(240,160,48,.6);font-size:.5rem;margin-top:8px;letter-spacing:2px">MASCOTA OFICIAL</p></div>
+<div class="ui">
+<button class="btn on" id="voiceBtn">Voz On</button>
+<button class="btn" id="greetBtn">Saludar</button>
+<button class="btn" id="camBtn">Camara Cinematica</button>
+</div>
+<div class="bubble" id="bubble"><p id="bubbleText"></p></div>
+<div class="loading" id="loading">GENERANDO AUDIO...</div>
+<div class="fps-display" id="fps">60 FPS</div>
+
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import*as THREE from'three';
+import{OrbitControls}from'three/addons/controls/OrbitControls.js';
+import{EffectComposer}from'three/addons/postprocessing/EffectComposer.js';
+import{RenderPass}from'three/addons/postprocessing/RenderPass.js';
+import{UnrealBloomPass}from'three/addons/postprocessing/UnrealBloomPass.js';
+import{ShaderPass}from'three/addons/postprocessing/ShaderPass.js';
+
+let scene,camera,renderer,controls,clock,composer;
+let mango,eyeL,eyeR,mouthG,lidL,lidR,browL,browR;
+let armL,armR,leaf;
+let voiceOn=true,isTalking=false,cinematicCam=false,camPhase=0;
+const S=window.speechSynthesis;
+const mouse=new THREE.Vector2(0,0);
+const eyeTarget=new THREE.Vector2(0,0);
+const eyeCurrent=new THREE.Vector2(0,0);
+let breathPhase=0,blinkTimer=0,nextBlink=2+Math.random()*4;
+let mouthPhase=0,smileAmount=0,waving=false,waveTime=0;
+const frameTimes=[];
+
+scene=new THREE.Scene();
+scene.background=new THREE.Color(0x0a0a18);
+scene.fog=new THREE.FogExp2(0x0a0a18,0.005);
+
+camera=new THREE.PerspectiveCamera(32,innerWidth/innerHeight,0.1,100);
+camera.position.set(0,0.5,2.6);
+
+renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
+renderer.setSize(innerWidth,innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.8;
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+document.body.prepend(renderer.domElement);
+
+controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;
+controls.dampingFactor=0.04;
+controls.enablePan=false;
+controls.minDistance=1.5;
+controls.maxDistance=5;
+controls.maxPolarAngle=Math.PI/1.5;
+controls.target.set(0,0.35,0);
+
+clock=new THREE.Clock();
+
+composer=new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene,camera));
+const bloomPass=new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),0.4,0.3,0.8);
+composer.addPass(bloomPass);
+
+const filmGrainShader={uniforms:{tDiffuse:{value:null},time:{value:0}},vertexShader:"varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}",fragmentShader:"uniform sampler2D tDiffuse;uniform float time;varying vec2 vUv;float rand(vec2 co){return fract(sin(dot(co.xy,vec2(12.9898,78.233)))*43758.5453);}void main(){vec4 color=texture2D(tDiffuse,vUv);color.rgb+=rand(vUv*time)*0.02;float vig=1.0-0.3*length(vUv-0.5);color.rgb*=vig;gl_FragColor=color;}"};
+const filmPass=new ShaderPass(filmGrainShader);
+composer.addPass(filmPass);
+
+const chromAbShader={uniforms:{tDiffuse:{value:null}},vertexShader:"varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}",fragmentShader:"uniform sampler2D tDiffuse;varying vec2 vUv;void main(){vec2 uv=vUv;float d=distance(uv,vec2(0.5));float offset=d*0.002;vec4 cr=texture2D(tDiffuse,uv+vec2(offset,0.0));vec4 cg=texture2D(tDiffuse,uv);vec4 cb=texture2D(tDiffuse,uv-vec2(offset,0.0));gl_FragColor=vec4(cr.r,cg.g,cb.b,cg.a);}"};
+const chromPass=new ShaderPass(chromAbShader);
+composer.addPass(chromPass);
+
+scene.add(new THREE.HemisphereLight(0xffeedd,0x1a0a2e,0.7));
+scene.add(new THREE.AmbientLight(0xffffff,0.5));
+
+const keyLight=new THREE.DirectionalLight(0xfff0d0,2.0);
+keyLight.position.set(2,4,3);keyLight.castShadow=true;
+keyLight.shadow.mapSize.set(2048,2048);
+keyLight.shadow.camera.near=0.5;keyLight.shadow.camera.far=15;
+keyLight.shadow.camera.left=-3;keyLight.shadow.camera.right=3;
+keyLight.shadow.camera.top=3;keyLight.shadow.camera.bottom=-3;
+keyLight.shadow.bias=-0.0003;keyLight.shadow.radius=4;
+scene.add(keyLight);
+
+const fillLight=new THREE.DirectionalLight(0xc0d0ff,0.6);fillLight.position.set(-3,3,2);scene.add(fillLight);
+const rimLight=new THREE.SpotLight(0xffaa88,1.2,12,Math.PI/5,0.5);
+rimLight.position.set(-2,3,-2);rimLight.target.position.set(0,0.5,0);
+scene.add(rimLight);scene.add(rimLight.target);
+const spotTop=new THREE.SpotLight(0xffffff,0.9,10,Math.PI/4,0.4);
+spotTop.position.set(0,4,2);spotTop.target.position.set(0,0,0);
+spotTop.castShadow=true;scene.add(spotTop);scene.add(spotTop.target);
+const accentLight=new THREE.PointLight(0xf0a030,0.5,5);
+accentLight.position.set(0,1,1.5);scene.add(accentLight);
+
+const plat=new THREE.Mesh(
+new THREE.CylinderGeometry(0.85,0.9,0.12,48),
+new THREE.MeshPhysicalMaterial({color:0x1a2a4e,metalness:0.3,roughness:0.4,clearcoat:0.5,clearcoatRoughness:0.2})
+);
+plat.position.y=-0.06;plat.receiveShadow=true;scene.add(plat);
+
+const platRing=new THREE.Mesh(
+new THREE.TorusGeometry(0.87,0.02,8,48),
+new THREE.MeshPhysicalMaterial({color:0xf0a030,emissive:0xf0a030,emissiveIntensity:0.5,roughness:0.3,metalness:0.6})
+);
+platRing.rotation.x=Math.PI*0.5;platRing.position.y=0.01;scene.add(platRing);
+
+mango=new THREE.Group();
+
+const mangoProfile=[];
+const steps=30;
+for(let i=0;i<=steps;i++){
+const t=i/steps;
+const y=t*0.55;
+let r;
+if(t<0.1)r=0.02+t*1.5;
+else if(t<0.25)r=0.17+(t-0.1)*1.0;
+else if(t<0.45)r=0.32+(t-0.25)*0.3;
+else if(t<0.65)r=0.38+Math.sin((t-0.45)/0.2*Math.PI)*0.04;
+else if(t<0.8)r=0.38-(t-0.65)*0.6;
+else r=0.29-(t-0.8)*1.4;
+mangoProfile.push([Math.max(r,0.01),y]);
+}
+
+const mPos=[],mNorm=[],mUV=[],mIdx=[],mCol=[];
+const mn=mangoProfile.length,ms=40;
+const colGreen=new THREE.Color(0x3a7a18);
+const colYellow=new THREE.Color(0xe8b828);
+const colOrange=new THREE.Color(0xe88828);
+const colRed=new THREE.Color(0xc84838);
+
+for(let i=0;i<=ms;i++){
+const a=(i/ms)*Math.PI*2,c=Math.cos(a),s=Math.sin(a);
+for(let j=0;j<mn;j++){
+const r=mangoProfile[j][0],y=mangoProfile[j][1];
+mPos.push(r*c,y,r*s);
+const len=Math.sqrt(c*c+s*s)||1;
+mNorm.push(c/len,0,s/len);
+mUV.push(i/ms,j/(mn-1));
+const t=j/mn;
+const col=new THREE.Color();
+if(t<0.25)col.lerpColors(colGreen,colYellow,t/0.25);
+else if(t<0.5)col.lerpColors(colYellow,colOrange,(t-0.25)/0.25);
+else col.lerpColors(colOrange,colRed,(t-0.5)/0.5);
+const speckle=Math.random()*0.06-0.03;
+col.r=Math.max(0,Math.min(1,col.r+speckle));
+col.g=Math.max(0,Math.min(1,col.g+speckle*0.5));
+mCol.push(col.r,col.g,col.b);
+}}
+for(let i=0;i<ms;i++){for(let j=0;j<mn-1;j++){
+const a=i*mn+j,b=a+mn,cc=b+1,d=a+1;
+mIdx.push(a,b,cc);mIdx.push(a,cc,d);
+}}
+const mangoGeo=new THREE.BufferGeometry();
+mangoGeo.setAttribute('position',new THREE.Float32BufferAttribute(mPos,3));
+mangoGeo.setAttribute('normal',new THREE.Float32BufferAttribute(mNorm,3));
+mangoGeo.setAttribute('uv',new THREE.Float32BufferAttribute(mUV,2));
+mangoGeo.setAttribute('color',new THREE.Float32BufferAttribute(mCol,3));
+mangoGeo.setIndex(mIdx);mangoGeo.computeVertexNormals();
+
+const mangoMat=new THREE.MeshPhysicalMaterial({
+vertexColors:true,roughness:0.3,metalness:0.0,
+clearcoat:0.7,clearcoatRoughness:0.15,
+sheen:0.4,sheenRoughness:0.25,sheenColor:new THREE.Color(0xffeebb),
+thickness:0.5,attenuationColor:new THREE.Color(0xff8844),attenuationDistance:0.3
+});
+const mangoMesh=new THREE.Mesh(mangoGeo,mangoMat);
+mangoMesh.castShadow=true;mangoMesh.rotation.z=-0.15;
+mango.add(mangoMesh);
+
+const stemMat=new THREE.MeshPhysicalMaterial({color:0x3a6a15,roughness:0.7,metalness:0.1});
+const stem=new THREE.Mesh(new THREE.CylinderGeometry(0.01,0.016,0.05,8),stemMat);
+stem.position.set(0,0.56,0);mango.add(stem);
+
+leaf=new THREE.Mesh(new THREE.ConeGeometry(0.04,0.12,4),
+new THREE.MeshPhysicalMaterial({color:0x4a8a20,roughness:0.6,clearcoat:0.3,side:THREE.DoubleSide}));
+leaf.position.set(0.04,0.59,0);leaf.rotation.z=-0.5;leaf.rotation.x=0.3;leaf.scale.set(1,1,0.3);
+mango.add(leaf);
+
+const eyeSp=0.06;
+function makeEye(x){
+const g=new THREE.Group();
+g.add(new THREE.Mesh(new THREE.SphereGeometry(0.028,16,16),
+new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:0.1,clearcoat:0.8})));
+const iris=new THREE.Mesh(new THREE.SphereGeometry(0.017,14,14),
+new THREE.MeshPhysicalMaterial({color:0x2a1505,roughness:0.15,clearcoat:0.9}));
+iris.position.z=0.018;g.add(iris);
+const pup=new THREE.Mesh(new THREE.SphereGeometry(0.009,10,10),
+new THREE.MeshPhysicalMaterial({color:0x020100,roughness:0.05}));
+pup.position.z=0.026;g.add(pup);
+const hl=new THREE.Mesh(new THREE.SphereGeometry(0.004,8,8),
+new THREE.MeshPhysicalMaterial({color:0xffffff,emissive:0xffffff,emissiveIntensity:0.6}));
+hl.position.set(0.005,0.005,0.028);g.add(hl);
+g.position.set(x,0.32,0.3);return g;
+}
+eyeL=makeEye(-eyeSp);eyeR=makeEye(eyeSp);
+mango.add(eyeL,eyeR);
+
+const lidGeo=new THREE.SphereGeometry(0.03,14,14,0,Math.PI*2,0,Math.PI*0.5);
+const lidMat=new THREE.MeshPhysicalMaterial({color:0xe89838,roughness:0.4,side:THREE.BackSide,clearcoat:0.3});
+lidL=new THREE.Mesh(lidGeo,lidMat);lidL.position.set(-eyeSp,0.32,0.3);lidL.rotation.x=Math.PI;lidL.scale.y=0.15;mango.add(lidL);
+lidR=new THREE.Mesh(lidGeo,lidMat);lidR.position.set(eyeSp,0.32,0.3);lidR.rotation.x=Math.PI;lidR.scale.y=0.15;mango.add(lidR);
+
+const browMat=new THREE.MeshPhysicalMaterial({color:0x5a3a10,roughness:0.7});
+browL=new THREE.Mesh(new THREE.BoxGeometry(0.032,0.006,0.008),browMat);
+browL.position.set(-eyeSp,0.37,0.31);browL.rotation.z=0.12;mango.add(browL);
+browR=browL.clone();browR.position.x=eyeSp;browR.rotation.z=-0.12;mango.add(browR);
+
+const blushL=new THREE.Mesh(new THREE.SphereGeometry(0.032,12,12),
+new THREE.MeshPhysicalMaterial({color:0xe87040,roughness:0.7,transparent:true,opacity:0.4}));
+blushL.position.set(-0.09,0.28,0.27);mango.add(blushL);
+const blushR=blushL.clone();blushR.position.x=0.09;mango.add(blushR);
+
+mouthG=new THREE.Group();
+const smile=new THREE.Mesh(new THREE.TorusGeometry(0.02,0.005,8,16,Math.PI),
+new THREE.MeshPhysicalMaterial({color:0xd06040,roughness:0.4,clearcoat:0.2}));
+smile.rotation.x=Math.PI;smile.position.y=0.002;
+mouthG.add(smile);
+mouthG.position.set(0,0.24,0.3);mango.add(mouthG);
+
+const armG=new THREE.Group();
+function makeArm(s){
+const arm=new THREE.Group();
+const upper=new THREE.Mesh(new THREE.CylinderGeometry(0.02,0.018,0.12,10),
+new THREE.MeshPhysicalMaterial({color:0xe89030,roughness:0.45,clearcoat:0.2}));
+upper.position.y=-0.06;upper.castShadow=true;arm.add(upper);
+const hand=new THREE.Mesh(new THREE.SphereGeometry(0.02,10,10),
+new THREE.MeshPhysicalMaterial({color:0xf0a030,roughness:0.45,clearcoat:0.2}));
+hand.position.y=-0.14;arm.add(hand);
+arm.position.set(s==='l'?-0.18:0.18,0.35,0);
+return arm;
+}
+armL=makeArm('l');armR=makeArm('r');
+armG.add(armL,armR);mango.add(armG);
+
+const legG=new THREE.Group();
+function makeLeg(s){
+const leg=new THREE.Group();
+const upper=new THREE.Mesh(new THREE.CylinderGeometry(0.026,0.022,0.1,10),
+new THREE.MeshPhysicalMaterial({color:0xe89030,roughness:0.45,clearcoat:0.2}));
+upper.position.y=-0.05;upper.castShadow=true;leg.add(upper);
+const foot=new THREE.Mesh(new THREE.SphereGeometry(0.024,10,10),
+new THREE.MeshPhysicalMaterial({color:0xf0a030,roughness:0.45,clearcoat:0.2}));
+foot.position.set(0,-0.1,0.01);foot.scale.set(1,0.5,1.4);leg.add(foot);
+leg.position.set(s==='l'?-0.08:0.08,0.08,0);
+return leg;
+}
+legG.add(makeLeg('l'),makeLeg('r'));mango.add(legG);
+
+mango.position.y=0.04;scene.add(mango);
+
+const greetText='Hola, soy la mascota de fruti enchilada, y estamos vendiendo bebidas enchiladas y gomitas enchiladas';
+let talkTime=0;
+
+function showBubble(t){document.getElementById('bubbleText').textContent=t;document.getElementById('bubble').classList.add('show')}
+function hideBubble(){document.getElementById('bubble').classList.remove('show')}
+
+function speakFB(text){
+if(!voiceOn)return;
+if(S){S.cancel();
+const u=new SpeechSynthesisUtterance(text);u.lang='es-MX';u.rate=1;u.pitch=1.1;
+u.onstart=()=>{isTalking=true;talkTime=0};
+u.onend=()=>{isTalking=false};
+S.speak(u);showBubble(text);}
+}
+
+document.getElementById('voiceBtn').onclick=function(){
+voiceOn=!voiceOn;this.className=voiceOn?'btn on':'btn';
+this.textContent=voiceOn?'Voz On':'Voz Off';
+if(!voiceOn){S&&S.cancel();isTalking=false;hideBubble()}
+};
+document.getElementById('camBtn').onclick=function(){cinematicCam=!cinematicCam};
+document.getElementById('greetBtn').onclick=function(){
+speakFB(greetText);waving=true;waveTime=0;
+};
+
+setTimeout(()=>{speakFB(greetText);waving=true;waveTime=0},2000);
+
+window.addEventListener('mousemove',e=>{
+mouse.x=(e.clientX/innerWidth)*2-1;mouse.y=-(e.clientY/innerHeight)*2+1;
+eyeTarget.x=mouse.x*0.012;eyeTarget.y=mouse.y*0.01;
+});
+
+let lastFrameTime=performance.now();
+function animate(){
+requestAnimationFrame(animate);
+const dt=Math.min(clock.getDelta(),0.05);
+const t=clock.getElapsedTime();
+
+frameTimes.push(performance.now()-lastFrameTime);
+lastFrameTime=performance.now();
+if(frameTimes.length>60)frameTimes.shift();
+if(frameTimes.length>0){
+const avg=frameTimes.reduce((a,b)=>a+b)/frameTimes.length;
+document.getElementById('fps').textContent=Math.round(1000/avg)+' FPS';
+}
+
+breathPhase+=dt*2;blinkTimer+=dt;
+if(blinkTimer>nextBlink){blinkTimer=0;nextBlink=2+Math.random()*4;blinkAnim();}
+
+mango.position.y=0.04+Math.sin(breathPhase)*0.005;
+mango.rotation.z=-0.15+Math.sin(t*0.5)*0.02;
+
+eyeCurrent.x+=(eyeTarget.x-eyeCurrent.x)*0.1;
+eyeCurrent.y+=(eyeTarget.y-eyeCurrent.y)*0.1;
+[eyeL,eyeR].forEach(e=>{if(e.children[1]){
+e.children[1].position.x=eyeCurrent.x*0.7;
+e.children[1].position.y=eyeCurrent.y*0.5;
+e.children[2].position.x=eyeCurrent.x*0.7;
+e.children[2].position.y=eyeCurrent.y*0.5;
+}});
+
+if(waving){
+waveTime+=dt*8;
+if(armR){armR.rotation.z=-1.4+Math.sin(waveTime)*0.5;armR.rotation.x=-0.15;}
+if(waveTime>Math.PI*4){waving=false;if(armR){armR.rotation.z=-0.15;armR.rotation.x=0;}}
+}else if(!isTalking){
+if(armL){armL.rotation.z=0.15+Math.sin(t*0.7)*0.02;armL.rotation.x=Math.sin(t*0.5)*0.015;}
+if(armR){armR.rotation.z=-0.15+Math.sin(t*0.7+1)*0.02;armR.rotation.x=Math.sin(t*0.5+0.7)*0.015;}
+}
+
+if(isTalking){
+talkTime+=dt;
+mouthG.scale.y=0.5+Math.abs(Math.sin(talkTime*14))*1.2;
+lidL.scale.y=0.15+Math.abs(Math.sin(talkTime*6))*0.1;
+lidR.scale.y=0.15+Math.abs(Math.sin(talkTime*6+0.3))*0.1;
+browL.rotation.z=0.12+Math.sin(t*4)*0.06;
+browR.rotation.z=-0.12-Math.sin(t*4)*0.06;
+if(!waving&&armR){armR.rotation.z=-0.15+Math.sin(t*2.5)*0.12;}
+}else{
+mouthG.scale.y+=(1-mouthG.scale.y)*0.1;
+lidL.scale.y+=(0.15-lidL.scale.y)*0.08;
+lidR.scale.y+=(0.15-lidR.scale.y)*0.08;
+browL.rotation.z+=(0.12-browL.rotation.z)*0.06;
+browR.rotation.z+=(-0.12-browR.rotation.z)*0.06;
+}
+
+const lL=legG.children[0],lR=legG.children[1];
+if(lL)lL.rotation.x=Math.sin(t*0.8)*0.015;
+if(lR)lR.rotation.x=Math.sin(t*0.8+Math.PI)*0.015;
+
+if(leaf)leaf.rotation.z=-0.5+Math.sin(t*1.2)*0.1;
+
+platRing.material.emissiveIntensity=0.3+Math.sin(t*2)*0.2;
+accentLight.intensity=0.5+Math.sin(t*2)*0.2;
+
+filmPass.uniforms.time.value=t*0.5;
+
+if(cinematicCam){
+camPhase+=dt*0.15;
+camera.position.x=Math.sin(camPhase)*2.5;
+camera.position.z=Math.cos(camPhase)*2.5;
+camera.position.y=0.5+Math.sin(camPhase*0.5)*0.2;
+camera.lookAt(0,0.35,0);
+controls.update();
+}
+
+composer.render();
+}
+
+function blinkAnim(){
+let f=0;
+const b=()=>{f++;
+if(f<5){lidL.scale.y=0.15+f*0.17;lidR.scale.y=0.15+f*0.17;requestAnimationFrame(b);}
+else if(f<10){lidL.scale.y=1.0-(f-5)*0.17;lidR.scale.y=1.0-(f-5)*0.17;requestAnimationFrame(b);}
+else{lidL.scale.y=0.15;lidR.scale.y=0.15}};
+b();
+}
+
+window.addEventListener('resize',()=>{
+camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
+renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight);
+});
+
+setTimeout(()=>{document.getElementById('loading').classList.add('done')},800);
+animate();
+</script>
+</body>
+</html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chef Byte - Avatar 3D</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍰</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a14;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif}
+canvas{display:block}
+.ui{position:fixed;top:20px;left:20px;z-index:10;display:flex;flex-direction:column;gap:8px}
+.btn{padding:10px 18px;border:1px solid rgba(255,255,255,.1);border-radius:10px;font-size:.8rem;cursor:pointer;background:rgba(255,255,255,.06);color:#ccc;backdrop-filter:blur(8px);transition:all .3s;font-weight:600}
+.btn:hover{background:rgba(255,107,107,.15);border-color:rgba(255,107,107,.3);color:#fff}
+.btn.on{background:linear-gradient(135deg,#ff6b6b,#ee5a24);border-color:transparent;color:#fff}
+.brand{position:fixed;top:20px;right:20px;text-align:right;z-index:10}
+.brand h1{font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,#ff6b6b,#f5a623);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.brand p{font-size:.6rem;color:#555;letter-spacing:3px;text-transform:uppercase;margin-top:2px}
+.bubble{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.92);border:1px solid rgba(255,107,107,.2);border-radius:16px;padding:14px 24px;max-width:450px;min-width:200px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.3);z-index:10;opacity:0;transition:opacity .4s;pointer-events:none}
+.bubble.show{opacity:1}
+.bubble p{font-size:.85rem;color:#333;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="brand"><h1>CHEF BYTE</h1><p>Tienda de Postres 3D</p><p style="color:#ff6b6b;font-size:.55rem;margin-top:6px;letter-spacing:2px">RICARDO ISAJAR</p></div>
+<div class="ui">
+<button class="btn on" id="voiceBtn" onclick="toggleVoice()">Voz On</button>
+<button class="btn" onclick="greet()">Saludar</button>
+</div>
+<div class="bubble" id="bubble"><p id="bubbleText"></p></div>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+
+let scene,camera,renderer,controls,clock;
+let avatar,faceGroup,eyeL,eyeR,mouthObj,cherryObj;
+let voiceOn=true,isTalking=false,breathPhase=0,blinkTimer=0,nextBlink=2+Math.random()*4,mouthPhase=0;
+const S=window.speechSynthesis;
+const mouse=new THREE.Vector2(0,0);
+const ray=new THREE.Raycaster();
+
+// Scene
+scene=new THREE.Scene();
+scene.background=new THREE.Color(0x0a0a14);
+scene.fog=new THREE.FogExp2(0x0a0a14,0.03);
+
+camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,0.1,100);
+camera.position.set(0,2,6);
+
+renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth,innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.2;
+document.body.prepend(renderer.domElement);
+
+controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;
+controls.dampingFactor=0.08;
+controls.enablePan=false;
+controls.minDistance=3;
+controls.maxDistance=12;
+controls.target.set(0,1,0);
+
+clock=new THREE.Clock();
+
+// Lighting
+scene.add(new THREE.HemisphereLight(0xffffff,0x222244,0.4));
+const dir=new THREE.DirectionalLight(0xfff0e0,1.0);
+dir.position.set(3,6,4);dir.castShadow=true;
+dir.shadow.mapSize.set(1024,1024);dir.shadow.camera.near=0.5;dir.shadow.camera.far=20;
+dir.shadow.camera.left=-5;dir.shadow.camera.right=5;dir.shadow.camera.top=5;dir.shadow.camera.bottom=-5;
+scene.add(dir);
+const rim=new THREE.DirectionalLight(0xff6b6b,0.3);
+rim.position.set(-3,3,-3);scene.add(rim);
+const spot=new THREE.SpotLight(0xffffff,0.6,10,Math.PI/5,0.5);
+spot.position.set(0,5,2);spot.target.position.set(0,0,0);scene.add(spot);scene.add(spot.target);
+
+// Platform
+const platMat=new THREE.MeshStandardMaterial({color:0x1a1a2e,roughness:0.3,metalness:0.5});
+const platform=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.4,0.15,32),platMat);
+platform.position.y=-0.5;platform.receiveShadow=true;platform.castShadow=true;scene.add(platform);
+const ringMat=new THREE.MeshStandardMaterial({color:0xff6b6b,roughness:0.3,metalness:0.3,emissive:0xff6b6b,emissiveIntensity:0.2});
+const ring=new THREE.Mesh(new THREE.TorusGeometry(1.3,0.03,8,48),ringMat);
+ring.position.y=-0.42;ring.rotation.x=Math.PI/2;scene.add(ring);
+
+// Cherry glow
+const glowMat=new THREE.MeshBasicMaterial({color:0xff4444,transparent:true,opacity:0.15});
+const glow=new THREE.Mesh(new THREE.SphereGeometry(0.14,16,16),glowMat);
+glow.position.y=1.02;scene.add(glow);
+
+// Sparkle particles around avatar
+const sparkGeo=new THREE.BufferGeometry();
+const sparkCount=30;
+const sparkPos=new Float32Array(sparkCount*3);
+const sparkVel=[];
+for(let i=0;i<sparkCount;i++){
+sparkPos[i*3]=(Math.random()-0.5)*2;
+sparkPos[i*3+1]=Math.random()*1.5;
+sparkPos[i*3+2]=(Math.random()-0.5)*2;
+sparkVel.push({x:(Math.random()-0.5)*0.01,y:Math.random()*0.005+0.002,z:(Math.random()-0.5)*0.01});
+}
+sparkGeo.setAttribute('position',new THREE.BufferAttribute(sparkPos,3));
+const sparkMat=new THREE.PointsMaterial({color:0xffd700,size:0.04,transparent:true,opacity:0.6});
+const sparkles=new THREE.Points(sparkGeo,sparkMat);
+scene.add(sparkles);
+
+// Dust particles
+const partGeo=new THREE.BufferGeometry();
+const partCount=60;
+const posArr=new Float32Array(partCount*3);
+for(let i=0;i<partCount*3;i+=3){posArr[i]=(Math.random()-0.5)*8;posArr[i+1]=Math.random()*5;posArr[i+2]=(Math.random()-0.5)*8;}
+partGeo.setAttribute('position',new THREE.BufferAttribute(posArr,3));
+const partMat=new THREE.PointsMaterial({color:0xffd4b8,size:0.03,transparent:true,opacity:0.4});
+scene.add(new THREE.Points(partGeo,partMat));
+
+// Avatar
+avatar=new THREE.Group();
+const mB=new THREE.MeshStandardMaterial({color:0xf5a623,roughness:0.35});
+const mM=new THREE.MeshStandardMaterial({color:0xffe8d0,roughness:0.3});
+const mT=new THREE.MeshStandardMaterial({color:0xff9ab0,roughness:0.25});
+const mC=new THREE.MeshStandardMaterial({color:0xe74c3c,roughness:0.2,metalness:0.15});
+const mA=new THREE.MeshStandardMaterial({color:0xffb0c0,roughness:0.35});
+
+const base=new THREE.Mesh(new THREE.CylinderGeometry(0.6,0.65,0.4,32),mB);
+base.position.y=0.2;base.castShadow=true;avatar.add(base);
+
+const dm=new THREE.MeshStandardMaterial({color:0xf5a623,roughness:0.3});
+for(let i=0;i<5;i++){const dr=new THREE.Mesh(new THREE.SphereGeometry(0.035,8,8),dm);const a=(i/5)*Math.PI*2;dr.scale.y=1.5;dr.position.set(Math.cos(a)*0.61,0.3,Math.sin(a)*0.61);avatar.add(dr);}
+
+const mid=new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.55,0.28,32),mM);
+mid.position.y=0.59;mid.castShadow=true;avatar.add(mid);
+
+const top=new THREE.Mesh(new THREE.CylinderGeometry(0.4,0.45,0.22,32),mT);
+top.position.y=0.85;top.castShadow=true;avatar.add(top);
+
+cherryObj=new THREE.Mesh(new THREE.SphereGeometry(0.08,16,16),mC);
+cherryObj.position.y=1.02;cherryObj.castShadow=true;avatar.add(cherryObj);
+
+const stem=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007,0.1,6),new THREE.MeshStandardMaterial({color:0x2d5a1e,roughness:0.5}));
+stem.position.y=1.12;stem.rotation.z=0.2;avatar.add(stem);
+const cLeaf=new THREE.Mesh(new THREE.SphereGeometry(0.025,8,8),new THREE.MeshStandardMaterial({color:0x3a8a2a,roughness:0.4}));
+cLeaf.scale.set(0.4,1.2,0.8);cLeaf.position.set(0.035,1.14,0);cLeaf.rotation.z=-0.5;avatar.add(cLeaf);
+
+faceGroup=new THREE.Group();
+faceGroup.position.set(0,0.5,0.55);
+
+eyeL=mkEye();eyeL.position.set(-0.14,0.07,0);faceGroup.add(eyeL);
+eyeR=mkEye();eyeR.position.set(0.14,0.07,0);faceGroup.add(eyeR);
+
+const brM=new THREE.MeshStandardMaterial({color:0x5a3a2a,roughness:0.5});
+const bL=new THREE.Mesh(new THREE.BoxGeometry(0.07,0.012,0.008),brM);
+bL.position.set(-0.14,0.17,0.035);bL.rotation.z=0.15;faceGroup.add(bL);
+const bR=new THREE.Mesh(new THREE.BoxGeometry(0.07,0.012,0.008),brM);
+bR.position.set(0.14,0.17,0.035);bR.rotation.z=-0.15;faceGroup.add(bR);
+
+const blM=new THREE.MeshStandardMaterial({color:0xff8888,roughness:0.6,transparent:true,opacity:0.35});
+const cL=new THREE.Mesh(new THREE.CircleGeometry(0.035,16),blM);cL.position.set(-0.22,-0.02,0.035);faceGroup.add(cL);
+const cR=new THREE.Mesh(new THREE.CircleGeometry(0.035,16),blM);cR.position.set(0.22,-0.02,0.035);faceGroup.add(cR);
+
+const nose=new THREE.Mesh(new THREE.SphereGeometry(0.02,12,12),new THREE.MeshStandardMaterial({color:0xffb0c0,roughness:0.3}));
+nose.position.set(0,-0.015,0.05);nose.scale.set(1,0.8,0.7);faceGroup.add(nose);
+
+mouthObj=new THREE.Mesh(new THREE.SphereGeometry(0.04,16,8,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({color:0xe74c3c,roughness:0.3}));
+mouthObj.rotation.x=Math.PI;mouthObj.position.set(0,-0.09,0.01);faceGroup.add(mouthObj);
+
+avatar.add(faceGroup);
+
+const ag=new THREE.CapsuleGeometry(0.035,0.2,8,12);
+const aL=new THREE.Mesh(ag,mA);aL.position.set(-0.7,0.5,0.1);aL.rotation.z=0.6;aL.name='armL';avatar.add(aL);
+const aR=new THREE.Mesh(ag,mA);aR.position.set(0.7,0.5,0.1);aR.rotation.z=-0.6;aR.name='armR';avatar.add(aR);
+
+const hM=new THREE.MeshStandardMaterial({color:0xffc0cb,roughness:0.35});
+const hL=new THREE.Mesh(new THREE.SphereGeometry(0.04,12,12),hM);hL.position.set(-0.88,0.38,0.1);avatar.add(hL);
+const hR=new THREE.Mesh(new THREE.SphereGeometry(0.04,12,12),hM);hR.position.set(0.88,0.38,0.1);avatar.add(hR);
+
+avatar.position.set(0,0,0);
+scene.add(avatar);
+
+function mkEye(){
+const g=new THREE.Group();
+g.add(new THREE.Mesh(new THREE.SphereGeometry(0.06,16,16),new THREE.MeshStandardMaterial({color:0xffffff,roughness:0.08})).scale.set(1,1.15,0.6));
+g.add(new THREE.Mesh(new THREE.CircleGeometry(0.032,16),new THREE.MeshStandardMaterial({color:0x4a3a2a,roughness:0.12})).translateZ(0.04));
+g.add(new THREE.Mesh(new THREE.CircleGeometry(0.016,16),new THREE.MeshStandardMaterial({color:0x111111})).translateZ(0.044));
+g.add(new THREE.Mesh(new THREE.CircleGeometry(0.007,8),new THREE.MeshBasicMaterial({color:0xffffff})).translateX(-0.008).translateY(0.01).translateZ(0.048));
+g.add(new THREE.Mesh(new THREE.CircleGeometry(0.004,8),new THREE.MeshBasicMaterial({color:0xffffff})).translateX(0.006).translateY(-0.004).translateZ(0.048));
+return g;
+}
+
+function blink(){
+if(!eyeL||!eyeR)return;let f=0;
+const a=()=>{f++;const s=f<=4?1-f/4:f<=8?(f-4)/4:1;eyeL.scale.y=Math.max(0.05,s);eyeR.scale.y=Math.max(0.05,s);if(f<8)requestAnimationFrame(a);};a();
+}
+
+// Voice - ElevenLabs + fallback
+const EL_KEY='sk_112617f23620344b47cad6da36eaab66088582e8c18b7016';
+const EL_VOICE='s91wgzodwL1wfwitqbIm';
+const EL_MODEL='eleven_multilingual_v2';
+
+async function speak(txt){
+if(!voiceOn){showBubble(txt);return;}
+try{
+const r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+EL_VOICE,{
+method:'POST',
+headers:{'Content-Type':'application/json','xi-api-key':EL_KEY},
+body:JSON.stringify({text:txt,model_id:EL_MODEL,voice_settings:{stability:0.5,similarity_boost:0.75}})
+});
+if(!r.ok)throw new Error(r.status);
+const blob=await r.blob();
+const url=URL.createObjectURL(blob);
+const audio=new Audio(url);
+audio.onplay=()=>{isTalking=true;showBubble(txt)};
+audio.onended=()=>{isTalking=false;hideBubble();URL.revokeObjectURL(url)};
+audio.onerror=()=>{speakFB(txt)};
+await audio.play();
+}catch(e){speakFB(txt);}
+}
+
+function speakFB(txt){
+if(!S){showBubble(txt);return;}
+S.cancel();
+const u=new SpeechSynthesisUtterance(txt);
+u.lang='es-ES';u.rate=0.9;u.pitch=1.05;u.volume=1;
+const vs=S.getVoices();
+const p=['Microsoft Sabina','Microsoft Helena','Google espanol','Paulina'];
+let v=null;for(const n of p){v=vs.find(x=>x.name.includes(n));if(v)break;}
+if(!v)v=vs.find(x=>x.lang.startsWith('es'));if(v)u.voice=v;
+u.onstart=()=>{isTalking=true;showBubble(txt)};
+u.onend=()=>{isTalking=false;hideBubble()};
+S.speak(u);
+}
+
+function showBubble(t){document.getElementById('bubbleText').textContent=t;document.getElementById('bubble').classList.add('show');}
+function hideBubble(){document.getElementById('bubble').classList.remove('show');}
+
+window.toggleVoice=function(){
+voiceOn=!voiceOn;
+const b=document.getElementById('voiceBtn');
+b.className=voiceOn?'btn on':'btn';
+b.textContent=voiceOn?'Voz On':'Voz Off';
+if(!voiceOn){S&&S.cancel();isTalking=false;hideBubble();}
+};
+
+window.greet=function(){
+speak('Bienvenidos a Chef Byte, su tienda de postres favorita.');
+// Wave gesture
+const aR=avatar.getObjectByName('armR');
+if(aR){
+const orig=aR.rotation.z;
+aR.rotation.z=-1.8;
+let f=0;
+const wave=()=>{f++;aR.rotation.z=-1.8+Math.sin(f*0.3)*0.3;if(f<30)requestAnimationFrame(wave);else aR.rotation.z=orig;};
+wave();
+}
+};
+
+// Auto greet
+setTimeout(()=>{speak('Hola! Soy Chef Byte, bienvenidos a mi tienda de postres.');},1500);
+
+// Loop promo cada 5 segundos
+let promoInterval=setInterval(()=>{
+if(voiceOn&&!isTalking){
+speak('Chef Byte - Tienda de Postres 3D. Donde cada postre es una obra de arte.');
+}
+},5000);
+
+// Mouse tracking for eyes
+window.addEventListener('mousemove',(e)=>{
+mouse.x=(e.clientX/innerWidth)*2-1;
+mouse.y=-(e.clientY/innerHeight)*2+1;
+});
+
+// Animate
+function animate(){
+requestAnimationFrame(animate);
+const dt=clock.getDelta(),t=clock.getElapsedTime();
+breathPhase+=dt*1.5;blinkTimer+=dt;
+
+if(avatar){
+avatar.position.y=Math.sin(breathPhase)*0.015;
+avatar.rotation.z=Math.sin(breathPhase*0.7)*0.01;
+
+if(blinkTimer>nextBlink){blinkTimer=0;nextBlink=2+Math.random()*4;blink();}
+
+// Mouth talking
+if(isTalking){
+mouthPhase+=dt*14;
+if(mouthObj){
+const s=0.5+Math.abs(Math.sin(mouthPhase))*0.7;
+mouthObj.scale.set(s,1+Math.sin(mouthPhase*1.3)*0.3,1);
+}
+}else{
+// Smile when idle
+if(mouthObj){
+const smile=1+Math.sin(t*0.5)*0.15;
+mouthObj.scale.set(smile,0.8+Math.sin(t*0.3)*0.1,1);
+}
+}
+
+// Cherry bob + glow pulse
+if(cherryObj){
+cherryObj.position.y=1.02+Math.sin(t*1.5)*0.01;
+glow.position.y=cherryObj.position.y;
+glow.scale.setScalar(1+Math.sin(t*3)*0.1);
+glowMat.opacity=0.1+Math.sin(t*3)*0.05;
+}
+
+// Eye tracking - eyes follow mouse
+if(eyeL&&eyeR){
+const targetX=mouse.x*0.02;
+const targetY=mouse.y*0.015;
+eyeL.children[1].position.x+=(targetX-eyeL.children[1].position.x)*0.1;
+eyeL.children[1].position.y+=(targetY-eyeL.children[1].position.y)*0.1;
+eyeL.children[2].position.x+=(targetX-eyeL.children[2].position.x)*0.1;
+eyeL.children[2].position.y+=(targetY-eyeL.children[2].position.y)*0.1;
+eyeR.children[1].position.x+=(targetX-eyeR.children[1].position.x)*0.1;
+eyeR.children[1].position.y+=(targetY-eyeR.children[1].position.y)*0.1;
+eyeR.children[2].position.x+=(targetX-eyeR.children[2].position.x)*0.1;
+eyeR.children[2].position.y+=(targetY-eyeR.children[2].position.y)*0.1;
+}
+
+// Arm wave when greeting
+const aL=avatar.getObjectByName('armL'),aR=avatar.getObjectByName('armR');
+if(isTalking){
+// Animated gestures while talking
+if(aL)aL.rotation.z=0.6+Math.sin(t*2)*0.15;
+if(aR)aR.rotation.z=-0.6+Math.sin(t*2+1)*0.15;
+}else{
+// Idle sway
+if(aL)aL.rotation.z=0.6+Math.sin(t*0.8)*0.05;
+if(aR)aR.rotation.z=-0.6+Math.sin(t*0.8+1)*0.05;
+}
+
+// Sparkle particles
+const sp=sparkles.geometry.attributes.position.array;
+for(let i=0;i<sparkCount;i++){
+sp[i*3]+=sparkVel[i].x;
+sp[i*3+1]+=sparkVel[i].y;
+sp[i*3+2]+=sparkVel[i].z;
+if(sp[i*3+1]>2.5){sp[i*3]=(Math.random()-0.5)*2;sp[i*3+1]=-0.5;sp[i*3+2]=(Math.random()-0.5)*2;}
+}
+sparkles.geometry.attributes.position.needsUpdate=true;
+sparkMat.opacity=isTalking?0.8:0.3;
+}
+
+controls.update();
+renderer.render(scene,camera);
+}
+
+animate();
+
+window.addEventListener('resize',()=>{
+camera.aspect=innerWidth/innerHeight;
+camera.updateProjectionMatrix();
+renderer.setSize(innerWidth,innerHeight);
+});
+</script>
+</body>
+</html>

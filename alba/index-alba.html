@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alba - Avatar 3D</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{overflow:hidden;background:#0a0a14;font-family:'Segoe UI',sans-serif}
+canvas{display:block}
+.ui{position:fixed;z-index:10}
+.top-bar{top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:linear-gradient(180deg,rgba(0,0,0,0.7),transparent)}
+.title{color:#fff;font-size:16px;font-weight:700}
+.title span{color:#d4a08a}
+.fps{color:#8f8;font-size:11px;font-family:monospace}
+.controls{bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:10px}
+.btn{padding:10px 20px;border:none;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.3s;color:#fff}
+.btn-greet{background:linear-gradient(135deg,#d4a08a,#b07060)}
+.btn-greet:hover{transform:scale(1.05)}
+.btn-voice{background:#555}
+.btn-voice.on{background:linear-gradient(135deg,#d4a08a,#b07060)}
+.btn-cam{background:#444}
+.bubble{bottom:80px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.95);color:#333;padding:12px 20px;border-radius:16px;font-size:14px;max-width:380px;text-align:center;opacity:0;transition:opacity 0.4s;pointer-events:none}
+.bubble.show{opacity:1}
+.loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0a0a14;z-index:100;transition:opacity 0.8s}
+.loading.done{opacity:0;pointer-events:none}
+.loading-text{color:#d4a08a;font-size:18px;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:0.5}50%{opacity:1}}
+</style>
+</head>
+<body>
+<div class="loading" id="loading"><div class="loading-text">Cargando Alba...</div></div>
+<div class="ui top-bar">
+<div class="title">Alba <span>Avatar 3D</span></div>
+<div class="fps" id="fps">60 FPS</div>
+</div>
+<div class="ui bubble" id="bubble"></div>
+<div class="ui controls">
+<button class="btn btn-greet" id="greetBtn">Saludar</button>
+<button class="btn btn-voice" id="voiceBtn">Voz Off</button>
+<button class="btn btn-cam" id="camBtn">Cam Cine</button>
+</div>
+<script src="https://unpkg.com/three@0.149.0/build/three.min.js"></script>
+<script>
+var scene=new THREE.Scene();
+scene.background=new THREE.Color(0x0a0a14);
+var camera=new THREE.PerspectiveCamera(32,innerWidth/innerHeight,0.1,50);
+camera.position.set(0,0.9,3.8);
+var renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth,innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled=true;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.15;
+document.body.appendChild(renderer.domElement);
+
+scene.add(new THREE.HemisphereLight(0xffe8d0,0x1a1a2e,0.65));
+scene.add(new THREE.AmbientLight(0xffffff,0.35));
+var kL=new THREE.DirectionalLight(0xfff0e0,1.3);
+kL.position.set(1.5,3.5,2.5);kL.castShadow=true;
+kL.shadow.mapSize.set(1024,1024);scene.add(kL);
+var fL=new THREE.DirectionalLight(0xd0e0ff,0.35);fL.position.set(-2,2.5,1.5);scene.add(fL);
+var rL=new THREE.PointLight(0xffaa88,0.5,6);rL.position.set(-1.5,1.5,-1.5);scene.add(rL);
+
+var plat=new THREE.Mesh(new THREE.CylinderGeometry(0.85,0.85,0.06,48),new THREE.MeshPhysicalMaterial({color:0x1a2a5e,metalness:0.25,roughness:0.35,clearcoat:0.4}));
+plat.position.y=-0.03;plat.receiveShadow=true;scene.add(plat);
+
+var skinMat=new THREE.MeshPhysicalMaterial({color:0xe8b896,roughness:0.5,metalness:0,clearcoat:0.08});
+var hairMat=new THREE.MeshPhysicalMaterial({color:0x6a2010,roughness:0.55,metalness:0.08,clearcoat:0.2});
+var shirtMat=new THREE.MeshPhysicalMaterial({color:0x5a7a50,roughness:0.7});
+var pantsMat=new THREE.MeshPhysicalMaterial({color:0x2a2a4a,roughness:0.6});
+var shoeMat=new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:0.35,clearcoat:0.3});
+var lipMat=new THREE.MeshPhysicalMaterial({color:0xc46a6a,roughness:0.3,clearcoat:0.25});
+var eyeWhiteMat=new THREE.MeshPhysicalMaterial({color:0xf8f8f8,roughness:0.15});
+var irisMat=new THREE.MeshPhysicalMaterial({color:0x2a1505,roughness:0.2,clearcoat:0.8});
+var pupilMat=new THREE.MeshPhysicalMaterial({color:0x020100,roughness:0.05,metalness:0.1});
+var teethMat=new THREE.MeshPhysicalMaterial({color:0xf5f5f0,roughness:0.25});
+
+function lathe(pts,segs){
+segs=segs||24;
+var positions=[];var normals=[];var uvs=[];var indices=[];
+var n=pts.length;
+for(var i=0;i<=segs;i++){
+var a=(i/segs)*Math.PI*2;
+var c=Math.cos(a),s=Math.sin(a);
+for(var j=0;j<n;j++){
+var r=pts[j][0],y=pts[j][1];
+positions.push(r*c,y,r*s);
+normals.push(c,0,s);
+uvs.push(i/segs,j/(n-1));
+}}
+for(var i=0;i<segs;i++){
+for(var j=0;j<n-1;j++){
+var a=i*n+j,b=a+n,cc=b+1,d=a+1;
+indices.push(a,b,cc);indices.push(a,cc,d);
+}}
+var geo=new THREE.BufferGeometry();
+geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+geo.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));
+geo.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
+geo.setIndex(indices);
+geo.computeVertexNormals();
+return geo;
+}
+
+var alba=new THREE.Group();
+var headGroup=new THREE.Group();
+var headPts=[[0,0.22],[0.04,0.21],[0.08,0.19],[0.12,0.16],[0.15,0.12],[0.17,0.08],[0.18,0.04],[0.185,0],[0.18,-0.04],[0.17,-0.08],[0.15,-0.11],[0.12,-0.13],[0.08,-0.14],[0.04,-0.145],[0,-0.15]];
+var headGeo=lathe(headPts,32);
+var headMesh=new THREE.Mesh(headGeo,skinMat);
+headGroup.add(headMesh);
+
+var cheekL=new THREE.Mesh(new THREE.SphereGeometry(0.08,16,16),skinMat);
+cheekL.position.set(-0.13,-0.01,0.1);cheekL.scale.set(0.9,0.7,0.7);headGroup.add(cheekL);
+var cheekR=cheekL.clone();cheekR.position.x=0.13;headGroup.add(cheekR);
+var chin=new THREE.Mesh(new THREE.SphereGeometry(0.06,12,12),skinMat);
+chin.position.set(0,-0.13,0.11);chin.scale.set(1.1,0.5,0.7);headGroup.add(chin);
+
+var eyeSp=0.068;
+function makeEye(x){
+var g=new THREE.Group();
+g.add(new THREE.Mesh(new THREE.SphereGeometry(0.038,16,16),eyeWhiteMat));
+var iris=new THREE.Mesh(new THREE.SphereGeometry(0.026,16,16),irisMat);iris.position.z=0.028;g.add(iris);
+var pup=new THREE.Mesh(new THREE.SphereGeometry(0.016,12,12),pupilMat);pup.position.z=0.038;g.add(pup);
+var hl=new THREE.Mesh(new THREE.SphereGeometry(0.007,8,8),new THREE.MeshPhysicalMaterial({color:0xffffff,emissive:0xffffff,emissiveIntensity:0.4}));
+hl.position.set(0.008,0.008,0.04);g.add(hl);
+g.position.set(x,0.04,0.165);return g;
+}
+var eyeL=makeEye(-eyeSp),eyeR=makeEye(eyeSp);
+headGroup.add(eyeL,eyeR);
+
+var lidGeo=new THREE.SphereGeometry(0.04,16,16,0,Math.PI*2,0,Math.PI*0.5);
+var lidMat=new THREE.MeshPhysicalMaterial({color:0xd8a888,side:THREE.BackSide});
+var lidL=new THREE.Mesh(lidGeo,lidMat);lidL.position.set(-eyeSp,0.04,0.165);lidL.rotation.x=Math.PI;lidL.scale.y=0.18;headGroup.add(lidL);
+var lidR=new THREE.Mesh(lidGeo,lidMat);lidR.position.set(eyeSp,0.04,0.165);lidR.rotation.x=Math.PI;lidR.scale.y=0.18;headGroup.add(lidR);
+
+var browGeo=new THREE.ExtrudeGeometry(new THREE.Shape().moveTo(-0.03,0).quadraticCurveTo(0,-0.006,0.03,0.002),{depth:0.008,bevelEnabled:false});
+var browMat=new THREE.MeshPhysicalMaterial({color:0x3a1a08,roughness:0.7});
+var browL=new THREE.Mesh(browGeo,browMat);browL.position.set(-eyeSp,0.1,0.175);browL.rotation.z=0.1;headGroup.add(browL);
+var browR=new THREE.Mesh(browGeo,browMat);browR.position.set(eyeSp,0.1,0.175);browR.rotation.z=-0.1;browR.scale.x=-1;headGroup.add(browR);
+
+var noseG=new THREE.Group();
+var nB=new THREE.Mesh(new THREE.CylinderGeometry(0.012,0.018,0.045,8),skinMat);nB.rotation.x=Math.PI*0.5;nB.position.z=0.18;noseG.add(nB);
+var nT=new THREE.Mesh(new THREE.SphereGeometry(0.02,12,12),skinMat);nT.position.set(0,-0.022,0.2);nT.scale.set(1,0.65,0.8);noseG.add(nT);
+headGroup.add(noseG);
+
+var mouthG=new THREE.Group();
+var uLip=new THREE.Mesh(new THREE.ExtrudeGeometry(new THREE.Shape().moveTo(-0.03,0).quadraticCurveTo(-0.01,0.009,0,0.006).quadraticCurveTo(0.01,0.009,0.03,0).quadraticCurveTo(0,-0.003,-0.03,0),{depth:0.005,bevelEnabled:true,bevelThickness:0.002,bevelSize:0.002}),lipMat);
+uLip.position.set(0,0.002,0.17);mouthG.add(uLip);
+var lLip=new THREE.Mesh(new THREE.ExtrudeGeometry(new THREE.Shape().moveTo(-0.028,0).quadraticCurveTo(0,-0.01,0.028,0).quadraticCurveTo(0,0.003,-0.028,0),{depth:0.005,bevelEnabled:true,bevelThickness:0.002,bevelSize:0.002}),lipMat);
+lLip.position.set(0,-0.008,0.17);mouthG.add(lLip);
+var teeth=new THREE.Mesh(new THREE.BoxGeometry(0.032,0.01,0.005),teethMat);teeth.position.set(0,-0.002,0.175);teeth.visible=false;mouthG.add(teeth);
+mouthG.position.set(0,-0.07,0.165);headGroup.add(mouthG);
+headGroup.position.y=0.3;alba.add(headGroup);
+
+var neckM=new THREE.Mesh(lathe([[0.05,0],[0.045,0.03],[0.04,0.06],[0.038,0.09]],16),skinMat);
+neckM.position.y=0.28;neckM.scale.set(1.3,1.3,1.3);alba.add(neckM);
+
+var torsoG=new THREE.Group();
+var torsoM=new THREE.Mesh(lathe([[0,0],[0.06,0.02],[0.1,0.06],[0.13,0.12],[0.14,0.18],[0.135,0.22],[0.12,0.26],[0.1,0.28],[0.08,0.3]],20),shirtMat);
+torsoM.castShadow=true;torsoG.add(torsoM);
+var chest=new THREE.Mesh(new THREE.SphereGeometry(0.14,16,16),shirtMat);
+chest.position.set(0,0.22,0.04);chest.scale.set(1.1,0.5,0.8);torsoG.add(chest);
+torsoG.position.y=0.2;alba.add(torsoG);
+
+var armG=new THREE.Group();
+function makeArm(s){
+var arm=new THREE.Group();
+arm.add(new THREE.Mesh(lathe([[0.035,0],[0.032,0.04],[0.028,0.08],[0.025,0.12]],12),shirtMat));
+var ua=new THREE.Mesh(lathe([[0.03,0],[0.028,0.05],[0.025,0.1],[0.022,0.15]],12),shirtMat);
+ua.position.y=-0.12;ua.castShadow=true;arm.add(ua);
+var elb=new THREE.Mesh(new THREE.SphereGeometry(0.022,10,10),skinMat);elb.position.y=-0.24;arm.add(elb);
+var laG=new THREE.Group();
+var la=new THREE.Mesh(lathe([[0.024,0],[0.022,0.04],[0.02,0.08],[0.018,0.12]],12),skinMat);
+la.position.y=-0.08;laG.add(la);
+var hG=new THREE.Group();
+hG.add(new THREE.Mesh(new THREE.SphereGeometry(0.028,10,10),skinMat));
+var fG=new THREE.CylinderGeometry(0.005,0.004,0.04,6);
+[[-0.012,-0.035],[-0.004,-0.038],[0.004,-0.038],[0.012,-0.035]].forEach(function(p){
+var f=new THREE.Mesh(fG,skinMat);f.position.set(p[0],p[1],0);hG.add(f);
+});
+var th=new THREE.Mesh(new THREE.CylinderGeometry(0.006,0.004,0.035,6),skinMat);
+th.position.set(s==='l'?0.028:-0.028,-0.01,0.01);th.rotation.z=s==='l'?-0.6:0.6;hG.add(th);
+hG.position.y=-0.17;laG.add(hG);
+laG.position.y=-0.24;arm.add(laG);
+arm.position.set(s==='l'?-0.18:0.18,0.23,0);
+return arm;
+}
+armG.add(makeArm('l'));armG.add(makeArm('r'));alba.add(armG);
+
+var legG=new THREE.Group();
+function makeLeg(s){
+var leg=new THREE.Group();
+leg.add(new THREE.Mesh(lathe([[0.045,0],[0.042,0.04],[0.038,0.08],[0.035,0.12]],12),pantsMat));
+var ul=new THREE.Mesh(lathe([[0.04,0],[0.038,0.06],[0.035,0.12],[0.032,0.18]],12),pantsMat);
+ul.position.y=-0.14;ul.castShadow=true;leg.add(ul);
+var kn=new THREE.Mesh(new THREE.SphereGeometry(0.03,10,10),pantsMat);kn.position.y=-0.32;leg.add(kn);
+var ll=new THREE.Mesh(lathe([[0.033,0],[0.03,0.06],[0.027,0.12],[0.024,0.18]],12),pantsMat);
+ll.position.y=-0.48;ll.castShadow=true;leg.add(ll);
+var ank=new THREE.Mesh(new THREE.SphereGeometry(0.022,8,8),skinMat);ank.position.y=-0.66;leg.add(ank);
+var shoe=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.04,0.1),shoeMat);
+shoe.position.set(0,-0.7,0.015);shoe.castShadow=true;leg.add(shoe);
+leg.position.set(s==='l'?-0.065:0.065,0.18,0);
+return leg;
+}
+legG.add(makeLeg('l'));legG.add(makeLeg('r'));alba.add(legG);
+
+var hairG=new THREE.Group();
+var hM=new THREE.Mesh(lathe([[0,0.24],[0.05,0.23],[0.1,0.21],[0.14,0.18],[0.17,0.14],[0.19,0.1],[0.2,0.06],[0.21,0.02],[0.21,-0.02],[0.2,-0.06],[0.19,-0.1],[0.17,-0.14],[0.14,-0.18],[0.1,-0.22],[0.05,-0.25],[0,-0.28]],32),hairMat);
+hM.position.y=0.03;hairG.add(hM);
+var bL=new THREE.Mesh(new THREE.SphereGeometry(0.08,12,12),hairMat);
+bL.position.set(-0.1,0.15,0.12);bL.scale.set(0.7,0.4,0.35);hairG.add(bL);
+var bR=new THREE.Mesh(new THREE.SphereGeometry(0.07,12,12),hairMat);
+bR.position.set(0.05,0.16,0.13);bR.scale.set(0.6,0.35,0.3);hairG.add(bR);
+var sL=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.025,0.35,10),hairMat);
+sL.position.set(-0.18,0,-0.02);sL.rotation.z=0.15;hairG.add(sL);
+var sR=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.025,0.35,10),hairMat);
+sR.position.set(0.18,0,-0.02);sR.rotation.z=-0.15;hairG.add(sR);
+var bkL=new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.02,0.4,8),hairMat);
+bkL.position.set(-0.12,-0.08,-0.16);bkL.rotation.x=0.25;bkL.rotation.z=0.15;hairG.add(bkL);
+var bkR=new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.02,0.4,8),hairMat);
+bkR.position.set(0.12,-0.08,-0.16);bkR.rotation.x=0.25;bkR.rotation.z=-0.15;hairG.add(bkR);
+hairG.position.y=0.3;alba.add(hairG);
+
+alba.position.y=0.03;scene.add(alba);
+
+var clock=new THREE.Clock();
+var voiceOn=false,isTalking=false,talkT=0;
+var brP=0,blinkT=0,nextBlink=2+Math.random()*3;
+var mouse={x:0,y:0},eT={x:0,y:0},eC={x:0,y:0};
+var cinCam=false,camA=0,waving=false,waveT=0;
+
+function showBub(t){document.getElementById('bubble').textContent=t;document.getElementById('bubble').classList.add('show')}
+function hideBub(){document.getElementById('bubble').classList.remove('show')}
+
+var greetText='Hola soy Alba, mucho gusto, y estoy vendiendo productos enchilados';
+
+function speak(txt){
+if(!voiceOn||!window.speechSynthesis)return;
+speechSynthesis.cancel();
+var u=new SpeechSynthesisUtterance(txt);u.lang='es-MX';u.rate=1;u.pitch=1.1;
+u.onstart=function(){isTalking=true;talkT=0};
+u.onend=function(){isTalking=false};
+speechSynthesis.speak(u);showBub(txt);
+}
+
+document.getElementById('greetBtn').onclick=function(){speak(greetText);waving=true;waveT=0};
+document.getElementById('voiceBtn').onclick=function(){
+voiceOn=!voiceOn;this.className=voiceOn?'btn btn-voice on':'btn btn-voice';
+this.textContent=voiceOn?'Voz On':'Voz Off';
+if(!voiceOn){speechSynthesis.cancel();isTalking=false;hideBub()}
+};
+document.getElementById('camBtn').onclick=function(){cinCam=!cinCam};
+window.addEventListener('mousemove',function(e){
+mouse.x=(e.clientX/innerWidth)*2-1;mouse.y=-(e.clientY/innerHeight)*2+1;
+eT.x=mouse.x*0.012;eT.y=mouse.y*0.01;
+});
+
+setTimeout(function(){speak(greetText);waving=true;waveT=0},1800);
+
+function animate(){
+requestAnimationFrame(animate);
+var dt=Math.min(clock.getDelta(),0.05);
+var t=clock.getElapsedTime();
+brP+=dt*2;blinkT+=dt;
+if(blinkT>nextBlink){blinkT=0;nextBlink=2+Math.random()*3;blinkAnim();}
+alba.position.y=0.03+Math.sin(brP)*0.004;
+torsoG.rotation.z=Math.sin(brP*0.5)*0.012;
+headGroup.rotation.z=Math.sin(t*0.4)*0.015;
+eC.x+=(eT.x-eC.x)*0.1;eC.y+=(eT.y-eC.y)*0.1;
+[eyeL,eyeR].forEach(function(e){if(e.children[1]){
+e.children[1].position.x=eC.x;e.children[1].position.y=eC.y*0.8;
+e.children[2].position.x=eC.x;e.children[2].position.y=eC.y*0.8;
+}});
+var aL=armG.children[0],aR=armG.children[1];
+if(waving){
+waveT+=dt*8;
+if(aR){aR.rotation.z=-1.6+Math.sin(waveT)*0.5;aR.rotation.x=-0.15;
+var la=aR.children[3];if(la)la.rotation.z=Math.sin(waveT*2.5)*0.7;}
+if(waveT>Math.PI*4){waving=false;if(aR){aR.rotation.z=-0.25;aR.rotation.x=0;
+var la=aR.children[3];if(la)la.rotation.z=0;}}
+}else if(!isTalking){
+if(aL){aL.rotation.z=0.25+Math.sin(t*0.7)*0.02;aL.rotation.x=Math.sin(t*0.5)*0.015;
+var la=aL.children[3];if(la)la.rotation.z=0;}
+if(aR){aR.rotation.z=-0.25+Math.sin(t*0.7+1)*0.02;aR.rotation.x=Math.sin(t*0.5+0.7)*0.015;
+var la=aR.children[3];if(la)la.rotation.z=0;}
+}
+if(isTalking){
+talkT+=dt;
+mouthG.scale.y=0.4+Math.abs(Math.sin(talkT*14))*0.9;
+teeth.visible=Math.abs(Math.sin(talkT*14))>0.35;
+browL.rotation.z=0.1+Math.sin(t*4)*0.06;
+browR.rotation.z=-0.1-Math.sin(t*4)*0.06;
+}else{
+mouthG.scale.y+=(1-mouthG.scale.y)*0.1;
+teeth.visible=false;
+browL.rotation.z+=(0.1-browL.rotation.z)*0.06;
+browR.rotation.z+=(-0.1-browR.rotation.z)*0.06;
+}
+var lL=legG.children[0],lR=legG.children[1];
+if(lL)lL.rotation.x=Math.sin(t*0.8)*0.015;
+if(lR)lR.rotation.x=Math.sin(t*0.8+Math.PI)*0.015;
+if(cinCam){camA+=dt*0.12;camera.position.x=Math.sin(camA)*2.8;camera.position.z=Math.cos(camA)*2.8;
+camera.position.y=0.9+Math.sin(camA*0.5)*0.15;camera.lookAt(0,0.85,0);}
+renderer.render(scene,camera);
+}
+
+function blinkAnim(){
+var f=0;
+var b=function(){f++;
+if(f<5){lidL.scale.y=0.18+f*0.16;lidR.scale.y=0.18+f*0.16;requestAnimationFrame(b);}
+else if(f<10){lidL.scale.y=1.0-(f-5)*0.16;lidR.scale.y=1.0-(f-5)*0.16;requestAnimationFrame(b);}
+else{lidL.scale.y=0.18;lidR.scale.y=0.18}};
+b();
+}
+
+window.addEventListener('resize',function(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+setTimeout(function(){document.getElementById('loading').classList.add('done')},800);
+animate();
+</script>
+</body>
+</html>
