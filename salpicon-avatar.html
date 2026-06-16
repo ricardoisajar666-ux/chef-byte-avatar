@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salpicon - Avatar 3D</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥤</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a18;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif}
+canvas{display:block}
+.ui{position:fixed;top:20px;left:20px;z-index:100;display:flex;flex-direction:column;gap:8px}
+.btn{padding:10px 18px;border:1px solid rgba(255,255,255,.15);border-radius:8px;font-size:.75rem;cursor:pointer;background:rgba(0,0,0,.6);color:rgba(255,255,255,.7);backdrop-filter:blur(12px);transition:all .3s;font-weight:500}
+.btn:hover{background:rgba(255,107,107,.2);border-color:rgba(255,107,107,.4);color:#fff}
+.btn.on{background:linear-gradient(135deg,rgba(255,100,50,.8),rgba(200,50,30,.8));border-color:transparent;color:#fff}
+.brand{position:fixed;top:20px;right:20px;text-align:right;z-index:100}
+.brand h1{font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#ff6432,#c8321e);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.brand p{font-size:.55rem;color:rgba(255,255,255,.4);letter-spacing:4px;text-transform:uppercase;margin-top:4px}
+.bubble{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);border:1px solid rgba(255,100,50,.25);border-radius:20px;padding:16px 28px;max-width:500px;min-width:250px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.5);z-index:100;opacity:0;transition:all .5s;pointer-events:none;backdrop-filter:blur(20px)}
+.bubble.show{opacity:1;transform:translateX(-50%) translateY(-5px)}
+.bubble p{font-size:.85rem;color:rgba(255,255,255,.9);line-height:1.6}
+.film-bar{position:fixed;left:0;right:0;height:50px;background:#000;z-index:50;pointer-events:none}
+.film-bar.top{top:0}
+.film-bar.bottom{bottom:0}
+.vignette{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:40;background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.5) 100%)}
+.fps-display{position:fixed;bottom:60px;right:20px;color:rgba(255,215,100,.5);font-family:monospace;font-size:11px;z-index:100}
+.loading{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:rgba(255,255,255,.6);font-size:.9rem;z-index:200;letter-spacing:2px}
+</style>
+</head>
+<body>
+<div class="film-bar top"></div>
+<div class="film-bar bottom"></div>
+<div class="vignette"></div>
+<div class="loading" id="loading">Cargando modelo...</div>
+<div class="brand"><h1>SALPICÓN</h1><p>Fresco y Delicioso</p><p style="color:rgba(255,100,50,.6);font-size:.5rem;margin-top:8px;letter-spacing:2px">BIEN FRIO</p></div>
+<div class="ui">
+<button class="btn on" id="voiceBtn">Voz On</button>
+<button class="btn" id="greetBtn">Saludar</button>
+</div>
+<div class="bubble" id="bubble"><p id="bubbleText"></p></div>
+<div class="fps-display" id="fps">60 FPS</div>
+
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {EffectComposer} from 'three/addons/postprocessing/EffectComposer.js';
+import {RenderPass} from 'three/addons/postprocessing/RenderPass.js';
+import {UnrealBloomPass} from 'three/addons/postprocessing/UnrealBloomPass.js';
+import {ShaderPass} from 'three/addons/postprocessing/ShaderPass.js';
+
+let scene,camera,renderer,controls,clock,composer;
+let avatar,faceGroup,eyeL,eyeR,mouthObj,browL,browR,cheekL,cheekR;
+let voiceOn=true,isTalking=false;
+const S=window.speechSynthesis;
+const mouse=new THREE.Vector2(0,0);
+const eyeTarget=new THREE.Vector2(0,0);
+const eyeCurrent=new THREE.Vector2(0,0);
+let breathPhase=0,blinkTimer=0,nextBlink=2+Math.random()*4;
+let mouthPhase=0,swayPhase=0;
+let bodySwayPhase=0,bodySwayAngle=0,bodySwayVel=0;
+const frameTimes=[];
+let modelGroup=new THREE.Group();
+
+scene=new THREE.Scene();
+scene.background=new THREE.Color(0x0a0a18);
+scene.fog=new THREE.FogExp2(0x0a0a18,0.005);
+
+camera=new THREE.PerspectiveCamera(32,innerWidth/innerHeight,0.1,100);
+camera.position.set(0,0.4,2.8);
+
+renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
+renderer.setSize(innerWidth,innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.8;
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+document.body.prepend(renderer.domElement);
+
+controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;
+controls.dampingFactor=0.04;
+controls.enablePan=false;
+controls.minDistance=1.5;
+controls.maxDistance=5;
+controls.maxPolarAngle=Math.PI/1.5;
+controls.target.set(0,0.4,0);
+
+clock=new THREE.Clock();
+
+composer=new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene,camera));
+
+const bloomPass=new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),0.4,0.3,0.8);
+composer.addPass(bloomPass);
+
+const filmGrainShader={uniforms:{tDiffuse:{value:null},time:{value:0}},vertexShader:"varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}",fragmentShader:"uniform sampler2D tDiffuse;uniform float time;varying vec2 vUv;float rand(vec2 co){return fract(sin(dot(co.xy,vec2(12.9898,78.233)))*43758.5453);}void main(){vec4 color=texture2D(tDiffuse,vUv);color.rgb+=rand(vUv*time)*0.025;float vig=1.0-0.3*length(vUv-0.5);color.rgb*=vig;gl_FragColor=color;}"};
+const filmPass=new ShaderPass(filmGrainShader);
+composer.addPass(filmPass);
+
+scene.add(new THREE.HemisphereLight(0xffeedd,0x2a2a4e,0.7));
+scene.add(new THREE.AmbientLight(0xffffff,0.45));
+
+const keyLight=new THREE.DirectionalLight(0xfff0d0,1.8);
+keyLight.position.set(2,4,3);keyLight.castShadow=true;
+keyLight.shadow.mapSize.set(2048,2048);
+keyLight.shadow.camera.near=0.5;keyLight.shadow.camera.far=15;
+keyLight.shadow.camera.left=-3;keyLight.shadow.camera.right=3;
+keyLight.shadow.camera.top=3;keyLight.shadow.camera.bottom=-3;
+keyLight.shadow.bias=-0.0003;keyLight.shadow.radius=4;
+scene.add(keyLight);
+
+const fillLight=new THREE.DirectionalLight(0xc0d0ff,0.5);
+fillLight.position.set(-3,3,2);scene.add(fillLight);
+
+const rimLight=new THREE.SpotLight(0xff9966,1.0,12,Math.PI/5,0.5);
+rimLight.position.set(-2,3,-2);rimLight.target.position.set(0,0.5,0);
+scene.add(rimLight);scene.add(rimLight.target);
+
+const accentLight=new THREE.PointLight(0xff6b4a,0.4,5);
+accentLight.position.set(0,1,1.5);scene.add(accentLight);
+
+const platform=new THREE.Mesh(new THREE.CylinderGeometry(0.7,0.8,0.06,48),new THREE.MeshStandardMaterial({color:0x8B5A2B,roughness:0.4,metalness:0.1}));
+platform.position.y=-0.62;platform.receiveShadow=true;platform.castShadow=true;
+scene.add(platform);
+
+const ring1=new THREE.Mesh(new THREE.TorusGeometry(0.75,0.012,12,64),new THREE.MeshStandardMaterial({color:0xff6b4a,roughness:0.15,metalness:0.5,emissive:0xff6b4a,emissiveIntensity:0.3}));
+ring1.position.y=-0.59;ring1.rotation.x=Math.PI/2;scene.add(ring1);
+
+const ring2=new THREE.Mesh(new THREE.TorusGeometry(0.82,0.008,12,64),new THREE.MeshStandardMaterial({color:0xffa500,roughness:0.25,metalness:0.4,emissive:0xffa500,emissiveIntensity:0.2}));
+ring2.position.y=-0.59;ring2.rotation.x=Math.PI/2;scene.add(ring2);
+
+const sparkleGeo=new THREE.BufferGeometry();
+const sparkleCount=40;
+const sparklePos=new Float32Array(sparkleCount*3);
+const sparkleVel=[];
+for(let i=0;i<sparkleCount;i++){
+sparklePos[i*3]=(Math.random()-0.5)*2;
+sparklePos[i*3+1]=Math.random()*2;
+sparklePos[i*3+2]=(Math.random()-0.5)*2;
+sparkleVel.push({x:(Math.random()-0.5)*0.005,y:Math.random()*0.004+0.002,z:(Math.random()-0.5)*0.005,phase:Math.random()*Math.PI*2});
+}
+sparkleGeo.setAttribute('position',new THREE.BufferAttribute(sparklePos,3));
+const sparkleMat=new THREE.PointsMaterial({color:0xffd700,size:0.025,transparent:true,opacity:0.5,blending:THREE.AdditiveBlending});
+const sparkles=new THREE.Points(sparkleGeo,sparkleMat);
+scene.add(sparkles);
+
+function createEye(){
+const g=new THREE.Group();
+const white=new THREE.Mesh(new THREE.SphereGeometry(0.028,24,24),new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:0.03,clearcoat:1.0}));
+white.scale.set(1,1.2,0.6);g.add(white);
+const iris=new THREE.Mesh(new THREE.CircleGeometry(0.018,24),new THREE.MeshPhysicalMaterial({color:0x6b4423,roughness:0.08,clearcoat:0.8,emissive:0x3a2211,emissiveIntensity:0.1}));
+iris.position.z=0.02;g.add(iris);
+const pup=new THREE.Mesh(new THREE.CircleGeometry(0.009,24),new THREE.MeshBasicMaterial({color:0x050505}));
+pup.position.z=0.022;g.add(pup);
+const s1=new THREE.Mesh(new THREE.CircleGeometry(0.005,12),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.95}));
+s1.position.set(-0.005,0.006,0.024);g.add(s1);
+const s2=new THREE.Mesh(new THREE.CircleGeometry(0.0025,8),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.8}));
+s2.position.set(0.003,-0.002,0.024);g.add(s2);
+return g;
+}
+
+const loader=new GLTFLoader();
+loader.load('salpicon-model.glb',gltf=>{
+const model=gltf.scene;
+model.traverse(child=>{
+if(child.isMesh){
+child.castShadow=true;
+child.receiveShadow=true;
+}
+});
+
+const box=new THREE.Box3().setFromObject(model);
+const size=new THREE.Vector3();
+box.getSize(size);
+const center=new THREE.Vector3();
+box.getCenter(center);
+
+const scale=1.5/Math.max(size.x,size.y,size.z);
+model.scale.setScalar(scale);
+model.position.sub(center.multiplyScalar(scale));
+model.position.y+=size.y*scale*0.5-0.3;
+
+modelGroup.add(model);
+
+faceGroup=new THREE.Group();
+faceGroup.position.set(0,0.4,0.2);
+
+eyeL=createEye();eyeL.position.set(-0.07,0.04,0);faceGroup.add(eyeL);
+eyeR=createEye();eyeR.position.set(0.07,0.04,0);faceGroup.add(eyeR);
+
+const browMat=new THREE.MeshStandardMaterial({color:0x5a3a2a,roughness:0.5});
+browL=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.009,0.006),browMat);
+browL.position.set(-0.07,0.1,0.02);browL.rotation.z=0.1;faceGroup.add(browL);
+browR=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.009,0.006),browMat);
+browR.position.set(0.07,0.1,0.02);browR.rotation.z=-0.1;faceGroup.add(browR);
+
+const blushMat=new THREE.MeshBasicMaterial({color:0xff8888,transparent:true,opacity:0.3});
+cheekL=new THREE.Mesh(new THREE.CircleGeometry(0.022,16),blushMat);
+cheekL.position.set(-0.11,-0.01,0.02);faceGroup.add(cheekL);
+cheekR=new THREE.Mesh(new THREE.CircleGeometry(0.022,16),blushMat);
+cheekR.position.set(0.11,-0.01,0.02);faceGroup.add(cheekR);
+
+mouthObj=new THREE.Mesh(new THREE.SphereGeometry(0.025,20,10,0,Math.PI*2,0,Math.PI/2),new THREE.MeshPhysicalMaterial({color:0xe74c3c,roughness:0.2,clearcoat:0.6}));
+mouthObj.rotation.x=Math.PI;mouthObj.position.set(0,-0.04,0.01);faceGroup.add(mouthObj);
+
+modelGroup.add(faceGroup);
+scene.add(modelGroup);
+
+document.getElementById('loading').style.display='none';
+},undefined,err=>{
+console.error('Error cargando GLB:',err);
+document.getElementById('loading').textContent='Error cargando modelo';
+});
+
+function blinkAnim(){
+if(!eyeL||!eyeR)return;
+let f=0;
+const a=()=>{f++;let s=f<=3?1-f/3:f<=5?0.05:f<=8?(f-5)/3*0.95+0.05:1;
+eyeL.scale.y=Math.max(0.05,s);eyeR.scale.y=Math.max(0.05,s);
+if(f<8)requestAnimationFrame(a);};
+a();
+}
+
+function speak(txt){
+if(!voiceOn){showBubble(txt);return}
+if(!S){showBubble(txt);return}
+S.cancel();
+const u=new SpeechSynthesisUtterance(txt);
+u.lang='es-ES';u.rate=0.9;u.pitch=1.05;
+const vs=S.getVoices();
+const v=vs.find(x=>x.lang.startsWith('es'));
+if(v)u.voice=v;
+u.onstart=()=>{isTalking=true;showBubble(txt)};
+u.onend=()=>{isTalking=false;hideBubble()};
+S.speak(u);
+}
+
+function showBubble(t){document.getElementById('bubbleText').textContent=t;document.getElementById('bubble').classList.add('show')}
+function hideBubble(){document.getElementById('bubble').classList.remove('show')}
+
+document.getElementById('voiceBtn').onclick=function(){
+voiceOn=!voiceOn;this.className=voiceOn?'btn on':'btn';
+this.textContent=voiceOn?'Voz On':'Voz Off';
+if(!voiceOn){S&&S.cancel();isTalking=false;hideBubble()}
+};
+
+document.getElementById('greetBtn').onclick=function(){
+speak('Hola, mucho gusto, compra tu vaso de salpicon, bien fresco y rico, compralo ya');
+};
+
+setTimeout(()=>{speak('Hola, mucho gusto, compra tu vaso de salpicon, bien fresco y rico, compralo ya')},1500);
+
+window.addEventListener('mousemove',e=>{
+mouse.x=(e.clientX/innerWidth)*2-1;mouse.y=-(e.clientY/innerHeight)*2+1;
+eyeTarget.x=mouse.x*0.01;eyeTarget.y=mouse.y*0.008;
+});
+
+let lastFrameTime=performance.now();
+function animate(){
+requestAnimationFrame(animate);
+const dt=Math.min(clock.getDelta(),0.05);
+const t=clock.getElapsedTime();
+
+frameTimes.push(performance.now()-lastFrameTime);
+lastFrameTime=performance.now();
+if(frameTimes.length>60)frameTimes.shift();
+if(frameTimes.length>0){
+const avg=frameTimes.reduce((a,b)=>a+b)/frameTimes.length;
+document.getElementById('fps').textContent=Math.round(1000/avg)+' FPS';
+}
+
+breathPhase+=dt*2.0;blinkTimer+=dt;
+swayPhase+=dt*0.8;
+bodySwayPhase+=dt*0.6;
+if(blinkTimer>nextBlink){blinkTimer=0;nextBlink=1.5+Math.random()*3;blinkAnim();}
+
+const targetSwayAngle=Math.sin(bodySwayPhase)*0.02;
+bodySwayVel+=(targetSwayAngle-bodySwayAngle)*0.03;
+bodySwayVel*=0.92;
+bodySwayAngle+=bodySwayVel;
+
+if(modelGroup){
+const bob=Math.sin(breathPhase)*0.005;
+const sway=Math.sin(swayPhase)*0.003;
+modelGroup.position.y=bob;
+modelGroup.rotation.z=sway+bodySwayAngle;
+}
+
+if(isTalking){
+mouthPhase+=dt*16;
+if(mouthObj){
+const openAmt=0.3+Math.abs(Math.sin(mouthPhase))*0.7;
+const wideAmt=1+Math.sin(mouthPhase*1.5)*0.12;
+mouthObj.scale.set(wideAmt,openAmt,1);
+mouthObj.position.y=-0.04-Math.sin(mouthPhase*0.9)*0.003;
+}
+if(browL){
+browL.rotation.z=0.1+Math.sin(t*4)*0.04;
+browR.rotation.z=-0.1-Math.sin(t*4)*0.04;
+browL.position.y=0.1+Math.sin(t*3)*0.003;
+browR.position.y=0.1+Math.sin(t*3+0.5)*0.003;
+}
+if(cheekL){cheekL.material.opacity=0.3+Math.sin(t*5)*0.1;cheekR.material.opacity=0.3+Math.sin(t*5+0.3)*0.1;}
+}else{
+if(mouthObj){
+mouthObj.scale.set(1+Math.sin(t*0.5)*0.1,0.55+Math.sin(t*0.3)*0.05,1);
+mouthObj.position.y=-0.04;
+}
+if(browL){
+browL.rotation.z+=(0.1-browL.rotation.z)*0.06;
+browR.rotation.z+=(-0.1-browR.rotation.z)*0.06;
+browL.position.y+=(0.1-browL.position.y)*0.06;
+browR.position.y+=(0.1-browR.position.y)*0.06;
+}
+}
+
+eyeCurrent.x+=(eyeTarget.x-eyeCurrent.x)*0.1;
+eyeCurrent.y+=(eyeTarget.y-eyeCurrent.y)*0.1;
+[eyeL,eyeR].forEach(eye=>{
+if(eye&&eye.children[1]){
+eye.children[1].position.x=eyeCurrent.x;
+eye.children[1].position.y=eyeCurrent.y*0.8;
+eye.children[2].position.x=eyeCurrent.x;
+eye.children[2].position.y=eyeCurrent.y*0.8;
+}
+});
+
+ring1.rotation.z=t*0.15;ring2.rotation.z=-t*0.1;
+ring1.material.emissiveIntensity=0.3+Math.sin(t*3)*0.1;
+ring2.material.emissiveIntensity=0.2+Math.sin(t*3+1)*0.1;
+
+accentLight.intensity=0.5+Math.sin(t*2)*0.2;
+
+const sp=sparkles.geometry.attributes.position.array;
+for(let i=0;i<sparkleCount;i++){
+sp[i*3]+=sparkleVel[i].x+Math.sin(t*2+sparkleVel[i].phase)*0.001;
+sp[i*3+1]+=sparkleVel[i].y;
+sp[i*3+2]+=sparkleVel[i].z+Math.cos(t*2+sparkleVel[i].phase)*0.001;
+if(sp[i*3+1]>1.5){sp[i*3]=(Math.random()-0.5)*2;sp[i*3+1]=-0.2;sp[i*3+2]=(Math.random()-0.5)*2;}
+}
+sparkles.geometry.attributes.position.needsUpdate=true;
+sparkleMat.opacity=0.4+Math.sin(t*3)*0.15;
+
+filmPass.uniforms.time.value=t*80;
+controls.update();
+composer.render();
+}
+animate();
+
+window.addEventListener('resize',()=>{
+camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
+renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight);
+});
+</script>
+</body>
+</html>
